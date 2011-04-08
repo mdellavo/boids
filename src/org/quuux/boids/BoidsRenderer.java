@@ -4,19 +4,39 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLU;
+import android.util.Log;
 
 public class BoidsRenderer implements GLWallpaperService.Renderer {
+    private static final String TAG = "BoidsRenderer";
 
     // Used for Lighting
     private static float[] ambientComponent0 = {0.3f, 0.3f, 1.0f, 1.0f};
     private static float[] diffuseComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
     private static float[] lightPosition0 =    {1f, 1f, -1f, 0f};
 
+    private Flock flock;
+
+    private long last;
+
+    public BoidsRenderer(Flock flock) {
+        super();
+        this.flock = flock;
+    }
+    
     public void onDrawFrame(GL10 gl) {
+        long now = System.currentTimeMillis();
+        long elapsed = now - last;
+
+        //Log.d(TAG, "elapsed: " + elapsed);
+
         gl.glClearColor(0.2f, 0.6f, 0.2f, 1f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         // TODO tick flock adn draw
+        flock.tick(elapsed);
+        flock.draw(gl);
+
+        last = now;
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -48,6 +68,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glLightModelfv(GL10.GL_LIGHT_MODEL_AMBIENT, ambientLightRGB, 0);
 
         // TODO init flock
+        flock.init(gl);
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {

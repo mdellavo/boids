@@ -28,7 +28,21 @@ public class Flock {
     }
 
     public void tick(long elapsed) {
-        for(int i=0; i<boids.length; i++);
+        for(int i=0; i<boids.length; i++) {
+            v1 = averagePosition(i, v1);
+            v2 = avoid(i, v2);
+            v3 = averageVelocity(i, v3);
+            
+            // FIXME 
+            v1.scale(0.01f);
+            v3.scale(0.125f);
+
+            boids[i].velocity.add(v1);
+            boids[i].velocity.add(v2);
+            boids[i].velocity.add(v3);
+
+            boids[i].position.add(boids[i].velocity);
+        }
     }
 
     public void draw(GL10 gl) {
@@ -46,23 +60,27 @@ public class Flock {
         return tmp;
     }
 
-    private Vector3 averagePosition(int b) {
-        Vector3 position = sumPositions(b);
-        v1.copy(position);
-        v1.scale((float)1.0/boids.length);
-        return v1;
+    private Vector3 averagePosition(int b, Vector3 v) {
+        v.copy(sumPositions(b));
+        v.scale((float)1.0/boids.length);
+        return v;
     }
 
     // Rule 2 - Maintain seperation
-    private Vector3 avoid(int b) {
-        v2.zero();
+    private Vector3 avoid(int b, Vector3 v) {
+        v.zero();
         
         for(int i=0; i<boids.length; i++) {
             if(i != b) {
+                tmp.copy(boids[i].position);
+                tmp.subtract(boids[b].position);
+
+                if(tmp.magnitude() < 100f)
+                    v.subtract(tmp);
             }
         }
 
-        return v2;
+        return v;
     }
 
     // Rule 3 - match the average velocity of other boids
@@ -76,11 +94,10 @@ public class Flock {
         return tmp;
     }
 
-    private Vector3 averageVelocity(int b) {        
-        Vector3 velocity = sumVelocities(b);
-        v3.copy(velocity);
-        v3.scale((float)1.0/boids.length);
-        return v3;
+    private Vector3 averageVelocity(int b, Vector3 v) {
+        v.copy(sumVelocities(b));
+        v.scale((float)1.0/boids.length);
+        return v;
     }
 
 }
