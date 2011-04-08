@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="org.quuux.boids"
+      android:versionCode="1"
+      android:versionName="1.0">
+
+  <service android:label="@string/service_name" 
+           android:name=".BoidsWallpaperService"
+           android:permission="android.permission.BIND_WALLPAPER">
+    <intent-filter>
+      <action android:name="android.service.wallpaper.WallpaperService" />
+    </intent-filter>
+    <meta-data android:name="android.service.wallpaper"
+               android:resource="@xml/boids_wallpaper" />
+  </service>
+
+</manifest> 
+
