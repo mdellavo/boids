@@ -32,6 +32,9 @@ public class Flock {
         for(int i=0; i<num; i++)
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
+                                RandomGenerator.randomRange(-1, 1),
+                                RandomGenerator.randomRange(-1, 1), 
+                                RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
@@ -77,28 +80,29 @@ public class Flock {
             rule4(i);
 
             // FIXME 
-            v1.scale(.001f);
-            v3.scale(.075f);
+            v1.scale(.01f);
+            v3.scale(.75f);
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
             // Log.d(TAG, "v3=" + v3);
+            // Log.d(TAG, "v4=" + v4);
 
             // Combine components
             boids[i].velocity.add(v1);
             boids[i].velocity.add(v2);
             boids[i].velocity.add(v3);
+            boids[i].velocity.add(v4);
 
             // limit velocity
             boids[i].velocity.normalize();
-            boids[i].velocity.scale(5f);
 
-            boids[i].velocity.add(v4);
+            boids[i].velocity.scale(5f);
 
             // apply velocity to position
             boids[i].position.add(boids[i].velocity);
             
-            //Log.d(TAG, boids[i].toString());
+            // Log.d(TAG, boids[i].toString());
             
             // update buffers
             vertices.put(boids[i].position.x);
@@ -142,21 +146,37 @@ public class Flock {
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);        
     }
 
+    private boolean inRange(Boid a, Boid b) {
+        return true;
+        // tmp.zero();
+        // tmp.add(a.position);
+        // tmp.subtract(b.position);
+        // return tmp.magnitude() < 10;
+    }
+
     // Rule 1 - match the average position of other boids
     private void rule1(int b) {
+        int count = 0;
+
         v1.zero();
 
-        for(int i=0; i<boids.length; i++)
-            if(i != b)
+        for(int i=0; i<boids.length; i++) {
+            if(i != b && inRange(boids[b], boids[i])) {
                 v1.add(boids[i].position);
+                count++;
+            }
+        }
 
-        v1.scale((float)1.0/(boids.length-1));        
+        if(count>0) {
+            v1.scale((float)1.0/count);        
+            v1.normalize();
+        }
     }
 
     // Rule 2 - Maintain seperation
-    private void rule2(int b) {
+    private void rule2(int b) {               
         for(int i=0; i<boids.length; i++) {
-            if(i != b) {
+            if(i != b && inRange(boids[b], boids[i])) {
                 tmp.zero();       
                 tmp.add(boids[i].position);
                 tmp.subtract(boids[b].position);
@@ -165,17 +185,27 @@ public class Flock {
                     v2.subtract(tmp);
             }
         }
+
+        v2.normalize();
     }
 
     // Rule 3 - match the average velocity of other boids
     private void rule3(int b) {
+        int count = 0;
+
         v3.zero();
 
-        for(int i=0; i<boids.length; i++)
-            if(i != b)
+        for(int i=0; i<boids.length; i++) {
+            if(i != b && inRange(boids[b], boids[i])) {
                 v3.add(boids[i].velocity);
-        
-        v3.scale((float)1.0/(boids.length-1));
+                count++;
+            }
+        }
+
+        if(count>0) {
+            v3.scale((float)1.0/count);
+            v3.normalize();
+        }
     }
 
     // Rule 4 - keep within bounds
@@ -183,16 +213,16 @@ public class Flock {
         v4.zero();
 
         if(boids[b].position.x < -100)
-            v4.x = 10;
+            v4.x = 2;
         else if(boids[b].position.x > 100)
-            v4.x = -10;
-        else if(boids[b].position.y < -250)
-            v4.y = 10;
-        else if(boids[b].position.y > 250)
-            v4.y = -10;
-        else if(boids[b].position.z < -250)
-            v4.z = 10;
-        else if(boids[b].position.z > 250)
-            v4.z = -10;
+            v4.x = -2;
+        else if(boids[b].position.y < -100)
+            v4.y = 2;
+        else if(boids[b].position.y > 100)
+            v4.y = -2;
+        else if(boids[b].position.z < -100)
+            v4.z = 2;
+        else if(boids[b].position.z > 100)
+            v4.z = -2;
     }
 }

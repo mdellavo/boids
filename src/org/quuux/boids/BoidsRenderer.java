@@ -69,7 +69,6 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glEnable(GL10.GL_TEXTURE_2D);
 
         gl.glEnable(GL10.GL_BLEND);
-        gl.glEnable(GL10.GL_DEPTH_TEST);
 
         //Turn on culling, so OpenGL only draws one side of the primitives
         gl.glEnable(GL10.GL_CULL_FACE);
@@ -84,15 +83,15 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         GLHelper.init(gl);
     }
     private void setupLightSources(GL10 gl) {
-        //Enable Light source 0
-        gl.glEnable(GL10.GL_LIGHT0);
+        // //Enable Light source 0
+        // gl.glEnable(GL10.GL_LIGHT0);
 
-        //Useful part of the Arrays start a 0
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientComponent0, 0);
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseComponent0, 0);
+        // //Useful part of the Arrays start a 0
+        // gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientComponent0, 0);
+        // gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseComponent0, 0);
 
-        //Position the light in the scene
-        gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPosition0, 0);
+        // //Position the light in the scene
+        // gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPosition0, 0);
     }
 
     public void release() {
