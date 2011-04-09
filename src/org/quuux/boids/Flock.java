@@ -137,7 +137,7 @@ public class Flock {
 
     private Vector3 averagePosition(int b, Vector3 v) {
         v.copy(sumPositions(b));
-        v.scale((float)1.0/boids.length);
+        v.scale((float)1.0/(boids.length-1);
         return v;
     }
 
@@ -171,7 +171,7 @@ public class Flock {
 
     private Vector3 averageVelocity(int b, Vector3 v) {
         v.copy(sumVelocities(b));
-        v.scale((float)1.0/boids.length);
+        v.scale((float)1.0/(boids.length-1));
         return v;
     }
 
