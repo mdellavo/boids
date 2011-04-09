@@ -15,7 +15,7 @@ public class Camera {
     protected float zfar;
 
     public Camera() {
-        eye = new Vector3(0, 0, 25);
+        eye = new Vector3(0, 0, 500);
         center = new Vector3(0, 0, 0);
         up = new Vector3(0f, 1f, 0f);    
         rotation = new Vector3(0, 0, 0);

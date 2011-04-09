@@ -22,7 +22,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public BoidsEngine() {
             super();
 
-            renderer = new BoidsRenderer(new Flock(100));
+            renderer = new BoidsRenderer(new Flock(150));
             setRenderer(renderer);
             setRenderMode(RENDERMODE_CONTINUOUSLY);
         }

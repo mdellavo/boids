@@ -10,7 +10,7 @@ import java.nio.FloatBuffer;
 
 public class Flock {
     private static final String TAG = "Flock";
-
+    
     protected Boid boids[];
 
     protected Texture texture;
@@ -24,12 +24,15 @@ public class Flock {
     private Vector3 v1;
     private Vector3 v2;
     private Vector3 v3;
+    private Vector3 v4;
 
     public Flock(int num) {
         boids = new Boid[num];
 
         for(int i=0; i<num; i++)
-            boids[i] = new Boid();
+            boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
+                                RandomGenerator.randomRange(-1, 1),
+                                RandomGenerator.randomRange(-1, 1));
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
@@ -39,6 +42,7 @@ public class Flock {
         v1 = new Vector3();
         v2 = new Vector3();
         v3 = new Vector3();
+        v4 = new Vector3();
 
         texture = TextureLoader.get("plasma");
     }
@@ -56,7 +60,8 @@ public class Flock {
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T,
                            GL10.GL_REPEAT);
         
-        gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES, GL11.GL_TRUE);
+        gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
+                     GL11.GL_TRUE);
     }
 
     public void tick(long elapsed) {
@@ -66,22 +71,35 @@ public class Flock {
         sizes.clear();
 
         for(int i=0; i<boids.length; i++) {
-            v1 = averagePosition(i, v1);
-            v2 = avoid(i, v2);
-            v3 = averageVelocity(i, v3);
-            
-            // FIXME 
-            v1.scale(0.01f);
-            v3.scale(0.125f);
+            rule1(i);
+            rule2(i);
+            rule3(i);
+            rule4(i);
 
+            // FIXME 
+            v1.scale(.001f);
+            v3.scale(.075f);
+
+            // Log.d(TAG, "v1=" + v1);
+            // Log.d(TAG, "v2=" + v2);
+            // Log.d(TAG, "v3=" + v3);
+
+            // Combine components
             boids[i].velocity.add(v1);
             boids[i].velocity.add(v2);
             boids[i].velocity.add(v3);
 
+            // limit velocity
+            boids[i].velocity.normalize();
+            boids[i].velocity.scale(5f);
+
+            boids[i].velocity.add(v4);
+
+            // apply velocity to position
             boids[i].position.add(boids[i].velocity);
-
-            Log.d(TAG, "ticked " + boids[i]);
-
+            
+            //Log.d(TAG, boids[i].toString());
+            
             // update buffers
             vertices.put(boids[i].position.x);
             vertices.put(boids[i].position.y);
@@ -92,7 +110,7 @@ public class Flock {
             colors.put(1);
             colors.put(1);
 
-            sizes.put(50);
+            sizes.put(5);
         }
 
         vertices.position(0);
@@ -125,54 +143,56 @@ public class Flock {
     }
 
     // Rule 1 - match the average position of other boids
-    private Vector3 sumPositions(int b) {
-        tmp.zero();
+    private void rule1(int b) {
+        v1.zero();
 
         for(int i=0; i<boids.length; i++)
             if(i != b)
-                tmp.add(boids[i].position);
-        
-        return tmp;
-    }
+                v1.add(boids[i].position);
 
-    private Vector3 averagePosition(int b, Vector3 v) {
-        v.copy(sumPositions(b));
-        v.scale((float)1.0/(boids.length-1);
-        return v;
+        v1.scale((float)1.0/(boids.length-1));        
     }
 
     // Rule 2 - Maintain seperation
-    private Vector3 avoid(int b, Vector3 v) {
-        v.zero();
-        
+    private void rule2(int b) {
         for(int i=0; i<boids.length; i++) {
             if(i != b) {
-                tmp.copy(boids[i].position);
+                tmp.zero();       
+                tmp.add(boids[i].position);
                 tmp.subtract(boids[b].position);
 
                 if(tmp.magnitude() < 100f)
-                    v.subtract(tmp);
+                    v2.subtract(tmp);
             }
         }
-
-        return v;
     }
 
     // Rule 3 - match the average velocity of other boids
-    private Vector3 sumVelocities(int b) {
-        tmp.zero();
+    private void rule3(int b) {
+        v3.zero();
 
         for(int i=0; i<boids.length; i++)
             if(i != b)
-                tmp.add(boids[i].velocity);
+                v3.add(boids[i].velocity);
         
-        return tmp;
+        v3.scale((float)1.0/(boids.length-1));
     }
 
-    private Vector3 averageVelocity(int b, Vector3 v) {
-        v.copy(sumVelocities(b));
-        v.scale((float)1.0/(boids.length-1));
-        return v;
-    }
+    // Rule 4 - keep within bounds
+    private void rule4(int b) {
+        v4.zero();
 
+        if(boids[b].position.x < -100)
+            v4.x = 10;
+        else if(boids[b].position.x > 100)
+            v4.x = -10;
+        else if(boids[b].position.y < -250)
+            v4.y = 10;
+        else if(boids[b].position.y > 250)
+            v4.y = -10;
+        else if(boids[b].position.z < -250)
+            v4.z = 10;
+        else if(boids[b].position.z > 250)
+            v4.z = -10;
+    }
 }
