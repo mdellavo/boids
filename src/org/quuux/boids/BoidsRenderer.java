@@ -14,12 +14,13 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     private static float[] diffuseComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
     private static float[] lightPosition0 =    {1f, 1f, -1f, 0f};
 
+    private Camera camera;
     private Flock flock;
-
     private long last;
 
     public BoidsRenderer(Flock flock) {
         super();
+        this.camera = new Camera();
         this.flock = flock;
     }
     
@@ -29,10 +30,11 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         //Log.d(TAG, "elapsed: " + elapsed);
 
-        gl.glClearColor(0.2f, 0.6f, 0.2f, 1f);
+        gl.glClearColor(0f, 0f, 0f, 1f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         // TODO tick flock adn draw
+        camera.tick(elapsed);
         flock.tick(elapsed);
         flock.draw(gl);
 
@@ -40,34 +42,13 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        gl.glMatrixMode(GL10.GL_PROJECTION);
-        gl.glLoadIdentity();
-        GLU.gluPerspective(gl, 60f, (float)width/(float)height, 1f, 100f);
-
-        gl.glMatrixMode(GL10.GL_MODELVIEW);
-        gl.glLoadIdentity();
-
-        gl.glMatrixMode(GL10.GL_MODELVIEW);
-        gl.glTranslatef(0, 0, -5);
-        gl.glRotatef(30f, 1, 0, 0);
-
-        gl.glEnable(GL10.GL_LIGHTING);
-        gl.glEnable(GL10.GL_RESCALE_NORMAL);
-        gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
-
-        //Set the color of light bouncing off of surfaces to respect
-        //the surface color
-        gl.glEnable(GL10.GL_COLOR_MATERIAL);
 
         setupLightSources(gl);
 
         // Turn on a global ambient light. The "Cosmic Background
         // Radiation", if you will.
 
-        float[] ambientLightRGB = {0.3f, 0.3f, 0.3f, 1.0f};
-        gl.glLightModelfv(GL10.GL_LIGHT_MODEL_AMBIENT, ambientLightRGB, 0);
-
-        // TODO init flock
+        camera.init(gl, width, height);
         flock.init(gl);
     }
 
@@ -75,6 +56,20 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glClearDepthf(1f);
         gl.glEnable(GL10.GL_DEPTH_TEST);
         gl.glDepthFunc(GL10.GL_LEQUAL);
+
+        gl.glShadeModel(GL10.GL_SMOOTH);
+
+        gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_LINEAR);
+
+        gl.glTexEnvf(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, 
+                     GL10.GL_MODULATE);
+
+        gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+        gl.glEnable(GL10.GL_TEXTURE_2D);
+
+        gl.glEnable(GL10.GL_BLEND);
+        gl.glEnable(GL10.GL_DEPTH_TEST);
 
         //Turn on culling, so OpenGL only draws one side of the primitives
         gl.glEnable(GL10.GL_CULL_FACE);
@@ -100,10 +95,6 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPosition0, 0);
     }
 
-    /**
-     * Called when the engine is destroyed. Do any necessary clean up because
-     * at this point your renderer instance is now done for.
-     */
     public void release() {
 
     }

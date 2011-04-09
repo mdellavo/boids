@@ -4,15 +4,21 @@
       android:versionCode="1"
       android:versionName="1.0">
 
-  <service android:label="@string/service_name" 
-           android:name=".BoidsWallpaperService"
-           android:permission="android.permission.BIND_WALLPAPER">
-    <intent-filter>
-      <action android:name="android.service.wallpaper.WallpaperService" />
-    </intent-filter>
-    <meta-data android:name="android.service.wallpaper"
-               android:resource="@xml/boids_wallpaper" />
-  </service>
+  <uses-sdk android:minSdkVersion="7" />
+  <uses-feature android:name="android.software.live_wallpaper" />
 
+  <application
+     android:label="@string/service_name">
+
+    <service android:label="@string/service_name" 
+             android:name=".BoidsWallpaperService"
+             android:permission="android.permission.BIND_WALLPAPER">
+      <intent-filter>
+        <action android:name="android.service.wallpaper.WallpaperService" />
+      </intent-filter>
+      <meta-data android:name="android.service.wallpaper"
+                 android:resource="@xml/boids_wallpaper" />
+    </service>
+  </application>
 </manifest> 
 
