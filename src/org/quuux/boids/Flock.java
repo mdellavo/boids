@@ -3,6 +3,8 @@ package org.quuux.boids;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import android.graphics.Color;
+
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
@@ -11,7 +13,7 @@ import java.nio.FloatBuffer;
 public class Flock {
     private static final String TAG = "Flock";
 
-    private static final float MAX_SIZE     = 100f;
+    private static final float MAX_SIZE     = 50f;
     private static final float MAX_VELOCITY = 5f;
     
     protected Boid boids[];
@@ -31,14 +33,26 @@ public class Flock {
 
     public Flock(int num) {
         boids = new Boid[num];
-
-        for(int i=0; i<num; i++)
+        
+        float hsv[] = new float[4];
+        for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
+
+            hsv[0] = RandomGenerator.randomRange(0, 360);
+            hsv[1] = 1f;
+            hsv[2] = 1f;
+
+            int color = Color.HSVToColor(64, hsv);
+            boids[i].color.r = Color.red(color);
+            boids[i].color.g = Color.green(color);
+            boids[i].color.b = Color.blue(color);
+            boids[i].color.a = Color.alpha(color);
+        }
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
@@ -86,9 +100,16 @@ public class Flock {
             rule4(i);
 
             // FIXME 
-            v1.scale(.01f);
-            v3.scale(.75f);
+            v1.scale(.001f);
+            v2.scale(.2f);
+            v3.scale(.125f);
 
+            // limit velocity
+            float len = boids[i].velocity.magnitude();
+            if(len > MAX_VELOCITY) {
+                boids[i].velocity.normalize();
+                boids[i].velocity.scale(MAX_VELOCITY);            
+            }
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
             // Log.d(TAG, "v3=" + v3);
@@ -100,27 +121,24 @@ public class Flock {
             boids[i].velocity.add(v3);
             boids[i].velocity.add(v4);
 
-            // limit velocity
-            boids[i].velocity.normalize();
-
-            boids[i].velocity.scale(MAX_VELOCITY);
-
             // apply velocity to position
             boids[i].position.add(boids[i].velocity);
             
             // Log.d(TAG, boids[i].toString());
             
             // update buffers
+
             vertices.put(boids[i].position.x);
             vertices.put(boids[i].position.y);
             vertices.put(boids[i].position.z);
 
-            colors.put(1);
-            colors.put(1);
-            colors.put(1);
-            colors.put(.4f);
+            colors.put(boids[i].color.r);
+            colors.put(boids[i].color.g);
+            colors.put(boids[i].color.b);
+            colors.put(boids[i].color.a);
 
-            sizes.put(boids[i].velocity.magnitude() / MAX_VELOCITY * MAX_SIZE);
+            sizes.put(MAX_SIZE);
+
         }
 
         vertices.position(0);
@@ -128,13 +146,13 @@ public class Flock {
         sizes.position(0);
     }
 
-    public void draw(GL10 gl) {
+    public void draw(GL10 gl) {        
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-        
+
         gl.glDepthMask(false);
 
         gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
@@ -145,19 +163,19 @@ public class Flock {
 
         gl.glDepthMask(true);
 
-        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
-        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);        
+         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+         gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
+         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
+         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
     }
 
     private boolean inRange(Boid a, Boid b) {
-        return true;
-        // tmp.zero();
-        // tmp.add(a.position);
-        // tmp.subtract(b.position);
-        // return tmp.magnitude() < 10;
+        //return true;
+        tmp.zero();
+        tmp.add(a.position);
+        tmp.subtract(b.position);
+        return tmp.magnitude() < 5;
     }
 
     // Rule 1 - match the average position of other boids
@@ -218,17 +236,17 @@ public class Flock {
     private void rule4(int b) {
         v4.zero();
 
-        if(boids[b].position.x < -100)
+        if(boids[b].position.x < -150)
             v4.x = 2;
-        else if(boids[b].position.x > 100)
+        else if(boids[b].position.x > 150)
             v4.x = -2;
-        else if(boids[b].position.y < -100)
+        else if(boids[b].position.y < -150)
             v4.y = 2;
-        else if(boids[b].position.y > 100)
+        else if(boids[b].position.y > 150)
             v4.y = -2;
-        else if(boids[b].position.z < -100)
+        else if(boids[b].position.z < -300)
             v4.z = 2;
-        else if(boids[b].position.z > 100)
+        else if(boids[b].position.z > 300)
             v4.z = -2;
     }
 }
