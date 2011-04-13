@@ -10,6 +10,9 @@ import java.nio.FloatBuffer;
 
 public class Flock {
     private static final String TAG = "Flock";
+
+    private static final float MAX_SIZE     = 100f;
+    private static final float MAX_VELOCITY = 5f;
     
     protected Boid boids[];
 
@@ -46,13 +49,16 @@ public class Flock {
         v2 = new Vector3();
         v3 = new Vector3();
         v4 = new Vector3();
-
-        texture = TextureLoader.get("plasma");
     }
 
     public void init(GL10 gl) {
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         
+        texture = TextureLoader.get("plasma");
+        texture.load(gl);
+
+        Log.d(TAG, "boid texture id: " + texture.id);
+
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, 
                            GL10.GL_NICEST);
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER,
@@ -97,7 +103,7 @@ public class Flock {
             // limit velocity
             boids[i].velocity.normalize();
 
-            boids[i].velocity.scale(5f);
+            boids[i].velocity.scale(MAX_VELOCITY);
 
             // apply velocity to position
             boids[i].position.add(boids[i].velocity);
@@ -112,9 +118,9 @@ public class Flock {
             colors.put(1);
             colors.put(1);
             colors.put(1);
-            colors.put(1);
+            colors.put(.4f);
 
-            sizes.put(5);
+            sizes.put(boids[i].velocity.magnitude() / MAX_VELOCITY * MAX_SIZE);
         }
 
         vertices.position(0);
@@ -128,8 +134,8 @@ public class Flock {
         gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-
-        gl.glDisable(GL10.GL_DEPTH_TEST);
+        
+        gl.glDepthMask(false);
 
         gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
         ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);
@@ -137,7 +143,7 @@ public class Flock {
         gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
         gl.glDrawArrays(GL10.GL_POINTS, 0, boids.length);
 
-        gl.glEnable(GL10.GL_DEPTH_TEST);
+        gl.glDepthMask(true);
 
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);

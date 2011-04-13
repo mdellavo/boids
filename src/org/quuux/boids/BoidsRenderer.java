@@ -33,7 +33,6 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glClearColor(0f, 0f, 0f, 1f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
-        // TODO tick flock adn draw
         camera.tick(elapsed);
         flock.tick(elapsed);
         flock.draw(gl);
@@ -50,6 +49,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         camera.init(gl, width, height);
         flock.init(gl);
+        GLHelper.init(gl);
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -79,8 +79,6 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         //Do not draw the backs of primitives
         gl.glCullFace(GL10.GL_BACK);
-
-        GLHelper.init(gl);
     }
     private void setupLightSources(GL10 gl) {
         // //Enable Light source 0

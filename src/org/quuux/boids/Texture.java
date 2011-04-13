@@ -35,8 +35,8 @@ public class Texture {
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T,
                            GL10.GL_REPEAT);
 
-        bitmap.recycle();
-        bitmap = null;
+        //bitmap.recycle();
+        //bitmap = null;
 
         loaded = true;
     }

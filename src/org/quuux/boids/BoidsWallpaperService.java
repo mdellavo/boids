@@ -7,9 +7,7 @@ package org.quuux.boids;
 public class BoidsWallpaperService extends GLWallpaperService {
     public BoidsWallpaperService() {
         super();
-
         TextureLoader.init(this);
-        
     }
     public Engine onCreateEngine() {
         BoidsEngine engine = new BoidsEngine();
