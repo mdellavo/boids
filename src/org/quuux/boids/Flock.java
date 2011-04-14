@@ -13,9 +13,25 @@ import java.nio.FloatBuffer;
 public class Flock {
     private static final String TAG = "Flock";
 
-    private static final float MAX_SIZE     = 50f;
-    private static final float MAX_VELOCITY = 5f;
-    
+    private static final float MAX_SIZE         = 50f;
+    private static final float MAX_VELOCITY     = 5f;
+    private static final float RANGE            = 5f;
+    private static final float REBOUND_VELOCITY = 2f;
+
+    private static final float MIN_X = -200f;
+    private static final float MAX_X = 200f;
+    private static final float MIN_Y = -200f;
+    private static final float MAX_Y = 200f;
+    private static final float MIN_Z = -300f;
+    private static final float MAX_Z = 300f;
+
+    private static final float SCALE_V1 = .001f;
+    private static final float SCALE_V2 = .2f;
+    private static final float SCALE_V3 = .125f;
+
+    private static final float MIN_SIZE   = 10f;
+    private static final float SIZE_SCALE = 100f;
+
     protected Boid boids[];
 
     protected Texture texture;
@@ -31,10 +47,12 @@ public class Flock {
     private Vector3 v3;
     private Vector3 v4;
 
+    private float color[] = new float[4];
+    private int frame;
+
     public Flock(int num) {
         boids = new Boid[num];
         
-        float hsv[] = new float[4];
         for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
@@ -42,16 +60,6 @@ public class Flock {
                                 RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
-
-            hsv[0] = RandomGenerator.randomRange(0, 360);
-            hsv[1] = 1f;
-            hsv[2] = 1f;
-
-            int color = Color.HSVToColor(64, hsv);
-            boids[i].color.r = Color.red(color);
-            boids[i].color.g = Color.green(color);
-            boids[i].color.b = Color.blue(color);
-            boids[i].color.a = Color.alpha(color);
         }
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
@@ -88,6 +96,16 @@ public class Flock {
     }
 
     public void tick(long elapsed) {
+        frame++;
+
+        color[0] = frame % 360;
+        color[1] = 1f;
+        color[2] = 1f;
+
+        int rgb = Color.HSVToColor(color);
+        int red = Color.red(rgb);
+        int green = Color.green(rgb);
+        int blue = Color.blue(rgb);
 
         vertices.clear();
         colors.clear();
@@ -100,9 +118,9 @@ public class Flock {
             rule4(i);
 
             // FIXME 
-            v1.scale(.001f);
-            v2.scale(.2f);
-            v3.scale(.125f);
+            v1.scale(SCALE_V1);
+            v2.scale(SCALE_V2);
+            v3.scale(SCALE_V3);
 
             // limit velocity
             float len = boids[i].velocity.magnitude();
@@ -132,13 +150,14 @@ public class Flock {
             vertices.put(boids[i].position.y);
             vertices.put(boids[i].position.z);
 
-            colors.put(boids[i].color.r);
-            colors.put(boids[i].color.g);
-            colors.put(boids[i].color.b);
-            colors.put(boids[i].color.a);
-
-            sizes.put(MAX_SIZE);
-
+            colors.put(red);
+            colors.put(green);
+            colors.put(blue);
+            colors.put(.4f);
+         
+            float size = MIN_SIZE + (boids[i].position.z - MIN_Z) / 
+                (MAX_Z - MIN_Z) * SIZE_SCALE;
+            sizes.put(size);
         }
 
         vertices.position(0);
@@ -175,7 +194,7 @@ public class Flock {
         tmp.zero();
         tmp.add(a.position);
         tmp.subtract(b.position);
-        return tmp.magnitude() < 5;
+        return tmp.magnitude() < RANGE;
     }
 
     // Rule 1 - match the average position of other boids
@@ -236,17 +255,17 @@ public class Flock {
     private void rule4(int b) {
         v4.zero();
 
-        if(boids[b].position.x < -150)
-            v4.x = 2;
-        else if(boids[b].position.x > 150)
-            v4.x = -2;
-        else if(boids[b].position.y < -150)
-            v4.y = 2;
-        else if(boids[b].position.y > 150)
-            v4.y = -2;
-        else if(boids[b].position.z < -300)
-            v4.z = 2;
-        else if(boids[b].position.z > 300)
-            v4.z = -2;
+        if(boids[b].position.x < MIN_X)
+            v4.x = REBOUND_VELOCITY;
+        else if(boids[b].position.x > MAX_X)
+            v4.x = -REBOUND_VELOCITY;
+        else if(boids[b].position.y < MIN_Y)
+            v4.y = REBOUND_VELOCITY;
+        else if(boids[b].position.y > MAX_Y)
+            v4.y = -REBOUND_VELOCITY;
+        else if(boids[b].position.z < MIN_Z)
+            v4.z = REBOUND_VELOCITY;
+        else if(boids[b].position.z > MAX_Z)
+            v4.z = -REBOUND_VELOCITY;
     }
 }
