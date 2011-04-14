@@ -16,7 +16,15 @@ public class Flock {
     private static final float MAX_SIZE         = 50f;
     private static final float MAX_VELOCITY     = 5f;
     private static final float RANGE            = 5f;
-    private static final float REBOUND_VELOCITY = 2f;
+    private static final float REBOUND_VELOCITY = .5f;
+    private static final float MIN_SIZE         = 10f;
+    private static final float SIZE_SCALE       = 100f;
+
+    private static final float SCALE_V1         = .001f;
+    private static final float SCALE_V2         = .2f;
+    private static final float SCALE_V3         = .125f;
+    private static final float SCALE_V4         = 1f;
+    private static final float SCALE_V5         = .001f;
 
     private static final float MIN_X = -200f;
     private static final float MAX_X = 200f;
@@ -24,13 +32,6 @@ public class Flock {
     private static final float MAX_Y = 200f;
     private static final float MIN_Z = -300f;
     private static final float MAX_Z = 300f;
-
-    private static final float SCALE_V1 = .001f;
-    private static final float SCALE_V2 = .2f;
-    private static final float SCALE_V3 = .125f;
-
-    private static final float MIN_SIZE   = 10f;
-    private static final float SIZE_SCALE = 100f;
 
     protected Boid boids[];
 
@@ -41,11 +42,12 @@ public class Flock {
     protected FloatBuffer colors;
 
     // preallocation so we dont trigger gc
-    private Vector3 tmp;
-    private Vector3 v1;
-    private Vector3 v2;
-    private Vector3 v3;
-    private Vector3 v4;
+    private Vector3 tmp = new Vector3();
+    private Vector3 v1 = new Vector3();
+    private Vector3 v2 = new Vector3();
+    private Vector3 v3 = new Vector3();
+    private Vector3 v4 = new Vector3();
+    private Vector3 v5 = new Vector3();
 
     private float color[] = new float[4];
     private int frame;
@@ -65,12 +67,6 @@ public class Flock {
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
         colors = GLHelper.floatBuffer(boids.length * 4);
-
-        tmp = new Vector3();
-        v1 = new Vector3();
-        v2 = new Vector3();
-        v3 = new Vector3();
-        v4 = new Vector3();
     }
 
     public void init(GL10 gl) {
@@ -116,18 +112,15 @@ public class Flock {
             rule2(i);
             rule3(i);
             rule4(i);
+            rule5(i);
 
             // FIXME 
             v1.scale(SCALE_V1);
             v2.scale(SCALE_V2);
             v3.scale(SCALE_V3);
+            v4.scale(SCALE_V4);
+            v5.scale(SCALE_V5);
 
-            // limit velocity
-            float len = boids[i].velocity.magnitude();
-            if(len > MAX_VELOCITY) {
-                boids[i].velocity.normalize();
-                boids[i].velocity.scale(MAX_VELOCITY);            
-            }
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
             // Log.d(TAG, "v3=" + v3);
@@ -138,6 +131,13 @@ public class Flock {
             boids[i].velocity.add(v2);
             boids[i].velocity.add(v3);
             boids[i].velocity.add(v4);
+            boids[i].velocity.add(v5);
+
+            // limit velocity
+            if(boids[i].velocity.magnitude() > MAX_VELOCITY) {
+                boids[i].velocity.normalize();
+                boids[i].velocity.scale(MAX_VELOCITY);            
+            }
 
             // apply velocity to position
             boids[i].position.add(boids[i].velocity);
@@ -190,7 +190,6 @@ public class Flock {
     }
 
     private boolean inRange(Boid a, Boid b) {
-        //return true;
         tmp.zero();
         tmp.add(a.position);
         tmp.subtract(b.position);
@@ -267,5 +266,11 @@ public class Flock {
             v4.z = REBOUND_VELOCITY;
         else if(boids[b].position.z > MAX_Z)
             v4.z = -REBOUND_VELOCITY;
+    }
+
+    // Rule 5 - tend towards center
+    private void rule5(int b) {
+        v5.zero();
+        v5.subtract(boids[b].position);
     }
 }
