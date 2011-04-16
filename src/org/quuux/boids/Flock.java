@@ -95,8 +95,8 @@ public class Flock {
         frame++;
 
         color[0] = frame % 360;
-        color[1] = 1f;
-        color[2] = 1f;
+        color[1] = .5f * (1 + (float)Math.sin(frame/16f));
+        color[2] = .5f * (1+ (float)Math.sin(frame/32f));
 
         //Log.d(TAG, "color: " + color[0]);
 
