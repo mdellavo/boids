@@ -20,8 +20,8 @@ public class Flock {
     private static final float MIN_SIZE         = 20f;
     private static final float SIZE_SCALE       = 200f;
 
-    private static final float SCALE_V1         = .001f;
-    private static final float SCALE_V2         = .5f;
+    private static final float SCALE_V1         = .1f;
+    private static final float SCALE_V2         = .25f;
     private static final float SCALE_V3         = .125f;
     private static final float SCALE_V4         = 1f;
     private static final float SCALE_V5         = .001f;
