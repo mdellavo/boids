@@ -8,6 +8,7 @@
   <uses-feature android:name="android.software.live_wallpaper" />
 
   <application
+     android:debuggable="true" 
      android:label="@string/service_name">
 
     <service android:label="@string/service_name" 

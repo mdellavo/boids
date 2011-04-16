@@ -110,13 +110,51 @@ public class Flock {
         sizes.clear();
 
         for(int i=0; i<boids.length; i++) {
-            rule1(i);
-            rule2(i);
-            rule3(i);
-            rule4(i);
-            rule5(i);
+            v1.zero();
+            v2.zero();
+            v3.zero();
+            v4.zero();
+            v5.zero();
+            
+            Boid a = boids[i];
+            int local_boids = 0;
+                
+            for(int j=0; j<boids.length; j++) {                
+                Boid b = boids[j];
 
-            // FIXME 
+                if(j != i && inRange(a, b)) {
+                    local_boids++;
+                    
+                    // Rule 1
+                    v1.add(b.position);
+
+                    // Rule 2
+                    tmp.zero();       
+                    tmp.add(b.position);
+                    tmp.subtract(a.position);
+
+                    if(tmp.magnitude() < 100f) // FIXME
+                        v2.subtract(tmp);                  
+                    
+                    // Rule 3
+                    v3.add(b.velocity);
+                }
+            }
+            
+            if(local_boids>0) {
+                // Rule 1
+                v1.scale((float)1.0/local_boids);
+                v1.normalize();
+
+                // Rule 3
+                v3.scale((float)1.0/local_boids);
+                v3.normalize();
+            }
+            
+            rule4(a);
+            rule5(a);
+
+            // Scale the results
             v1.scale(SCALE_V1);
             v2.scale(SCALE_V2);
             v3.scale(SCALE_V3);
@@ -129,35 +167,35 @@ public class Flock {
             // Log.d(TAG, "v4=" + v4);
 
             // Combine components
-            boids[i].velocity.add(v1);
-            boids[i].velocity.add(v2);
-            boids[i].velocity.add(v3);
-            boids[i].velocity.add(v4);
-            boids[i].velocity.add(v5);
+            a.velocity.add(v1);
+            a.velocity.add(v2);
+            a.velocity.add(v3);
+            a.velocity.add(v4);
+            a.velocity.add(v5);
 
             // limit velocity
-            if(boids[i].velocity.magnitude() > MAX_VELOCITY) {
-                boids[i].velocity.normalize();
-                boids[i].velocity.scale(MAX_VELOCITY);            
+            if(a.velocity.magnitude() > MAX_VELOCITY) {
+                a.velocity.normalize();
+                a.velocity.scale(MAX_VELOCITY);            
             }
 
             // apply velocity to position
-            boids[i].position.add(boids[i].velocity);
+            a.position.add(a.velocity);
             
-            // Log.d(TAG, boids[i].toString());
+            // Log.d(TAG, a.toString());
             
             // update buffers
 
-            vertices.put(boids[i].position.x);
-            vertices.put(boids[i].position.y);
-            vertices.put(boids[i].position.z);
+            vertices.put(a.position.x);
+            vertices.put(a.position.y);
+            vertices.put(a.position.z);
 
             colors.put(red);
             colors.put(green);
             colors.put(blue);
             colors.put(.4f);
          
-            float size = MIN_SIZE + (boids[i].position.z - MIN_Z) / 
+            float size = MIN_SIZE + (a.position.z - MIN_Z) / 
                 (MAX_Z - MIN_Z) * SIZE_SCALE;
             sizes.put(size);
         }
@@ -253,27 +291,24 @@ public class Flock {
     }
 
     // Rule 4 - keep within bounds
-    private void rule4(int b) {
-        v4.zero();
-
-        if(boids[b].position.x < MIN_X)
+    private void rule4(Boid b) {
+        if(b.position.x < MIN_X)
             v4.x = REBOUND_VELOCITY;
-        else if(boids[b].position.x > MAX_X)
+        else if(b.position.x > MAX_X)
             v4.x = -REBOUND_VELOCITY;
-        else if(boids[b].position.y < MIN_Y)
+        else if(b.position.y < MIN_Y)
             v4.y = REBOUND_VELOCITY;
-        else if(boids[b].position.y > MAX_Y)
+        else if(b.position.y > MAX_Y)
             v4.y = -REBOUND_VELOCITY;
-        else if(boids[b].position.z < MIN_Z)
+        else if(b.position.z < MIN_Z)
             v4.z = REBOUND_VELOCITY;
-        else if(boids[b].position.z > MAX_Z)
+        else if(b.position.z > MAX_Z)
             v4.z = -REBOUND_VELOCITY;
     }
 
     // Rule 5 - tend towards center
-    private void rule5(int b) {
-        v5.zero();
-        v5.z = -100f;
-        v5.subtract(boids[b].position);
+    private void rule5(Boid b) {
+        v5.z = -100; // FIXME
+        v5.subtract(b.position);
     }
 }
