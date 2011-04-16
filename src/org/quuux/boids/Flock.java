@@ -17,8 +17,8 @@ public class Flock {
     private static final float MAX_VELOCITY     = 5f;
     private static final float RANGE            = 5f;
     private static final float REBOUND_VELOCITY = .5f;
-    private static final float MIN_SIZE         = 10f;
-    private static final float SIZE_SCALE       = 100f;
+    private static final float MIN_SIZE         = 20f;
+    private static final float SIZE_SCALE       = 200f;
 
     private static final float SCALE_V1         = .001f;
     private static final float SCALE_V2         = .2f;
@@ -72,7 +72,7 @@ public class Flock {
     public void init(GL10 gl) {
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         
-        texture = TextureLoader.get("plasma");
+        texture = TextureLoader.get("boid");
         texture.load(gl);
 
         Log.d(TAG, "boid texture id: " + texture.id);
@@ -98,10 +98,12 @@ public class Flock {
         color[1] = 1f;
         color[2] = 1f;
 
+        //Log.d(TAG, "color: " + color[0]);
+
         int rgb = Color.HSVToColor(color);
-        int red = Color.red(rgb);
-        int green = Color.green(rgb);
-        int blue = Color.blue(rgb);
+        float red = (float)Color.red(rgb) / 255f;
+        float green = (float)Color.green(rgb) / 255f;
+        float blue = (float)Color.blue(rgb) / 255f;
 
         vertices.clear();
         colors.clear();
@@ -181,12 +183,12 @@ public class Flock {
         gl.glDrawArrays(GL10.GL_POINTS, 0, boids.length);
 
         gl.glDepthMask(true);
-
-         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-         gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
-         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
+        
+        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
+        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
+        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
     }
 
     private boolean inRange(Boid a, Boid b) {
@@ -271,6 +273,7 @@ public class Flock {
     // Rule 5 - tend towards center
     private void rule5(int b) {
         v5.zero();
+        v5.z = -100f;
         v5.subtract(boids[b].position);
     }
 }
