@@ -26,12 +26,12 @@ public class Flock {
     private static final float SCALE_V4         = 1f;
     private static final float SCALE_V5         = .0005f;
 
-    private static final float MIN_X = -200f;
-    private static final float MAX_X = 200f;
-    private static final float MIN_Y = -200f;
-    private static final float MAX_Y = 200f;
-    private static final float MIN_Z = -300f;
-    private static final float MAX_Z = 300f;
+    private static final float MIN_X = -1000f;
+    private static final float MAX_X = 1000f;
+    private static final float MIN_Y = -1000f;
+    private static final float MAX_Y = 1000f;
+    private static final float MIN_Z = -500f;
+    private static final float MAX_Z = 500f;
 
     protected Boid boids[];
 
