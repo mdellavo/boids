@@ -56,9 +56,9 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         if(total_elapsed > 1000) {          
             Log.d(TAG, "fps: " + frames);
             
-            if(frames < 59)
+            if(frames < 54)
                 flock.throttleDown();
-            else if(frames>=59)
+            else if(frames>=54)
                 flock.throttleUp();
                 
             total_elapsed = 0;

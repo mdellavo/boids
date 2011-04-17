@@ -10,6 +10,113 @@ import javax.microedition.khronos.opengles.GL11;
 
 import java.nio.FloatBuffer;
 
+import java.util.ArrayList;
+
+abstract class NeighborIterator {
+    public abstract boolean neighbor(Boid a, Boid b);
+}
+
+class FlockIndex {
+
+    protected ArrayList<Boid>[][][] index;
+
+    protected int cells;
+
+    protected int min_x;
+    protected int max_x;
+    protected int min_y;
+    protected int max_y;
+    protected int min_z;
+    protected int max_z;
+
+    public FlockIndex(int size, int cells, 
+                      int min_x, int max_x, 
+                      int min_y, int max_y, 
+                      int min_z, int max_z) {
+        
+        this.cells = cells;
+
+        this.min_x = min_x;
+        this.max_x = max_x;
+
+        this.min_y = min_y;
+        this.max_y = max_y;
+
+        this.min_z = min_z;
+        this.max_z = max_z;
+
+        index = new ArrayList[cells][cells][cells];
+
+        for(int i=0; i<cells; i++)
+            for(int j=0; j<cells; j++)
+                for(int k=0; k<cells; k++)
+                    index[i][j][k] = new ArrayList<Boid>(size);
+    }
+
+    protected ArrayList<Boid> getNeighboringCell(Boid b, int dx, int dy, int dz) {
+        int i = (int)Math.floor((b.position.x - min_x) / (max_x - min_x) * cells) + dx;
+        int j = (int)Math.floor((b.position.y - min_y) / (max_y - min_y) * cells) + dy;
+        int k = (int)Math.floor((b.position.z - min_z) / (max_z - min_z) * cells) + dz;
+
+        if(i < 0)
+            i = 0;
+        else if(i > cells - 1)
+            i = cells-1;
+
+        if(j < 0)
+            j = 0;
+        else if(j > cells - 1)
+            j = cells-1;
+
+        if(k < 0)
+            k = 0;
+        else if(k > cells - 1)
+            k = cells-1;
+
+        return index[i][j][k];
+    }
+
+    protected ArrayList<Boid> getCell(Boid b) {
+        return getNeighboringCell(b, 0, 0, 0);
+    }
+        
+    public void add(Boid b) {
+        ArrayList<Boid> cell = getCell(b);
+        if(cell.indexOf(b) == -1)
+            cell.add(b);
+    }
+
+    // FIXME clearing and readding might be easier/faster
+    public void remove(Boid b) {
+        ArrayList<Boid> cell = getCell(b);
+        int idx = cell.indexOf(b);
+        if(idx > -1)
+            cell.remove(idx);
+    }
+
+    public int neighbors(Boid b, NeighborIterator iter) {
+        int rv = 0;
+
+        for(int i=-1; i<2; i++) {
+            for(int j=-1; j<2; j++) {
+                for(int k=-1; k<2; k++) {
+                    ArrayList<Boid> cell = getNeighboringCell(b, i, j, k);
+                    if(cell != null) {
+                        int size = cell.size();
+                        
+                        for(int n=0; n<size; n++)
+                            if(iter.neighbor(b, cell.get(n)))
+                                rv++;
+                    }
+                }
+            }
+        }
+        
+        return rv;
+    }
+}
+
+// FIXME add alive to Boid itself
 public class Flock {
     private static final String TAG = "Flock";
 
@@ -28,15 +135,17 @@ public class Flock {
     private static final float SCALE_V5         = .0005f;
     private static final float SCALE_V6         = .01f;
 
-    private static final float MIN_X = -1000f;
-    private static final float MAX_X = 1000f;
-    private static final float MIN_Y = -1000f;
-    private static final float MAX_Y = 1000f;
+    private static final float MIN_X = -500f;
+    private static final float MAX_X = 500f;
+    private static final float MIN_Y = -500f;
+    private static final float MAX_Y = 500f;
     private static final float MIN_Z = -500f;
     private static final float MAX_Z = 500f;
 
     protected Boid boids[];
     protected int alive;
+
+    protected FlockIndex index;
 
     protected Texture texture;
 
@@ -45,50 +154,64 @@ public class Flock {
     protected FloatBuffer colors;
 
     // preallocation so we dont trigger gc
-    private Vector3 tmp = new Vector3();
-    private Vector3 v1 = new Vector3();
-    private Vector3 v2 = new Vector3();
-    private Vector3 v3 = new Vector3();
-    private Vector3 v4 = new Vector3();
-    private Vector3 v5 = new Vector3();
-    private Vector3 v6 = new Vector3();
+    final private Vector3 tmp = new Vector3();
+    final private Vector3 v1 = new Vector3();
+    final private Vector3 v2 = new Vector3();
+    final private Vector3 v3 = new Vector3();
+    final private Vector3 v4 = new Vector3();
+    final private Vector3 v5 = new Vector3();
+    final private Vector3 v6 = new Vector3();
 
-    private float color[] = new float[4];
+    final private float color[] = new float[4];
     private int frame;
 
     private long flee;
-    private Vector3 flee_from = new Vector3();
+    final private Vector3 flee_from = new Vector3();
     
     public Flock(int num) {
+        index = new FlockIndex(num, 25, 
+                               (int)MIN_X, (int)MAX_X, 
+                               (int)MIN_Y, (int)MAX_Y, 
+                               (int)MIN_Z, (int)MAX_Z);
+
         boids = new Boid[num];
         alive = num/2;
 
         for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
-                                RandomGenerat\or.randomRange(-1, 1),
+                                RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
             //boids[i].seed = RandomGenerator.randomInt(0, 1000000);
             boids[i].seed = 0;
+
+            index.add(boids[i]);
         }
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
         colors = GLHelper.floatBuffer(boids.length * 4);
     }
-
+    
     public void throttleUp() {
-        if(alive < boids.length)
+        if(alive < boids.length - 1) {
             alive++;
-
+            
+            Boid b = boids[alive];
+            index.add(b);
+        }
+        
         Log.d(TAG, "Throttle Up: alive = "  + alive);
     }
 
     public void throttleDown() {
-        if(alive > 0)
+        if(alive > 0) {
+            Boid b = boids[alive];
+            index.remove(b);
             alive--;
+        }
 
         Log.d(TAG, "Throttle Down: alive = "  + alive);
     }
@@ -135,37 +258,18 @@ public class Flock {
             v6.zero();
 
             Boid a = boids[i];
-            int local_boids = 0;
-                
-            for(int j=0; j<alive; j++) {                
-                Boid b = boids[j];
 
-                if(j != i && inRange(a, b)) {
-                    local_boids++;
-                    
-                    // Rule 1
-                    v1.add(b.position);
+            index.remove(a);
 
-                    // Rule 2
-                    tmp.zero();       
-                    tmp.add(b.position);
-                    tmp.subtract(a.position);
+            int neighbors = index.neighbors(a, neighbor_iterator);
 
-                    if(tmp.magnitude() < 100f) // FIXME
-                        v2.subtract(tmp);                  
-                    
-                    // Rule 3
-                    v3.add(b.velocity);
-                }
-            }
-            
-            if(local_boids>0) {
+            if(neighbors>0) {
                 // Rule 1
-                v1.scale((float)1.0/local_boids);
+                v1.scale((float)1.0/neighbors);
                 v1.normalize();
 
                 // Rule 3
-                v3.scale((float)1.0/local_boids);
+                v3.scale((float)1.0/neighbors);
                 v3.normalize();
             }
             
@@ -219,8 +323,9 @@ public class Flock {
             
             //Log.d(TAG, a.toString());
              
-            // update buffers
+            index.add(a);
 
+            // update buffers
             vertices.put(a.position.x);
             vertices.put(a.position.y);
             vertices.put(a.position.z);
@@ -248,6 +353,32 @@ public class Flock {
         colors.position(0);
         sizes.position(0);
     }
+
+    protected NeighborIterator neighbor_iterator = new NeighborIterator() {
+            public boolean neighbor(Boid a, Boid b) {
+                boolean rv = false;
+
+                if(inRange(a, b)) {
+                    // Rule 1
+                    v1.add(b.position);
+                    
+                    // Rule 2
+                    tmp.zero();       
+                    tmp.add(b.position);
+                    tmp.subtract(a.position);
+                    
+                    if(tmp.magnitude() < 100f) // FIXME
+                        v2.subtract(tmp);                  
+                    
+                    // Rule 3
+                    v3.add(b.velocity);
+
+                    rv = true;
+                }
+
+                return rv;
+            }
+        };
 
     public void draw(GL10 gl) {        
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);

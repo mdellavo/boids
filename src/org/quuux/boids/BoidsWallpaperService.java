@@ -35,7 +35,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
                     }
                 });
     
-            flock = new Flock(100);
+            flock = new Flock(150);
 
             renderer = new BoidsRenderer(flock);
             setRenderer(renderer);
@@ -64,6 +64,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         //     return null;
         // } 
 
+        // FIXME pull camera position
         public Vector3 projectTouchToWorld(float x, float y) {
             int width = renderer.getWidth();
             int height = renderer.getHeight();
