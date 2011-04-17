@@ -16,12 +16,12 @@ public class Flock {
     private static final float MAX_SIZE         = 50f;
     private static final float MAX_VELOCITY     = 5f;
     private static final float RANGE            = 10f;
-    private static final float REBOUND_VELOCITY = .5f;
+    private static final float REBOUND_VELOCITY = .01f;
     private static final float MIN_SIZE         = 20f;
     private static final float SIZE_SCALE       = 200f;
 
-    private static final float SCALE_V1         = .05f;
-    private static final float SCALE_V2         = .1f;
+    private static final float SCALE_V1         = .01f;
+    private static final float SCALE_V2         = .2f;
     private static final float SCALE_V3         = .125f;
     private static final float SCALE_V4         = 1f;
     private static final float SCALE_V5         = .0005f;
