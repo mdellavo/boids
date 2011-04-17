@@ -19,14 +19,14 @@ public class Flock {
     private static final float REBOUND_VELOCITY = .01f;
     private static final float MIN_SIZE         = 10f;
     private static final float SIZE_SCALE       = 100f;
-    private static final long FLEE_TIME         = 1000;
+    private static final long FLEE_TIME         = 2500;
 
     private static final float SCALE_V1         = .005f;
     private static final float SCALE_V2         = .5f;
     private static final float SCALE_V3         = .0675f;
     private static final float SCALE_V4         = 1f;
     private static final float SCALE_V5         = .0005f;
-    private static final float SCALE_V6         = .5f;
+    private static final float SCALE_V6         = .01f;
 
     private static final float MIN_X = -1000f;
     private static final float MAX_X = 1000f;
@@ -36,6 +36,7 @@ public class Flock {
     private static final float MAX_Z = 500f;
 
     protected Boid boids[];
+    protected int alive;
 
     protected Texture texture;
 
@@ -60,7 +61,8 @@ public class Flock {
     
     public Flock(int num) {
         boids = new Boid[num];
-        
+        alive = num;
+
         for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
@@ -74,6 +76,20 @@ public class Flock {
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
         colors = GLHelper.floatBuffer(boids.length * 4);
+    }
+
+    public void throttleUp() {
+        if(alive < boids.length)
+            alive++;
+
+        Log.d(TAG, "Throttle Up: alive = "  + alive);
+    }
+
+    public void throttleDown() {
+        if(alive > 0)
+            alive--;
+
+        Log.d(TAG, "Throttle Down: alive = "  + alive);
     }
 
     public void init(GL10 gl) {
@@ -109,7 +125,7 @@ public class Flock {
         colors.clear();
         sizes.clear();
 
-        for(int i=0; i<boids.length; i++) {
+        for(int i=0; i<alive; i++) {
             v1.zero();
             v2.zero();
             v3.zero();
@@ -120,7 +136,7 @@ public class Flock {
             Boid a = boids[i];
             int local_boids = 0;
                 
-            for(int j=0; j<boids.length; j++) {                
+            for(int j=0; j<alive; j++) {                
                 Boid b = boids[j];
 
                 if(j != i && inRange(a, b)) {
@@ -147,23 +163,21 @@ public class Flock {
                 v1.scale((float)1.0/local_boids);
                 v1.normalize();
 
-                // Rule 2
-                v2.normalize();
-
                 // Rule 3
                 v3.scale((float)1.0/local_boids);
                 v3.normalize();
             }
             
+            // Rule 4 - Bound
             rule4(a);
             rule5(a);
 
-            // Rule 6 - fleeing/scattering
-            if(flee>0) {
-                v1.scale(-10);
-                v2.scale(10);
-                rule6(a);
-            }
+            // if(flee>0) {
+            //     // Rule 6 - gather/scatter
+            //     rule6(a);
+            // } else {
+            //     // Rule 5 - Center
+            // }
 
             // Scale the results
             v1.scale(SCALE_V1);
@@ -192,11 +206,18 @@ public class Flock {
                 a.velocity.scale(MAX_VELOCITY);            
             }
 
+            // move independant of framerate
+            //Log.d(TAG, "elapsed=" + elapsed);
+            
+            tmp.zero();
+            tmp.copy(a.velocity);
+            tmp.scale(elapsed/60f);
+
             // apply velocity to position
-            a.position.add(a.velocity);
+            a.position.add(tmp);
             
-            // Log.d(TAG, a.toString());
-            
+            //Log.d(TAG, a.toString());
+             
             // update buffers
 
             vertices.put(a.position.x);
@@ -240,7 +261,7 @@ public class Flock {
         ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-        gl.glDrawArrays(GL10.GL_POINTS, 0, boids.length);
+        gl.glDrawArrays(GL10.GL_POINTS, 0, alive);
 
         gl.glDepthMask(true);
         
@@ -256,60 +277,6 @@ public class Flock {
         tmp.add(a.position);
         tmp.subtract(b.position);
         return tmp.magnitude() < RANGE;
-    }
-
-    // Rule 1 - match the average position of other boids
-    private void rule1(int b) {
-        int count = 0;
-
-        v1.zero();
-
-        for(int i=0; i<boids.length; i++) {
-            if(i != b && inRange(boids[b], boids[i])) {
-                v1.add(boids[i].position);
-                count++;
-            }
-        }
-
-        if(count>0) {
-            v1.scale((float)1.0/count);        
-            v1.normalize();
-        }
-    }
-
-    // Rule 2 - Maintain seperation
-    private void rule2(int b) {               
-        for(int i=0; i<boids.length; i++) {
-            if(i != b && inRange(boids[b], boids[i])) {
-                tmp.zero();       
-                tmp.add(boids[i].position);
-                tmp.subtract(boids[b].position);
-
-                if(tmp.magnitude() < 100f)
-                    v2.subtract(tmp);
-            }
-        }
-
-        v2.normalize();
-    }
-
-    // Rule 3 - match the average velocity of other boids
-    private void rule3(int b) {
-        int count = 0;
-
-        v3.zero();
-
-        for(int i=0; i<boids.length; i++) {
-            if(i != b && inRange(boids[b], boids[i])) {
-                v3.add(boids[i].velocity);
-                count++;
-            }
-        }
-
-        if(count>0) {
-            v3.scale((float)1.0/count);
-            v3.normalize();
-        }
     }
 
     // Rule 4 - keep within bounds
@@ -338,7 +305,6 @@ public class Flock {
     private void rule6(Boid b) {
         v6.copy(flee_from);
         v6.subtract(b.position);
-        v6.scale(-1);
     }
 
     public void scare(Vector3 p) {

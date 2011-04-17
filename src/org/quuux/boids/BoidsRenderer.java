@@ -53,8 +53,14 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         frames++;
         total_elapsed += elapsed;
-        if(total_elapsed > 1000) {
+        if(total_elapsed > 1000) {          
             Log.d(TAG, "fps: " + frames);
+            
+            if(frames < 59)
+                flock.throttleDown();
+            else if(frames>=59)
+                flock.throttleUp();
+                
             total_elapsed = 0;
             frames = 0;
         }
@@ -80,6 +86,8 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         camera.init(gl, width, height);
         flock.init(gl);
         GLHelper.init(gl);
+
+        last = System.currentTimeMillis();
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
