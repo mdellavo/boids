@@ -17,14 +17,16 @@ public class Flock {
     private static final float MAX_VELOCITY     = 5f;
     private static final float RANGE            = 10f;
     private static final float REBOUND_VELOCITY = .01f;
-    private static final float MIN_SIZE         = 20f;
-    private static final float SIZE_SCALE       = 200f;
+    private static final float MIN_SIZE         = 10f;
+    private static final float SIZE_SCALE       = 100f;
+    private static final long FLEE_TIME         = 1000;
 
     private static final float SCALE_V1         = .005f;
     private static final float SCALE_V2         = .5f;
-    private static final float SCALE_V3         = .125f;
+    private static final float SCALE_V3         = .0675f;
     private static final float SCALE_V4         = 1f;
     private static final float SCALE_V5         = .0005f;
+    private static final float SCALE_V6         = .5f;
 
     private static final float MIN_X = -1000f;
     private static final float MAX_X = 1000f;
@@ -48,10 +50,14 @@ public class Flock {
     private Vector3 v3 = new Vector3();
     private Vector3 v4 = new Vector3();
     private Vector3 v5 = new Vector3();
+    private Vector3 v6 = new Vector3();
 
     private float color[] = new float[4];
     private int frame;
 
+    private long flee;
+    private Vector3 flee_from = new Vector3();
+    
     public Flock(int num) {
         boids = new Boid[num];
         
@@ -97,6 +103,8 @@ public class Flock {
 
         //Log.d(TAG, "color: " + color[0]);
 
+        flee -= elapsed;
+
         vertices.clear();
         colors.clear();
         sizes.clear();
@@ -107,7 +115,8 @@ public class Flock {
             v3.zero();
             v4.zero();
             v5.zero();
-            
+            v6.zero();
+
             Boid a = boids[i];
             int local_boids = 0;
                 
@@ -149,12 +158,20 @@ public class Flock {
             rule4(a);
             rule5(a);
 
+            // Rule 6 - fleeing/scattering
+            if(flee>0) {
+                v1.scale(-10);
+                v2.scale(10);
+                rule6(a);
+            }
+
             // Scale the results
             v1.scale(SCALE_V1);
             v2.scale(SCALE_V2);
             v3.scale(SCALE_V3);
             v4.scale(SCALE_V4);
             v5.scale(SCALE_V5);
+            v6.scale(SCALE_V6);
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
@@ -167,6 +184,7 @@ public class Flock {
             a.velocity.add(v3);
             a.velocity.add(v4);
             a.velocity.add(v5);
+            a.velocity.add(v6);
 
             // limit velocity
             if(a.velocity.magnitude() > MAX_VELOCITY) {
@@ -314,5 +332,17 @@ public class Flock {
     private void rule5(Boid b) {
         v5.z = -100; // FIXME
         v5.subtract(b.position);
+    }
+
+    // Rule 6 - fleeing / scattering
+    private void rule6(Boid b) {
+        v6.copy(flee_from);
+        v6.subtract(b.position);
+        v6.scale(-1);
+    }
+
+    public void scare(Vector3 p) {
+        flee = FLEE_TIME;
+        flee_from.copy(p);
     }
 }

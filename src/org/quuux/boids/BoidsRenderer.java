@@ -21,10 +21,30 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     private long last;
     private long total_elapsed;
 
+    protected int width;
+    protected int height;
+    protected MatrixGrabber matrix_grabber = new MatrixGrabber();
+    
     public BoidsRenderer(Flock flock) {
         super();
         this.camera = new Camera();
         this.flock = flock;
+    }
+
+    public float[] getCurrentProjection() {
+        return matrix_grabber.mProjection;
+    }
+
+    public float[] getCurrentModelView() {
+        return matrix_grabber.mModelView;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
     
     public void onDrawFrame(GL10 gl) {
@@ -39,10 +59,12 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
             frames = 0;
         }
 
-        gl.glClearColor(0f, 0f, 0f, 1f);
+        gl.glClearColor(0f, 0f, 0f, .5f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         camera.tick(elapsed);
+        matrix_grabber.getCurrentState(gl);
+
         flock.tick(elapsed);
         flock.draw(gl);
 
@@ -50,11 +72,10 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        this.width = width;
+        this.height = height;
 
         setupLightSources(gl);
-
-        // Turn on a global ambient light. The "Cosmic Background
-        // Radiation", if you will.
 
         camera.init(gl, width, height);
         flock.init(gl);
@@ -90,6 +111,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         gl.glCullFace(GL10.GL_BACK);
     }
+
     private void setupLightSources(GL10 gl) {
         //Enable Light source 0
         gl.glEnable(GL10.GL_LIGHT0);
@@ -102,7 +124,5 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPosition0, 0);
     }
 
-    public void release() {
-
-    }
+    public void release() {}
 }
