@@ -15,16 +15,16 @@ public class Flock {
 
     private static final float MAX_SIZE         = 50f;
     private static final float MAX_VELOCITY     = 5f;
-    private static final float RANGE            = 50f;
+    private static final float RANGE            = 10f;
     private static final float REBOUND_VELOCITY = .5f;
     private static final float MIN_SIZE         = 20f;
     private static final float SIZE_SCALE       = 200f;
 
-    private static final float SCALE_V1         = .1f;
-    private static final float SCALE_V2         = .25f;
+    private static final float SCALE_V1         = .05f;
+    private static final float SCALE_V2         = .1f;
     private static final float SCALE_V3         = .125f;
     private static final float SCALE_V4         = 1f;
-    private static final float SCALE_V5         = .001f;
+    private static final float SCALE_V5         = .0005f;
 
     private static final float MIN_X = -200f;
     private static final float MAX_X = 200f;
@@ -62,6 +62,7 @@ public class Flock {
                                 RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
+            boids[i].seed = RandomGenerator.randomInt(0, 1000000);
         }
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
@@ -94,16 +95,7 @@ public class Flock {
     public void tick(long elapsed) {
         frame++;
 
-        color[0] = frame % 360;
-        color[1] = 1 + (float)Math.sin(frame/60f);
-        color[2] = .4f + .3333f*(1 + (float)Math.cos(frame/120f));
-
         //Log.d(TAG, "color: " + color[0]);
-
-        int rgb = Color.HSVToColor(color);
-        float red = (float)Color.red(rgb) / 255f;
-        float green = (float)Color.green(rgb) / 255f;
-        float blue = (float)Color.blue(rgb) / 255f;
 
         vertices.clear();
         colors.clear();
@@ -193,10 +185,19 @@ public class Flock {
             vertices.put(a.position.y);
             vertices.put(a.position.z);
 
+            color[0] = (a.seed + frame) % 360;
+            color[1] = 1 + (float)Math.sin((a.seed + frame)/60f);
+            color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + frame)/120f));
+        
+            int rgb = Color.HSVToColor(color);
+            float red = (float)Color.red(rgb) / 255f;
+            float green = (float)Color.green(rgb) / 255f;
+            float blue = (float)Color.blue(rgb) / 255f;
+
             colors.put(red);
             colors.put(green);
             colors.put(blue);
-            colors.put(.4f);
+            colors.put(1f);
          
             float size = MIN_SIZE + (a.position.z - MIN_Z) / 
                 (MAX_Z - MIN_Z) * SIZE_SCALE;
