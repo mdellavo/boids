@@ -61,16 +61,17 @@ public class Flock {
     
     public Flock(int num) {
         boids = new Boid[num];
-        alive = num;
+        alive = num/2;
 
         for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
-                                RandomGenerator.randomRange(-1, 1),
+                                RandomGenerat\or.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1));
-            boids[i].seed = RandomGenerator.randomInt(0, 1000000);
+            //boids[i].seed = RandomGenerator.randomInt(0, 1000000);
+            boids[i].seed = 0;
         }
 
         vertices = GLHelper.floatBuffer(boids.length * 3);
