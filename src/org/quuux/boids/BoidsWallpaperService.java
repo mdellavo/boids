@@ -35,7 +35,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
                     }
                 });
     
-            flock = new Flock(150);
+            flock = new Flock(500);
 
             renderer = new BoidsRenderer(flock);
             setRenderer(renderer);

@@ -69,4 +69,16 @@ public class Vector3 {
     public void subtract(Vector3 o) {
         subtract(o.x, o.y, o.z);
     }
+
+    public float component(int c) {
+        if(c == 0) return x;
+        else if(c == 1) return y;
+        else if(c == 2) return z;
+        else return 0;       
+    }
+
+    public float distance(Vector3 o) {
+        float sum_of_squares = (float)(Math.pow(x-o.x, 2)+Math.pow(y-o.y, 2)+Math.pow(z-o.z, 2));
+        return (float)Math.sqrt(sum_of_squares);
+    }
 }

@@ -50,7 +50,7 @@ class FlockIndex {
         for(int i=0; i<cells; i++)
             for(int j=0; j<cells; j++)
                 for(int k=0; k<cells; k++)
-                    index[i][j][k] = new ArrayList<Boid>(size);
+                    index[i][j][k] = new ArrayList<Boid>();
     }
 
     protected ArrayList<Boid> getNeighboringCell(Boid b, int dx, int dy, int dz) {
@@ -79,11 +79,18 @@ class FlockIndex {
     protected ArrayList<Boid> getCell(Boid b) {
         return getNeighboringCell(b, 0, 0, 0);
     }
+
+    public void clear() {
+        for(int i=0; i<index.length; i++)
+            for(int j=0; j<index[i].length; j++)
+                for(int k=0; k<index[i][j].length; k++)
+                    index[i][j][k].clear();
+    }
         
     public void add(Boid b) {
         ArrayList<Boid> cell = getCell(b);
-        if(cell.indexOf(b) == -1)
-            cell.add(b);
+        //if(cell.indexOf(b) == -1)
+        cell.add(b);
     }
 
     // FIXME clearing and readding might be easier/faster
@@ -162,6 +169,8 @@ public class Flock {
     final private Vector3 v5 = new Vector3();
     final private Vector3 v6 = new Vector3();
 
+    private KDTree tree;
+
     final private float color[] = new float[4];
     private int frame;
 
@@ -193,25 +202,20 @@ public class Flock {
         vertices = GLHelper.floatBuffer(boids.length * 3);
         sizes = GLHelper.floatBuffer(boids.length);
         colors = GLHelper.floatBuffer(boids.length * 4);
+
+        tree = new KDTree(num, 20);
     }
     
     public void throttleUp() {
-        if(alive < boids.length - 1) {
+        if(alive < boids.length - 1)
             alive++;
-            
-            Boid b = boids[alive];
-            index.add(b);
-        }
         
         Log.d(TAG, "Throttle Up: alive = "  + alive);
     }
 
     public void throttleDown() {
-        if(alive > 0) {
-            Boid b = boids[alive];
-            index.remove(b);
+        if(alive > 0)
             alive--;
-        }
 
         Log.d(TAG, "Throttle Down: alive = "  + alive);
     }
@@ -245,6 +249,10 @@ public class Flock {
 
         flee -= elapsed;
 
+        //XXX
+        //index.clear();
+        tree.add(boids);
+
         vertices.clear();
         colors.clear();
         sizes.clear();
@@ -258,19 +266,39 @@ public class Flock {
             v6.zero();
 
             Boid a = boids[i];
+            Boid neighbors[] = tree.findNeighbors(a);
+            int neighbor_count = 0;
 
-            index.remove(a);
+            for(int j=0; j<neighbors.length; j++) {
+                Boid b = boids[j];
+                
+                if(b != null){// && inRange(a, b)) {
+                    neighbor_count++;
 
-            int neighbors = index.neighbors(a, neighbor_iterator);
+                    // Rule 1
+                    v1.add(b.position);
+                    
+                    // Rule 2
+                    tmp.zero();       
+                    tmp.add(b.position);
+                    tmp.subtract(a.position);
+                    
+                    if(tmp.magnitude() < 100f) // FIXME
+                        v2.subtract(tmp);                  
+                    
+                    // Rule 3
+                    v3.add(b.velocity);
+                }
+            }
 
-            if(neighbors>0) {
+            if(neighbor_count>0) {
                 // Rule 1
-                v1.scale((float)1.0/neighbors);
+                v1.scale((float)1.0/neighbor_count);
                 v1.normalize();
 
                 // Rule 3
-                v3.scale((float)1.0/neighbors);
-                v3.normalize();
+                v3.scale((float)1.0/neighbor_count);
+                //v3.normalize();
             }
             
             // Rule 4 - Bound
@@ -322,8 +350,8 @@ public class Flock {
             a.position.add(tmp);
             
             //Log.d(TAG, a.toString());
-             
-            index.add(a);
+            
+            //index.add(a);
 
             // update buffers
             vertices.put(a.position.x);
@@ -348,37 +376,11 @@ public class Flock {
                 (MAX_Z - MIN_Z) * SIZE_SCALE;
             sizes.put(size);
         }
-
+        
         vertices.position(0);
         colors.position(0);
         sizes.position(0);
     }
-
-    protected NeighborIterator neighbor_iterator = new NeighborIterator() {
-            public boolean neighbor(Boid a, Boid b) {
-                boolean rv = false;
-
-                if(inRange(a, b)) {
-                    // Rule 1
-                    v1.add(b.position);
-                    
-                    // Rule 2
-                    tmp.zero();       
-                    tmp.add(b.position);
-                    tmp.subtract(a.position);
-                    
-                    if(tmp.magnitude() < 100f) // FIXME
-                        v2.subtract(tmp);                  
-                    
-                    // Rule 3
-                    v3.add(b.velocity);
-
-                    rv = true;
-                }
-
-                return rv;
-            }
-        };
 
     public void draw(GL10 gl) {        
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);

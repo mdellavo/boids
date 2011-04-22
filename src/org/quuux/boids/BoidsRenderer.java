@@ -50,7 +50,8 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     public void onDrawFrame(GL10 gl) {
         long now = System.currentTimeMillis();
         long elapsed = now - last;
-
+        
+        // FIXME make this is binary search
         frames++;
         total_elapsed += elapsed;
         if(total_elapsed > 1000) {          
