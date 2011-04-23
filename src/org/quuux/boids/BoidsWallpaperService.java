@@ -25,6 +25,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         private BoidsRenderer renderer;
         private Flock flock;
         private Vector3 last_touch = new Vector3();
+        private Thread simulation_thread;
         
         public BoidsEngine() {
             super();
@@ -34,10 +35,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
                         return new MatrixTrackingGL(gl);
                     }
                 });
-    
-            flock = new Flock(250);
-            new Thread(flock).start();
 
+            flock = new Flock(250);
+    
             renderer = new BoidsRenderer(flock);
             setRenderer(renderer);
             setRenderMode(RENDERMODE_CONTINUOUSLY);            
@@ -57,10 +57,12 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             
-            // if(visible)
-            //     flock.resumeSimulation();
-            // else
-            //     flock.pauseSimulation();
+            if(visible) {
+                simulation_thread = new Thread(flock);                
+                simulation_thread.start();
+            } else {
+                flock.stopSimulation();
+            }
         }
 
         // public void onOffsetsChanged(float xOffset, float yOffset, 
@@ -69,7 +71,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         //     Log.d(TAG, "offset changed");
         // }
 
-        // public Bundle onCommand(String action, int x, int y, int z, 
+        // public Bundle onCommand(String acxbtion, int x, int y, int z, 
         //                         Bundle extras, boolean resultRequested) {
         //     Log.d(TAG, "command: " + action);
         //     return null;

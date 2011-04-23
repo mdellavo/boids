@@ -62,8 +62,10 @@ public class Flock implements Runnable {
     final private Vector3 flee_from = new Vector3();
     private long flee;
 
-    private boolean running = true;
+    private boolean running;
     private long frames;
+
+    private Object pause_lock = new Object();
    
     public Flock(int num) {
         index = new FlockIndex(num, 25, 
@@ -91,7 +93,7 @@ public class Flock implements Runnable {
         sizes = GLHelper.floatBuffer(boids.length);
         colors = GLHelper.floatBuffer(boids.length * 4);
 
-        tree = new KDTree(num, 20);
+        tree = new KDTree(num, 10);
     }
     
     public void throttleUp() {
@@ -111,16 +113,8 @@ public class Flock implements Runnable {
     public void run() {
 
         long last = System.currentTimeMillis();
-
-        while(true) {
-
-            if(!running) {
-                try {
-                    wait();
-                } catch(InterruptedException e) {                    
-                }
-            }
-
+        running = true;
+        while(running) {
             long now = System.currentTimeMillis();
             long elapsed = now - last;
             tick(elapsed);           
@@ -128,16 +122,9 @@ public class Flock implements Runnable {
         }
     }
 
-    public void pauseSimulation() {
-        if(running)
-            running = false;
-    }
-
-    public void resumeSimulation() {
-        if(!running) {
-            running = true;
-            notifyAll();
-        }
+    public void stopSimulation() {
+        Log.d(TAG, "Stopping simulation");
+        running = false;
     }
 
     public void init(GL10 gl) {
@@ -163,6 +150,7 @@ public class Flock implements Runnable {
     }
 
     public void tick(long elapsed) {
+
         frames++;
         flee -= elapsed;
 
@@ -216,14 +204,15 @@ public class Flock implements Runnable {
             
                 // Rule 4 - Bound
                 rule4(a);
-                rule5(a);
-
-                // if(flee>0) {
-                //     // Rule 6 - gather/scatter
-                //     rule6(a);
-                // } else {
-                //     // Rule 5 - Center
-                // }
+                //rule5(a);
+                
+                if(flee>0) {
+                    // Rule 6 - gather/scatter
+                    rule6(a);
+                } else {
+                    // Rule 5 - Center
+                    rule5(a);
+                }
 
                 // Scale the results
                 v1.scale(SCALE_V1);
@@ -267,10 +256,7 @@ public class Flock implements Runnable {
             boids.notifyAll();
         }
 
-        try {
-            Thread.sleep(0);
-        } catch(InterruptedException e) {            
-        }
+        Thread.yield();
     }
 
     public void draw(GL10 gl) {        
@@ -368,8 +354,8 @@ public class Flock implements Runnable {
 
     // Rule 6 - fleeing / scattering
     private void rule6(Boid b) {
-        v6.copy(flee_from);
-        v6.subtract(b.position);
+        v1.scale(-10);
+        v2.scale(100);
     }
 
     public void scare(Vector3 p) {
