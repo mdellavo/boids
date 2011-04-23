@@ -35,12 +35,14 @@ public class BoidsWallpaperService extends GLWallpaperService {
                     }
                 });
     
-            flock = new Flock(500);
+            flock = new Flock(250);
+            new Thread(flock).start();
 
             renderer = new BoidsRenderer(flock);
             setRenderer(renderer);
             setRenderMode(RENDERMODE_CONTINUOUSLY);            
             setTouchEventsEnabled(true);
+
         }
 
         public void onDestroy() {
@@ -50,6 +52,15 @@ public class BoidsWallpaperService extends GLWallpaperService {
                 renderer.release();
 
             renderer = null;
+        }
+
+        public void onVisibilityChanged(boolean visible) {
+            super.onVisibilityChanged(visible);
+            
+            // if(visible)
+            //     flock.resumeSimulation();
+            // else
+            //     flock.pauseSimulation();
         }
 
         // public void onOffsetsChanged(float xOffset, float yOffset, 

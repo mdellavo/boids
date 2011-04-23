@@ -20,6 +20,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     private long frames;
     private long last;
     private long total_elapsed;
+    private long elapsed;
 
     protected int width;
     protected int height;
@@ -57,10 +58,10 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         if(total_elapsed > 1000) {          
             Log.d(TAG, "fps: " + frames);
             
-            if(frames < 54)
-                flock.throttleDown();
-            else if(frames>=54)
-                flock.throttleUp();
+            // if(frames < 54)
+            //     flock.throttleDown();
+            // else if(frames>=54)
+            //     flock.throttleUp();
                 
             total_elapsed = 0;
             frames = 0;
@@ -69,10 +70,8 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glClearColor(0f, 0f, 0f, .5f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
-        camera.tick(elapsed);
         matrix_grabber.getCurrentState(gl);
 
-        flock.tick(elapsed);
         flock.draw(gl);
 
         last = now;

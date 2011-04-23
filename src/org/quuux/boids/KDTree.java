@@ -179,31 +179,26 @@ public class KDTree {
         neighbors.add(dist, node.boid);
 
         int component = depth % 3;
-        float axis_dist = axisDistance(boid, node.boid, component);
         
-        Node near = nearChild(node, axis_dist);
-        Node far = farChild(node, axis_dist);
+        Node near = nearChild(boid, node, component);
+        Node far = farChild(boid, node, component);
 
         search(boid, near, depth+1);
         if(Math.pow(dist, 2) < neighbors.distances[0])
             search(boid, far, depth+1);       
     }
     
-    private float axisDistance(Boid a, Boid b, int component) {
-        return a.position.component(component) - b.position.component(component);
-    }
-
-    private Node nearChild(Node node, float axis_dist) {
-        if(axis_dist <= 0)
+    private Node nearChild(Boid a, Node node, int component) {
+        if(a.position.component(component) <= node.boid.position.component(component))
             return node.left;
         else
             return node.right;
     }
     
-    private Node farChild(Node node, float axis_dist) {
-        if(axis_dist > 0)
-            return node.left;
+    private Node farChild(Boid a, Node node, int component) {
+        if(a.position.component(component) <= node.boid.position.component(component))
+            return node.right;
         else
-            return node.right;        
+            return node.left;
     }
 }
