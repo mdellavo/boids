@@ -15,21 +15,20 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     private static float[] lightPosition0 =    {0, 200f, 200f, 0f};
 
     private Camera camera;
-    private Flock flock;
+    private FlockBuffer buffer;
 
     private long frames;
     private long last;
-    private long total_elapsed;
     private long elapsed;
 
     protected int width;
     protected int height;
     protected MatrixGrabber matrix_grabber = new MatrixGrabber();
     
-    public BoidsRenderer(Flock flock) {
+    public BoidsRenderer(FlockBuffer buffer) {
         super();
         this.camera = new Camera();
-        this.flock = flock;
+        this.buffer = buffer;
     }
 
     public float[] getCurrentProjection() {
@@ -50,12 +49,11 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     
     public void onDrawFrame(GL10 gl) {
         long now = System.currentTimeMillis();
-        long elapsed = now - last;
+        elapsed += (now - last);
         
         // FIXME make this is binary search
         frames++;
-        total_elapsed += elapsed;
-        if(total_elapsed > 1000) {          
+        if(elapsed > 1000) {          
             Log.d(TAG, "fps: " + frames);
             
             // if(frames < 54)
@@ -63,7 +61,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
             // else if(frames>=54)
             //     flock.throttleUp();
                 
-            total_elapsed = 0;
+            elapsed = 0;
             frames = 0;
         }
 
@@ -72,7 +70,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         matrix_grabber.getCurrentState(gl);
 
-        flock.draw(gl);
+        buffer.draw(gl);
 
         last = now;
     }
@@ -84,7 +82,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         setupLightSources(gl);
 
         camera.init(gl, width, height);
-        flock.init(gl);
+        buffer.init(gl);
         GLHelper.init(gl);
 
         last = System.currentTimeMillis();

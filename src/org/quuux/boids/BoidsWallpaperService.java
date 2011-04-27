@@ -10,6 +10,35 @@ import javax.microedition.khronos.opengles.GL;
 // Original code provided by Robert Green
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
 
+class FlockThread extends Thread implements Runnable {
+    protected Flock flock;
+    protected FlockBuffer buffer;
+    protected boolean running;
+    protected long frames;
+
+    public FlockThread(Flock flock, FlockBuffer buffer) {
+        this.flock = flock;
+        this.buffer = buffer;
+    }
+
+    public void run() {
+        long last = System.currentTimeMillis();
+        running = true;
+        while(running) {
+            frames++;
+            long now = System.currentTimeMillis();
+            long elapsed = now - last;
+            flock.tick(elapsed);   
+            buffer.render(flock);
+            last = now;
+        }
+    }
+
+    public void stopSimulation() {
+        running = false;
+    }
+}
+
 public class BoidsWallpaperService extends GLWallpaperService {
     public BoidsWallpaperService() {
         super();
@@ -22,23 +51,26 @@ public class BoidsWallpaperService extends GLWallpaperService {
     class BoidsEngine extends GLEngine {
         private static final String TAG = "BoidsEngine";
         
-        private BoidsRenderer renderer;
-        private Flock flock;
-        private Vector3 last_touch = new Vector3();
-        private Thread simulation_thread;
+        protected BoidsRenderer renderer;
+        protected FlockThread simulation_thread;
+        protected Flock flock;
+        protected FlockBuffer buffer;
+
+        protected Vector3 last_touch = new Vector3();
         
         public BoidsEngine() {
             super();
         
+            flock = new Flock(500);
+            buffer = new FlockBuffer(flock);
+
             setGLWrapper(new GLWrapper() {
                     public GL wrap(GL gl) {
                         return new MatrixTrackingGL(gl);
                     }
                 });
-
-            flock = new Flock(250);
     
-            renderer = new BoidsRenderer(flock);
+            renderer = new BoidsRenderer(buffer);
             setRenderer(renderer);
             setRenderMode(RENDERMODE_CONTINUOUSLY);            
             setTouchEventsEnabled(true);
@@ -58,10 +90,10 @@ public class BoidsWallpaperService extends GLWallpaperService {
             super.onVisibilityChanged(visible);
             
             if(visible) {
-                simulation_thread = new Thread(flock);                
+                simulation_thread = new FlockThread(flock, buffer);
                 simulation_thread.start();
             } else {
-                flock.stopSimulation();
+                simulation_thread.stopSimulation();
             }
         }
 

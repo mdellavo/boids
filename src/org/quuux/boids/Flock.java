@@ -3,16 +3,10 @@ package org.quuux.boids;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import android.graphics.Color;
-
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
-import java.nio.FloatBuffer;
-
-
-// FIXME add alive to Boid itself
-public class Flock implements Runnable {
+public class Flock {
     private static final String TAG = "Flock";
 
     private static final float MAX_SIZE         = 50f;
@@ -38,15 +32,6 @@ public class Flock implements Runnable {
     private static final float MAX_Z = 500f;
 
     protected Boid boids[];
-    protected int alive;
-
-    protected FlockIndex index;
-
-    protected Texture texture;
-
-    protected FloatBuffer vertices;
-    protected FloatBuffer sizes;
-    protected FloatBuffer colors;
 
     // preallocation so we dont trigger gc
     final private Vector3 tmp = new Vector3();
@@ -58,23 +43,11 @@ public class Flock implements Runnable {
     final private Vector3 v6 = new Vector3();
 
     private KDTree tree;
-    final private float color[] = new float[4];
     final private Vector3 flee_from = new Vector3();
     private long flee;
 
-    private boolean running;
-    private long frames;
-
-    private Object pause_lock = new Object();
-   
     public Flock(int num) {
-        index = new FlockIndex(num, 25, 
-                               (int)MIN_X, (int)MAX_X, 
-                               (int)MIN_Y, (int)MAX_Y, 
-                               (int)MIN_Z, (int)MAX_Z);
-
         boids = new Boid[num];
-        alive = num/2;
 
         for(int i=0; i<num; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
@@ -85,244 +58,139 @@ public class Flock implements Runnable {
                                 RandomGenerator.randomRange(-1, 1));
             //boids[i].seed = RandomGenerator.randomInt(0, 1000000);
             boids[i].seed = 0;
-
-            index.add(boids[i]);
         }
-
-        vertices = GLHelper.floatBuffer(boids.length * 3);
-        sizes = GLHelper.floatBuffer(boids.length);
-        colors = GLHelper.floatBuffer(boids.length * 4);
 
         tree = new KDTree(num, 10);
     }
     
-    public void throttleUp() {
-        if(alive < boids.length - 1)
-            alive++;
+    // public void throttleUp() {
+    //     if(alive < boids.length - 1)
+    //         alive++;
         
-        Log.d(TAG, "Throttle Up: alive = "  + alive);
-    }
+    //     Log.d(TAG, "Throttle Up: alive = "  + alive);
+    // }
 
-    public void throttleDown() {
-        if(alive > 0)
-            alive--;
+    // public void throttleDown() {
+    //     if(alive > 0)
+    //         alive--;
 
-        Log.d(TAG, "Throttle Down: alive = "  + alive);
-    }
-
-    public void run() {
-
-        long last = System.currentTimeMillis();
-        running = true;
-        while(running) {
-            long now = System.currentTimeMillis();
-            long elapsed = now - last;
-            tick(elapsed);           
-            last = now;
-        }
-    }
-
-    public void stopSimulation() {
-        Log.d(TAG, "Stopping simulation");
-        running = false;
-    }
-
-    public void init(GL10 gl) {
-        gl.glEnable(GL11.GL_POINT_SPRITE_OES);
-        
-        texture = TextureLoader.get("boid");
-        texture.load(gl);
-
-        Log.d(TAG, "boid texture id: " + texture.id);
-
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, 
-                           GL10.GL_NICEST);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER,
-                           GL10.GL_NICEST);
-        
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S,
-                           GL10.GL_REPEAT);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T,
-                           GL10.GL_REPEAT);
-        
-        gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
-                     GL11.GL_TRUE);
-    }
+    //     Log.d(TAG, "Throttle Down: alive = "  + alive);
+    // }
 
     public void tick(long elapsed) {
 
-        frames++;
         flee -= elapsed;
 
-        synchronized(boids) {
-            tree.add(boids);
+        tree.add(boids);
 
-            for(int i=0; i<boids.length; i++) {
-                v1.zero();
-                v2.zero();
-                v3.zero();
-                v4.zero();
-                v5.zero();
-                v6.zero();
+        for(int i=0; i<boids.length; i++) {
+            v1.zero();
+            v2.zero();
+            v3.zero();
+            v4.zero();
+            v5.zero();
+            v6.zero();
 
-                Boid a = boids[i];
-            
-                Boid neighbors[] = tree.findNeighbors(a);
-                int neighbor_count = 0;
+            Boid a = boids[i];
+            a.age++;
 
-                for(int j=0; j<neighbors.length; j++) {
-                    Boid b = boids[j];
+            Boid neighbors[] = tree.findNeighbors(a);
+            int neighbor_count = 0;
 
-                    if(b != null && inRange(a, b)) {
-                        neighbor_count++;
+            for(int j=0; j<neighbors.length; j++) {
+                Boid b = boids[j];
 
-                        // Rule 1
-                        v1.add(b.position);
-                    
-                        // Rule 2
-                        tmp.zero();       
-                        tmp.add(b.position);
-                        tmp.subtract(a.position);
-                    
-                        if(tmp.magnitude() < 100f) // FIXME
-                            v2.subtract(tmp);                  
-                    
-                        // Rule 3
-                        v3.add(b.velocity);
-                    }                        
-                }
+                if(b != null && inRange(a, b)) {
+                    neighbor_count++;
 
-                if(neighbor_count>0) {
                     // Rule 1
-                    v1.scale((float)1.0/neighbor_count);
-                    v1.normalize();
-
+                    v1.add(b.position);
+                    
+                    // Rule 2
+                    tmp.zero();       
+                    tmp.add(b.position);
+                    tmp.subtract(a.position);
+                    
+                    if(tmp.magnitude() < 100f) // FIXME
+                        v2.subtract(tmp);                  
+                    
                     // Rule 3
-                    v3.scale((float)1.0/neighbor_count);
-                    v3.normalize();
-                }
+                    v3.add(b.velocity);
+                }                        
+            }
+
+            if(neighbor_count>0) {
+                // Rule 1
+                v1.scale((float)1.0/neighbor_count);
+                v1.normalize();
+
+                // Rule 3
+                v3.scale((float)1.0/neighbor_count);
+                v3.normalize();
+            }
             
-                // Rule 4 - Bound
-                rule4(a);
-                //rule5(a);
+            // Rule 4 - Bound
+            rule4(a);
+            //rule5(a);
                 
-                if(flee>0) {
-                    // Rule 6 - gather/scatter
-                    rule6(a);
-                } else {
-                    // Rule 5 - Center
-                    rule5(a);
-                }
-
-                // Scale the results
-                v1.scale(SCALE_V1);
-                v2.scale(SCALE_V2);
-                v3.scale(SCALE_V3);
-                v4.scale(SCALE_V4);
-                v5.scale(SCALE_V5);
-                v6.scale(SCALE_V6);
-
-                // Log.d(TAG, "v1=" + v1);
-                // Log.d(TAG, "v2=" + v2);
-                // Log.d(TAG, "v3=" + v3);
-                // Log.d(TAG, "v4=" + v4);
-
-                // Combine components
-                a.velocity.add(v1);
-                a.velocity.add(v2);
-                a.velocity.add(v3);
-                a.velocity.add(v4);
-                a.velocity.add(v5);
-                a.velocity.add(v6);
-
-                // limit velocity
-                if(a.velocity.magnitude() > MAX_VELOCITY) {
-                    a.velocity.normalize();
-                    a.velocity.scale(MAX_VELOCITY);            
-                }
-
-                // move independant of framerate
-                //Log.d(TAG, "elapsed=" + elapsed);
-            
-                tmp.zero();
-                tmp.copy(a.velocity);
-                tmp.scale(elapsed/60f);
-
-                // apply velocity to position
-                a.position.add(tmp);
-            
-                //Log.d(TAG, a.toString());
+            if(flee>0) {
+                // Rule 6 - gather/scatter
+                rule6(a);
+            } else {
+                // Rule 5 - Center
+                rule5(a);
             }
-            boids.notifyAll();
-        }
 
-        Thread.yield();
+            // Scale the results
+            v1.scale(SCALE_V1);
+            v2.scale(SCALE_V2);
+            v3.scale(SCALE_V3);
+            v4.scale(SCALE_V4);
+            v5.scale(SCALE_V5);
+            v6.scale(SCALE_V6);
+
+            // Log.d(TAG, "v1=" + v1);
+            // Log.d(TAG, "v2=" + v2);
+            // Log.d(TAG, "v3=" + v3);
+            // Log.d(TAG, "v4=" + v4);
+
+            // Combine components
+            a.velocity.add(v1);
+            a.velocity.add(v2);
+            a.velocity.add(v3);
+            a.velocity.add(v4);
+            a.velocity.add(v5);
+            a.velocity.add(v6);
+
+            // limit velocity
+            if(a.velocity.magnitude() > MAX_VELOCITY) {
+                a.velocity.normalize();
+                a.velocity.scale(MAX_VELOCITY);            
+            }
+
+            // move independant of framerate
+            //Log.d(TAG, "elapsed=" + elapsed);
+            
+            tmp.zero();
+            tmp.copy(a.velocity);
+            tmp.scale(elapsed/60f);
+
+            // apply velocity to position
+            a.position.add(tmp);
+
+            a.color[0] = (a.seed + a.age) % 360;
+            a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
+            a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
+
+            a.size = MIN_SIZE + (a.position.z - MIN_Z) / 
+                (MAX_Z - MIN_Z) * SIZE_SCALE;
+        
+            //Log.d(TAG, a.toString());
+        }
     }
 
-    public void draw(GL10 gl) {        
 
-        vertices.clear();
-        colors.clear();
-        sizes.clear();
-        
-        synchronized(boids) {
-            for(int i=0; i<boids.length; i++) {
-                Boid a = boids[i];
-
-                // update buffers
-                vertices.put(a.position.x);
-                vertices.put(a.position.y);
-                vertices.put(a.position.z);
-
-                color[0] = (a.seed + frames) % 360;
-                color[1] = 1 + (float)Math.sin((a.seed + frames)/60f);
-                color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + frames)/120f));
-        
-                int rgb = Color.HSVToColor(color);
-                float red = (float)Color.red(rgb) / 255f;
-                float green = (float)Color.green(rgb) / 255f;
-                float blue = (float)Color.blue(rgb) / 255f;
-
-                colors.put(red);
-                colors.put(green);
-                colors.put(blue);
-                colors.put(1f);
-         
-                float size = MIN_SIZE + (a.position.z - MIN_Z) / 
-                    (MAX_Z - MIN_Z) * SIZE_SCALE;
-                sizes.put(size);
-            }
-            boids.notifyAll();
-        }
-
-        vertices.position(0);
-        colors.position(0);
-        sizes.position(0);
-
-        gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
-        gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-        gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
-        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-
-        gl.glDepthMask(false);
-
-        gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
-        ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);
-        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
-        gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-        gl.glDrawArrays(GL10.GL_POINTS, 0, boids.length);
-
-        gl.glDepthMask(true);
-        
-        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
-        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
-
-    }
-
+    // FIXME move this into kdtree 
     private boolean inRange(Boid a, Boid b) {
         tmp.zero();
         tmp.add(a.position);
