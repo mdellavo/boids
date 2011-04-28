@@ -165,13 +165,13 @@ public class KDTree {
                        Math.pow(a.position.z - b.position.z, 2));
     }
 
-    public Boid[] findNeighbors(Boid boid) {
+    public Boid[] findNeighbors(Boid boid, float range) {
         neighbors.clear();
-        search(boid, root, 0);
+        search(boid, range, root, 0);
         return neighbors.boids;
     }
 
-    private void search(Boid boid, Node node, int depth) {
+    private void search(Boid boid, float range, Node node, int depth) {
         if(node == null)
             return;
 
@@ -180,22 +180,22 @@ public class KDTree {
 
         int component = depth % 3;
         
-        Node near = nearChild(boid, node, component);
-        Node far = farChild(boid, node, component);
+        Node near = nearChild(boid, range, node, component);
+        Node far = farChild(boid, range, node, component);
 
-        search(boid, near, depth+1);
-        if(Math.pow(dist, 2) < neighbors.distances[0])
-            search(boid, far, depth+1);       
+        search(boid, range, near, depth+1);
+        if(Math.pow(dist, 2) < Math.pow(range, 2))
+            search(boid, range, far, depth+1);       
     }
     
-    private Node nearChild(Boid a, Node node, int component) {
+    private Node nearChild(Boid a, float range, Node node, int component) {
         if(a.position.component(component) <= node.boid.position.component(component))
             return node.left;
         else
             return node.right;
     }
     
-    private Node farChild(Boid a, Node node, int component) {
+    private Node farChild(Boid a, float range, Node node, int component) {
         if(a.position.component(component) <= node.boid.position.component(component))
             return node.right;
         else

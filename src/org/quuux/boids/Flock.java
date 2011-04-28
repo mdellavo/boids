@@ -11,17 +11,17 @@ public class Flock {
 
     private static final float MAX_SIZE         = 50f;
     private static final float MAX_VELOCITY     = 5f;
-    private static final float RANGE            = 10f;
+    private static final float RANGE            = 20f;
     private static final float REBOUND_VELOCITY = .01f;
     private static final float MIN_SIZE         = 10f;
     private static final float SIZE_SCALE       = 100f;
     private static final long FLEE_TIME         = 2500;
 
     private static final float SCALE_V1         = .005f;
-    private static final float SCALE_V2         = .5f;
-    private static final float SCALE_V3         = .0675f;
+    private static final float SCALE_V2         = .01f;
+    private static final float SCALE_V3         = .15f;
     private static final float SCALE_V4         = 1f;
-    private static final float SCALE_V5         = .0005f;
+    private static final float SCALE_V5         = .01f;
     private static final float SCALE_V6         = .01f;
 
     private static final float MIN_X = -500f;
@@ -60,7 +60,7 @@ public class Flock {
             boids[i].seed = 0;
         }
 
-        tree = new KDTree(num, 10);
+        tree = new KDTree(num, 5);
     }
     
     // public void throttleUp() {
@@ -94,13 +94,13 @@ public class Flock {
             Boid a = boids[i];
             a.age++;
 
-            Boid neighbors[] = tree.findNeighbors(a);
+            Boid neighbors[] = tree.findNeighbors(a, RANGE);
             int neighbor_count = 0;
 
             for(int j=0; j<neighbors.length; j++) {
                 Boid b = boids[j];
 
-                if(b != null && inRange(a, b)) {
+                if(b != null) {
                     neighbor_count++;
 
                     // Rule 1

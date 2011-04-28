@@ -11,6 +11,8 @@ import javax.microedition.khronos.opengles.GL;
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
 
 class FlockThread extends Thread implements Runnable {
+    private static final String TAG = "FlockThread";
+
     protected Flock flock;
     protected FlockBuffer buffer;
     protected boolean running;
@@ -23,13 +25,30 @@ class FlockThread extends Thread implements Runnable {
 
     public void run() {
         long last = System.currentTimeMillis();
+        long total_elapsed = 0;
+        
         running = true;
         while(running) {
             frames++;
+
             long now = System.currentTimeMillis();
             long elapsed = now - last;
             flock.tick(elapsed);   
             buffer.render(flock);
+
+            total_elapsed += elapsed;
+            if(total_elapsed > 1000) {          
+                Log.d(TAG, "ticked fps: " + frames);
+            
+                // if(frames < 54)
+                //     flock.throttleDown();
+                // else if(frames>=54)
+                //     flock.throttleUp();
+                
+                total_elapsed = 0;
+                frames = 0;
+            }
+
             last = now;
         }
     }
@@ -61,7 +80,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public BoidsEngine() {
             super();
         
-            flock = new Flock(500);
+            flock = new Flock(300);
             buffer = new FlockBuffer(flock);
 
             setGLWrapper(new GLWrapper() {

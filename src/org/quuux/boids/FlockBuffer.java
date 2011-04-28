@@ -14,7 +14,7 @@ class FlockBuffer {
     protected FlockFrame front;
     protected FlockFrame back;
     protected Texture texture;    
-    
+
     public FlockBuffer(Flock flock) {
         size = flock.boids.length;
         front = new FlockFrame(flock);
@@ -24,6 +24,7 @@ class FlockBuffer {
     // wait for consumer/renderer to finish with 
     protected void swap() {
         synchronized(front) {
+          
             FlockFrame tmp = back;
             back = front;
             front = tmp;
@@ -38,40 +39,34 @@ class FlockBuffer {
 
     public void render(Flock flock) {
 
-        synchronized(back) {
-            for(int i=0; i<flock.boids.length; i++) {
-                Boid a = flock.boids[i];
+        for(int i=0; i<flock.boids.length; i++) {
+            Boid a = flock.boids[i];
 
-                // update buffers
-                back.vertices.put(a.position.x);
-                back.vertices.put(a.position.y);
-                back.vertices.put(a.position.z);
+            // update buffers
+            back.vertices.put(a.position.x);
+            back.vertices.put(a.position.y);
+            back.vertices.put(a.position.z);
 
-                // FIMXE there has to be a better way to do this...
-                int rgb = Color.HSVToColor(a.color);
-                float red = (float)Color.red(rgb) / 255f;
-                float green = (float)Color.green(rgb) / 255f;
-                float blue = (float)Color.blue(rgb) / 255f;
+            // FIMXE there has to be a better way to do this...
+            int rgb = Color.HSVToColor(a.color);
+            float red = (float)Color.red(rgb) / 255f;
+            float green = (float)Color.green(rgb) / 255f;
+            float blue = (float)Color.blue(rgb) / 255f;
 
-                back.colors.put(red);
-                back.colors.put(green);
-                back.colors.put(blue);
-                back.colors.put(1f);
+            back.colors.put(red);
+            back.colors.put(green);
+            back.colors.put(blue);
+            back.colors.put(1f);
          
-                back.sizes.put(a.size);
-            }
-            
-            back.vertices.position(0);
-            back.colors.position(0);
-            back.sizes.position(0);
-
-            back.notifyAll();
+            back.sizes.put(a.size);
         }
+            
+        back.vertices.position(0);
+        back.colors.position(0);
+        back.sizes.position(0);
 
         swap();
-        try{
-            Thread.sleep(10);
-        } catch(InterruptedException e){}
+        Thread.yield();
     }
 
     public void init(GL10 gl) {

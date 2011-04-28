@@ -54,7 +54,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         // FIXME make this is binary search
         frames++;
         if(elapsed > 1000) {          
-            Log.d(TAG, "fps: " + frames);
+            Log.d(TAG, "rendered fps: " + frames);
             
             // if(frames < 54)
             //     flock.throttleDown();
@@ -73,6 +73,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         buffer.draw(gl);
 
         last = now;
+        Thread.yield();
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
