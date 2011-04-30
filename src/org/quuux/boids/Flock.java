@@ -19,9 +19,9 @@ public class Flock {
 
     private static final float SCALE_V1         = .005f;
     private static final float SCALE_V2         = .01f;
-    private static final float SCALE_V3         = .15f;
+    private static final float SCALE_V3         = .01f;
     private static final float SCALE_V4         = 1f;
-    private static final float SCALE_V5         = .01f;
+    private static final float SCALE_V5         = .005f;
     private static final float SCALE_V6         = .01f;
 
     private static final float MIN_X = -500f;

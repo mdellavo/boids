@@ -27,9 +27,17 @@ class FlockThread extends Thread implements Runnable {
         long last = System.currentTimeMillis();
         long total_elapsed = 0;
         
-        running = true;
-        while(running) {
+        while(true) {
             frames++;
+
+            synchronized(this) {
+                while(!running) {
+                    try {
+                        wait();
+                    } catch(InterruptedException e) {                        
+                    }
+                }
+            }
 
             long now = System.currentTimeMillis();
             long elapsed = now - last;
@@ -53,8 +61,13 @@ class FlockThread extends Thread implements Runnable {
         }
     }
 
-    public void stopSimulation() {
-        running = false;
+    public synchronized void pauseSimulation() {
+        running = false;        
+    }
+
+    public synchronized void resumeSimulation() {
+        running = true;
+        notifyAll();
     }
 }
 
@@ -82,6 +95,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
         
             flock = new Flock(300);
             buffer = new FlockBuffer(flock);
+            
+            simulation_thread = new FlockThread(flock, buffer);
+            simulation_thread.start();
 
             setGLWrapper(new GLWrapper() {
                     public GL wrap(GL gl) {
@@ -109,10 +125,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
             super.onVisibilityChanged(visible);
             
             if(visible) {
-                simulation_thread = new FlockThread(flock, buffer);
-                simulation_thread.start();
+                simulation_thread.resumeSimulation();
             } else {
-                simulation_thread.stopSimulation();
+                simulation_thread.pauseSimulation();
             }
         }
 

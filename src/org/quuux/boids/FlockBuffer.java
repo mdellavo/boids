@@ -15,6 +15,8 @@ class FlockBuffer {
     protected FlockFrame back;
     protected Texture texture;    
 
+    protected boolean dirty;
+
     public FlockBuffer(Flock flock) {
         size = flock.boids.length;
         front = new FlockFrame(flock);
@@ -22,22 +24,20 @@ class FlockBuffer {
     }
     
     // wait for consumer/renderer to finish with 
-    protected void swap() {
-        synchronized(front) {
-          
-            FlockFrame tmp = back;
-            back = front;
-            front = tmp;
-
-            front.clear();
-            back.clear(); 
+    protected synchronized void swap() {
             
-            // NB front is now back
-            back.notifyAll();
-        }
     }
 
-    public void render(Flock flock) {
+    public synchronized void render(Flock flock) {
+
+        while(dirty) {
+            try {
+                wait();
+            } catch(InterruptedException e) {
+            }
+        }
+
+        back.clear(); 
 
         for(int i=0; i<flock.boids.length; i++) {
             Boid a = flock.boids[i];
@@ -57,7 +57,7 @@ class FlockBuffer {
             back.colors.put(green);
             back.colors.put(blue);
             back.colors.put(1f);
-         
+          
             back.sizes.put(a.size);
         }
             
@@ -65,7 +65,12 @@ class FlockBuffer {
         back.colors.position(0);
         back.sizes.position(0);
 
-        swap();
+        FlockFrame tmp = back;
+        back = front;
+        front = tmp;
+        dirty = true;
+
+        notifyAll();
         Thread.yield();
     }
 
@@ -87,11 +92,16 @@ class FlockBuffer {
         
         gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
                      GL11.GL_TRUE);
-
-
     }
 
-    public void draw(GL10 gl) {
+    public synchronized void draw(GL10 gl) {
+
+        while(!dirty) {
+            try {
+                wait();
+            } catch(InterruptedException e) {
+            }
+        }
 
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
@@ -101,15 +111,11 @@ class FlockBuffer {
 
         gl.glDepthMask(false);
 
-        synchronized(front) {           
-            gl.glColorPointer(4, GL10.GL_FLOAT, 0, front.colors);
-            ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
-            gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-            gl.glDrawArrays(GL10.GL_POINTS, 0, size); // XXX 
-
-            front.notifyAll();
-        }
+        gl.glColorPointer(4, GL10.GL_FLOAT, 0, front.colors);
+        ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
+        gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
+        gl.glDrawArrays(GL10.GL_POINTS, 0, size); // XXX 
 
         gl.glDepthMask(true);
         
@@ -118,5 +124,8 @@ class FlockBuffer {
         gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
+
+        dirty = false;
+        notifyAll();
     }
 }
