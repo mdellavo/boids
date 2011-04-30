@@ -13,7 +13,7 @@ public class Flock {
     private static final float MAX_VELOCITY     = 5f;
     private static final float RANGE            = 20f;
     private static final float REBOUND_VELOCITY = .01f;
-    private static final float MIN_SIZE         = 10f;
+    private static final float MIN_SIZE         = 1f;
     private static final float SIZE_SCALE       = 100f;
     private static final long FLEE_TIME         = 2500;
 

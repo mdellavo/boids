@@ -17,6 +17,7 @@ class FlockThread extends Thread implements Runnable {
     protected FlockBuffer buffer;
     protected boolean running;
     protected long frames;
+    protected long last;
 
     public FlockThread(Flock flock, FlockBuffer buffer) {
         this.flock = flock;
@@ -24,7 +25,6 @@ class FlockThread extends Thread implements Runnable {
     }
 
     public void run() {
-        long last = System.currentTimeMillis();
         long total_elapsed = 0;
         
         while(true) {
@@ -62,11 +62,12 @@ class FlockThread extends Thread implements Runnable {
     }
 
     public synchronized void pauseSimulation() {
-        running = false;        
+        running = false;
     }
 
     public synchronized void resumeSimulation() {
         running = true;
+        last = System.currentTimeMillis();
         notifyAll();
     }
 }
