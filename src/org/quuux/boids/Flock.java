@@ -8,28 +8,6 @@ import javax.microedition.khronos.opengles.GL11;
 public class Flock {
     protected static final String TAG = "Flock";
 
-    protected static final float MAX_SIZE         = 50f;
-    protected static final float MAX_VELOCITY     = 5f;
-    protected static final float RANGE            = 20f;
-    protected static final float REBOUND_VELOCITY = .01f;
-    protected static final float MIN_SIZE         = 1f;
-    protected static final float SIZE_SCALE       = 100f;
-    protected static final long FLEE_TIME         = 100;
-
-    protected static final float SCALE_V1         = .005f;
-    protected static final float SCALE_V2         = .01f;
-    protected static final float SCALE_V3         = .01f;
-    protected static final float SCALE_V4         = 1f;
-    protected static final float SCALE_V5         = .001f;
-    protected static final float SCALE_V6         = 1f;
-
-    protected static final float MIN_X = -500f;
-    protected static final float MAX_X = 500f;
-    protected static final float MIN_Y = -500f;
-    protected static final float MAX_Y = 500f;
-    protected static final float MIN_Z = -500f;
-    protected static final float MAX_Z = 500f;
-
     protected Profile profile;
     protected Boid boids[];
 
@@ -192,7 +170,7 @@ public class Flock {
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
             
             a.size = profile.MIN_SIZE + (1- (a.position.z - profile.MIN_Z) / 
-                                 (profile.MAX_Z - MIN_Z)) * profile.SIZE_SCALE;
+                                         (profile.MAX_Z - profile.MIN_Z)) * profile.SIZE_SCALE;
 
             //Log.d(TAG, a.toString());
         }
