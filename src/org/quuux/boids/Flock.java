@@ -51,14 +51,21 @@ public class Flock {
         boids = new Boid[profile.FLOCK_SIZE];
 
         for(int i=0; i<profile.FLOCK_SIZE; i++) {
-            boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
-                                RandomGenerator.randomRange(-1, 1),
-                                RandomGenerator.randomRange(-1, 1),
-                                RandomGenerator.randomRange(-1, 1), 
-                                RandomGenerator.randomRange(-1, 1),
-                                RandomGenerator.randomRange(-1, 1));
-            //boids[i].seed = RandomGenerator.randomInt(0, 1000000);
-            boids[i].seed = 0;
+            boids[i] = new Boid(RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED), 
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED),
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED),
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED), 
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED),
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED));
+
+            if(profile.RANDOMIZE_COLORS) 
+                boids[i].seed = RandomGenerator.randomInt(0, 1000000);
         }
 
         tree = new KDTree(profile.FLOCK_SIZE, 5);

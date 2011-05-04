@@ -70,7 +70,7 @@ class ProfileLoader {
                 String type_name = fields[i].getType().getName();
 
                 if(type_name.equals("java.lang.String")) {
-                    fields[i].set(profile,obj.optString(field_name));
+                    fields[i].set(profile,obj.optString(field_name, ""));
                 } else if(type_name.equals("float")) {
                     fields[i].setFloat(profile,
                                        (float)obj.optDouble(field_name, 0));
@@ -78,6 +78,8 @@ class ProfileLoader {
                     fields[i].setInt(profile, obj.optInt(field_name, 0));
                 } else if(type_name.equals("long")) {
                     fields[i].setLong(profile, obj.optLong(field_name, 0));
+                } else if(type_name.equals("boolean")) {
+                    fields[i].setBoolean(profile, obj.optBoolean(field_name, false));
                 } else {
                     Log.d(TAG, "Unknown Type " + type_name + " in field " + field_name);
                 }

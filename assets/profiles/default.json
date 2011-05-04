@@ -1,7 +1,10 @@
 {
    "name"             : "Default",
-   "class"            : "org.quuux.boids.Profile",
+   "class"            : "org.quuux.boids.Profile",   
    "FLOCK_SIZE"       : 300,
+   "RANDOMIZE_COLORS" : true,
+   "MIN_SEED"         : -500,
+   "MAX_SEED"         : 500,
    "MAX_SIZE"         : 50, 
    "MAX_VELOCITY"     : 5,
    "RANGE"            : 20,
