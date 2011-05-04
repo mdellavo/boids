@@ -1,55 +1,56 @@
 package org.quuux.boids;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 public class Flock {
-    private static final String TAG = "Flock";
+    protected static final String TAG = "Flock";
 
-    private static final float MAX_SIZE         = 50f;
-    private static final float MAX_VELOCITY     = 5f;
-    private static final float RANGE            = 20f;
-    private static final float REBOUND_VELOCITY = .01f;
-    private static final float MIN_SIZE         = 1f;
-    private static final float SIZE_SCALE       = 100f;
-    private static final long FLEE_TIME         = 2500;
+    protected static final float MAX_SIZE         = 50f;
+    protected static final float MAX_VELOCITY     = 5f;
+    protected static final float RANGE            = 20f;
+    protected static final float REBOUND_VELOCITY = .01f;
+    protected static final float MIN_SIZE         = 1f;
+    protected static final float SIZE_SCALE       = 100f;
+    protected static final long FLEE_TIME         = 100;
 
-    private static final float SCALE_V1         = .005f;
-    private static final float SCALE_V2         = .01f;
-    private static final float SCALE_V3         = .01f;
-    private static final float SCALE_V4         = 1f;
-    private static final float SCALE_V5         = .005f;
-    private static final float SCALE_V6         = .01f;
+    protected static final float SCALE_V1         = .005f;
+    protected static final float SCALE_V2         = .01f;
+    protected static final float SCALE_V3         = .01f;
+    protected static final float SCALE_V4         = 1f;
+    protected static final float SCALE_V5         = .001f;
+    protected static final float SCALE_V6         = 1f;
 
-    private static final float MIN_X = -500f;
-    private static final float MAX_X = 500f;
-    private static final float MIN_Y = -500f;
-    private static final float MAX_Y = 500f;
-    private static final float MIN_Z = -500f;
-    private static final float MAX_Z = 500f;
+    protected static final float MIN_X = -500f;
+    protected static final float MAX_X = 500f;
+    protected static final float MIN_Y = -500f;
+    protected static final float MAX_Y = 500f;
+    protected static final float MIN_Z = -500f;
+    protected static final float MAX_Z = 500f;
 
+    protected Profile profile;
     protected Boid boids[];
 
     // preallocation so we dont trigger gc
-    final private Vector3 tmp = new Vector3();
-    final private Vector3 v1 = new Vector3();
-    final private Vector3 v2 = new Vector3();
-    final private Vector3 v3 = new Vector3();
-    final private Vector3 v4 = new Vector3();
-    final private Vector3 v5 = new Vector3();
-    final private Vector3 v6 = new Vector3();
+    final protected Vector3 tmp = new Vector3();
+    final protected Vector3 v1 = new Vector3();
+    final protected Vector3 v2 = new Vector3();
+    final protected Vector3 v3 = new Vector3();
+    final protected Vector3 v4 = new Vector3();
+    final protected Vector3 v5 = new Vector3();
+    final protected Vector3 v6 = new Vector3();
 
-    private KDTree tree;
-    final private Vector3 flee_from = new Vector3();
-    private long flee;
+    protected KDTree tree;
+    final protected Vector3 flee_from = new Vector3();
+    protected long flee;
+    
+    public Flock(Profile profile) {
+        this.profile = profile;
+        boids = new Boid[profile.FLOCK_SIZE];
 
-    public Flock(int num) {
-        boids = new Boid[num];
-
-        for(int i=0; i<num; i++) {
+        for(int i=0; i<profile.FLOCK_SIZE; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(-1, 1), 
                                 RandomGenerator.randomRange(-1, 1),
                                 RandomGenerator.randomRange(-1, 1),
@@ -60,7 +61,7 @@ public class Flock {
             boids[i].seed = 0;
         }
 
-        tree = new KDTree(num, 5);
+        tree = new KDTree(profile.FLOCK_SIZE, 5);
     }
     
     // public void throttleUp() {
@@ -94,7 +95,7 @@ public class Flock {
             Boid a = boids[i];
             a.age++;
 
-            Boid neighbors[] = tree.findNeighbors(a, RANGE);
+            Boid neighbors[] = tree.findNeighbors(a, profile.RANGE);
             int neighbor_count = 0;
 
             for(int j=0; j<neighbors.length; j++) {
@@ -133,6 +134,7 @@ public class Flock {
             rule4(a);
             //rule5(a);
                 
+            // FIMXE move center to touch position and gradually reset
             if(flee>0) {
                 // Rule 6 - gather/scatter
                 rule6(a);
@@ -142,12 +144,12 @@ public class Flock {
             }
 
             // Scale the results
-            v1.scale(SCALE_V1);
-            v2.scale(SCALE_V2);
-            v3.scale(SCALE_V3);
-            v4.scale(SCALE_V4);
-            v5.scale(SCALE_V5);
-            v6.scale(SCALE_V6);
+            v1.scale(profile.SCALE_V1);
+            v2.scale(profile.SCALE_V2);
+            v3.scale(profile.SCALE_V3);
+            v4.scale(profile.SCALE_V4);
+            v5.scale(profile.SCALE_V5);
+            v6.scale(profile.SCALE_V6);
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
@@ -163,9 +165,9 @@ public class Flock {
             a.velocity.add(v6);
 
             // limit velocity
-            if(a.velocity.magnitude() > MAX_VELOCITY) {
+            if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
                 a.velocity.normalize();
-                a.velocity.scale(MAX_VELOCITY);            
+                a.velocity.scale(profile.MAX_VELOCITY);            
             }
 
             // move independant of framerate
@@ -181,10 +183,10 @@ public class Flock {
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
+            
+            a.size = profile.MIN_SIZE + (1- (a.position.z - profile.MIN_Z) / 
+                                 (profile.MAX_Z - MIN_Z)) * profile.SIZE_SCALE;
 
-            a.size = MIN_SIZE + (a.position.z - MIN_Z) / 
-                (MAX_Z - MIN_Z) * SIZE_SCALE;
-        
             //Log.d(TAG, a.toString());
         }
     }
@@ -195,23 +197,23 @@ public class Flock {
         tmp.zero();
         tmp.add(a.position);
         tmp.subtract(b.position);
-        return tmp.magnitude() < RANGE;
+        return tmp.magnitude() < profile.RANGE;
     }
 
     // Rule 4 - keep within bounds
     private void rule4(Boid b) {
-        if(b.position.x < MIN_X)
-            v4.x = REBOUND_VELOCITY;
-        else if(b.position.x > MAX_X)
-            v4.x = -REBOUND_VELOCITY;
-        else if(b.position.y < MIN_Y)
-            v4.y = REBOUND_VELOCITY;
-        else if(b.position.y > MAX_Y)
-            v4.y = -REBOUND_VELOCITY;
-        else if(b.position.z < MIN_Z)
-            v4.z = REBOUND_VELOCITY;
-        else if(b.position.z > MAX_Z)
-            v4.z = -REBOUND_VELOCITY;
+        if(b.position.x < profile.MIN_X)
+            v4.x = profile.REBOUND_VELOCITY;
+        else if(b.position.x > profile.MAX_X)
+            v4.x = -profile.REBOUND_VELOCITY;
+        else if(b.position.y < profile.MIN_Y)
+            v4.y = profile.REBOUND_VELOCITY;
+        else if(b.position.y > profile.MAX_Y)
+            v4.y = -profile.REBOUND_VELOCITY;
+        else if(b.position.z < profile.MIN_Z)
+            v4.z = profile.REBOUND_VELOCITY;
+        else if(b.position.z > profile.MAX_Z)
+            v4.z = -profile.REBOUND_VELOCITY;
     }
 
     // Rule 5 - tend towards center
@@ -222,12 +224,14 @@ public class Flock {
 
     // Rule 6 - fleeing / scattering
     private void rule6(Boid b) {
-        v1.scale(-10);
-        v2.scale(100);
+        v6.zero();
+        v6.copy(flee_from);
+        v6.subtract(b.position);
+        v6.scale(10);
     }
-
+    
     public void scare(Vector3 p) {
-        flee = FLEE_TIME;
+        flee = profile.FLEE_TIME;
         flee_from.copy(p);
     }
 }

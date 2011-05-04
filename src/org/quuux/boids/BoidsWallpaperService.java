@@ -58,6 +58,12 @@ class FlockThread extends Thread implements Runnable {
             }
 
             last = now;
+            if(elapsed < 16) {
+                try {
+                    Thread.sleep(16-elapsed);
+                } catch(InterruptedException e) {
+                }
+            }
         }
     }
 
@@ -76,6 +82,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
     public BoidsWallpaperService() {
         super();
         TextureLoader.init(this);
+        ProfileLoader.init(this);
     }
     public Engine onCreateEngine() {
         return new BoidsEngine();
@@ -94,7 +101,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public BoidsEngine() {
             super();
         
-            flock = new Flock(300);
+            Profile profile = ProfileLoader.openProfile("default");
+
+            flock = new Flock(profile);
             buffer = new FlockBuffer(flock);
             
             simulation_thread = new FlockThread(flock, buffer);
@@ -152,7 +161,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
             int[] view = new int[] {0, 0, width, height};
 
             float[] touch_position = new float[4];
-            int rv = GLU.gluUnProject(x, view[3] - y, -500f, 
+            int rv = GLU.gluUnProject(x, view[3] - y, 1f, 
                                       renderer.getCurrentModelView(), 0, 
                                       renderer.getCurrentProjection(), 0, 
                                       view, 0,
@@ -172,7 +181,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
         public void onTouchEvent(MotionEvent event) {
             Vector3 v = projectTouchToWorld(event.getX(), event.getY());
-            Log.d(TAG, "touch: " + v);            
+            //Log.d(TAG, "touch: " + v);            
             
             flock.scare(v);
         }

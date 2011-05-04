@@ -19,7 +19,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
     private long frames;
     private long last;
-    private long elapsed;
+    private long total_elapsed;
 
     protected int width;
     protected int height;
@@ -49,11 +49,12 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     
     public void onDrawFrame(GL10 gl) {
         long now = System.currentTimeMillis();
-        elapsed += (now - last);
+        long elapsed = now - last;
+        total_elapsed += elapsed;
         
         // FIXME make this is binary search
         frames++;
-        if(elapsed > 1000) {          
+        if(total_elapsed > 1000) {          
             Log.d(TAG, "rendered fps: " + frames);
             
             // if(frames < 54)
@@ -61,7 +62,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
             // else if(frames>=54)
             //     flock.throttleUp();
                 
-            elapsed = 0;
+            total_elapsed = 0;
             frames = 0;
         }
 
@@ -73,7 +74,13 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         buffer.draw(gl);
 
         last = now;
-        Thread.yield();
+
+        if(elapsed < 16) {
+            try {
+                Thread.sleep(16-elapsed);
+            } catch(InterruptedException e) {
+            }
+        }
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) {
