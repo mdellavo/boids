@@ -7,7 +7,7 @@
    "MAX_SEED"         : 500,
    "MAX_SIZE"         : 50, 
    "MAX_VELOCITY"     : 5,
-   "RANGE"            : 20,
+   "RANGE"            : 100,
    "REBOUND_VELOCITY" : .01,
    "MIN_SIZE"         : 1,
    "SIZE_SCALE"       : 100,
