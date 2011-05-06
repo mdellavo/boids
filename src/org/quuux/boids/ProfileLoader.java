@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import java.lang.reflect.Field;
 
+import org.json.JSONTokener;
 import org.json.JSONObject;
 import org.json.JSONException;
 
@@ -20,16 +21,23 @@ class ProfileLoader {
     private static final String TAG = "ProfileLoader";
     
     private static Context context;
-    private static Map<String, Profile> cache;
+    private static Map<String, Profile> profiles = new HashMap<String, Profile>();
     
     public static void init(Context context) {
         ProfileLoader.context = context;
+        loadProfiles("default");
     }
-   
-    protected static Profile openProfile(String key) {       
-        AssetManager asset_manager = context.getAssets();
-        Profile rv = null;
 
+    public static Profile getProfile(String key) {
+        return profiles.get(key);
+    }
+
+    public static String[] getProfileNames() {
+        return (String[])profiles.keySet().toArray(new String[0]);
+    }
+
+    protected static void loadProfiles(String key) {
+        AssetManager asset_manager = context.getAssets();
         try {
             String profile_path = "profiles/" + key + ".json";
             
@@ -41,20 +49,21 @@ class ProfileLoader {
             in.read(bytes);
 
             String data = new String(bytes);
-
-            try { 
-                JSONObject obj = new JSONObject(data);                
-                rv = loadProfile(obj);
-
-            } catch(JSONException e) {
-                Log.d(TAG, "Could load profile object: " + data);
+            JSONTokener tokener = new JSONTokener(data);
+            
+            while(tokener.more()) {
+                try { 
+                    JSONObject obj = (JSONObject)tokener.nextValue();                
+                    Profile profile = loadProfile(obj);
+                    profiles.put(profile.name, profile);
+                } catch(JSONException e) {
+                    Log.d(TAG, "Could load profile object: " + data);
+                }
             }
 
         } catch(IOException e) {
             Log.d(TAG, "Could not open profile: " + key);
         }
-
-        return rv;
     }
 
     public static Profile loadProfile(JSONObject obj) {

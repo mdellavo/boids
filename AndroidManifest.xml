@@ -11,14 +11,20 @@
      android:debuggable="true" 
      android:label="@string/service_name">
 
-    <service android:label="@string/service_name" 
-             android:name=".BoidsWallpaperService"
-             android:permission="android.permission.BIND_WALLPAPER">
+    <activity
+       android:name=".BoidsPreferenceActivity"
+       android:exported="true"></activity>
+    
+    <service 
+       android:label="@string/service_name" 
+       android:name=".BoidsWallpaperService"
+       android:permission="android.permission.BIND_WALLPAPER">
       <intent-filter>
         <action android:name="android.service.wallpaper.WallpaperService" />
       </intent-filter>
-      <meta-data android:name="android.service.wallpaper"
-                 android:resource="@xml/boids_wallpaper" />
+      <meta-data
+         android:name="android.service.wallpaper"
+         android:resource="@xml/boids_wallpaper" />
     </service>
   </application>
 </manifest> 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ <PreferenceCategory 
+    android:title="Category Name"                    
+    android:summary="Brief summary of category">
+   <ListPreference
+      android:key="profile"
+      android:title="Profile"
+      android:summary="Flock profile"
+      android:dialogTitle="Select the flocking profile to use" />  
+ </PreferenceCategory>
+</PreferenceScreen>
+

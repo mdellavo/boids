@@ -82,7 +82,6 @@ public class BoidsWallpaperService extends GLWallpaperService {
     public BoidsWallpaperService() {
         super();
         TextureLoader.init(this);
-        ProfileLoader.init(this);
     }
     public Engine onCreateEngine() {
         return new BoidsEngine();
@@ -101,9 +100,8 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public BoidsEngine() {
             super();
         
-            Profile profile = ProfileLoader.openProfile("default");
-
-            flock = new Flock(profile);
+            ProfileLoader.init(BoidsWallpaperService.this);
+            flock = new Flock(ProfileLoader.getProfile("Default"));
             buffer = new FlockBuffer(flock);
             
             simulation_thread = new FlockThread(flock, buffer);
