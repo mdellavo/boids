@@ -1,9 +1,16 @@
 package org.quuux.boids;
 
 import android.util.Log;
-import android.view.MotionEvent;
 import android.os.Bundle;
+
+import android.view.MotionEvent;
+
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.preference.PreferenceManager;
+
 import android.opengl.GLU;
+
 import javax.microedition.khronos.opengles.GL;
 
 // Stolen from:
@@ -87,26 +94,35 @@ public class BoidsWallpaperService extends GLWallpaperService {
         return new BoidsEngine();
     }
 
-    class BoidsEngine extends GLEngine {
+    class BoidsEngine extends GLEngine implements OnSharedPreferenceChangeListener {
         private static final String TAG = "BoidsEngine";
-        
-        protected BoidsRenderer renderer;
-        protected FlockThread simulation_thread;
-        protected Flock flock;
-        protected FlockBuffer buffer;
+        private static final String SHARED_PREFS_NAME = "BoidsSettings";        
 
-        protected Vector3 last_touch = new Vector3();
+        protected BoidsRenderer renderer;
+        final protected FlockThread simulation_thread;
+        final protected Flock flock;
+        final protected FlockBuffer buffer;
+        
+        final protected Vector3 last_touch = new Vector3();
         
         public BoidsEngine() {
             super();
-        
+
             ProfileLoader.init(BoidsWallpaperService.this);
-            flock = new Flock(ProfileLoader.getProfile("Default"));
-            buffer = new FlockBuffer(flock);
+
+            flock = new Flock();
             
+            SharedPreferences preferences =
+                BoidsWallpaperService.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
+
+            preferences.registerOnSharedPreferenceChangeListener(this);
+            onSharedPreferenceChanged(preferences, null);
+
+            buffer = new FlockBuffer(flock);
+
             simulation_thread = new FlockThread(flock, buffer);
             simulation_thread.start();
-
+                   
             setGLWrapper(new GLWrapper() {
                     public GL wrap(GL gl) {
                         return new MatrixTrackingGL(gl);
@@ -115,9 +131,16 @@ public class BoidsWallpaperService extends GLWallpaperService {
     
             renderer = new BoidsRenderer(buffer);
             setRenderer(renderer);
-            setRenderMode(RENDERMODE_CONTINUOUSLY);            
+            setRenderMode(RENDERMODE_CONTINUOUSLY);
             setTouchEventsEnabled(true);
+        }
 
+        public void onSharedPreferenceChanged(SharedPreferences preferences,
+                                              String key) {
+
+            String profile_name = preferences.getString("profile", "Default");
+            Log.d(TAG, "loading proile: " + profile_name);
+            flock.init(ProfileLoader.getProfile(profile_name));
         }
 
         public void onDestroy() {

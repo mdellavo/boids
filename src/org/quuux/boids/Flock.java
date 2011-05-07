@@ -23,8 +23,8 @@ public class Flock {
     protected KDTree tree;
     final protected Vector3 flee_from = new Vector3();
     protected long flee;
-    
-    public Flock(Profile profile) {
+
+    public void init(Profile profile) {
         this.profile = profile;
         boids = new Boid[profile.FLOCK_SIZE];
 
@@ -46,7 +46,7 @@ public class Flock {
                 boids[i].seed = RandomGenerator.randomInt(0, 1000000);
         }
 
-        tree = new KDTree(profile.FLOCK_SIZE, 5);
+        tree = new KDTree(profile.FLOCK_SIZE, 5);        
     }
     
     // public void throttleUp() {

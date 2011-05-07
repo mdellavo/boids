@@ -5,8 +5,12 @@ import android.preference.PreferenceActivity;
 import android.preference.ListPreference;
 
 public class BoidsPreferenceActivity extends PreferenceActivity {
+    private static final String SHARED_PREFS_NAME = "BoidsSettings";        
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);          
+
+        getPreferenceManager().setSharedPreferencesName(SHARED_PREFS_NAME);
 
         addPreferencesFromResource(R.xml.preferences);
 
