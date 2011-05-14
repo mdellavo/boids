@@ -51,15 +51,15 @@ class ProfileLoader {
             String data = new String(bytes);
             JSONTokener tokener = new JSONTokener(data);
             
-            while(tokener.more()) {
+            do {
                 try { 
                     JSONObject obj = (JSONObject)tokener.nextValue();                
                     Profile profile = loadProfile(obj);
                     profiles.put(profile.name, profile);
                 } catch(JSONException e) {
-                    Log.d(TAG, "Could load profile object: " + data);
+                    Log.d(TAG, "Could not load profile object: " + e);
                 }
-            }
+            } while(tokener.more());
 
         } catch(IOException e) {
             Log.d(TAG, "Could not open profile: " + key);
@@ -98,6 +98,23 @@ class ProfileLoader {
         }
 
         return profile;
+    }
+
+    public static JSONObject storeProfile(Profile profile) {
+        JSONObject obj = new JSONObject();
+        
+        Field fields[] = profile.getClass().getFields();
+        for(Field f : fields) {
+            String name = f.getName();
+                
+            try {
+                obj.put(name, f);
+            } catch(JSONException e) {
+                Log.d(TAG, "Could not store field " + name + ": " + e);
+            }
+        }
+
+        return obj;
     }
 
 }

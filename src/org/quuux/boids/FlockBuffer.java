@@ -11,6 +11,7 @@ class FlockBuffer {
 
     protected int size;
 
+    protected int front_size;
     protected FlockFrame front;
     protected FlockFrame back;
     protected Texture texture;    
@@ -32,8 +33,12 @@ class FlockBuffer {
 
         back.clear(); 
 
+        size = 0;
         for(int i=0; i<flock.boids.length; i++) {
             Boid a = flock.boids[i];
+            
+            if(!a.alive)
+                continue;
 
             // update buffers
             back.vertices.put(a.position.x);
@@ -52,6 +57,7 @@ class FlockBuffer {
             back.colors.put(1f);
           
             back.sizes.put(a.size);
+            size++;
         }
             
         back.vertices.position(0);
@@ -70,6 +76,7 @@ class FlockBuffer {
             FlockFrame tmp = back;
             back = front;
             front = tmp;
+            front_size = size;
             dirty = true;
             notifyAll();
         }
@@ -122,7 +129,7 @@ class FlockBuffer {
             ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
             gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
             gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-            gl.glDrawArrays(GL10.GL_POINTS, 0, size); // XXX 
+            gl.glDrawArrays(GL10.GL_POINTS, 0, front_size); // XXX 
             dirty=false;
             notifyAll();
         }

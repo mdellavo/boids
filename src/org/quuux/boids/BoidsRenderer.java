@@ -75,9 +75,9 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         last = now;
 
-        if(elapsed < 16) {
+        if(elapsed < 33) {
             try {
-                Thread.sleep(16-elapsed);
+                Thread.sleep(33-elapsed);
             } catch(InterruptedException e) {
             }
         }

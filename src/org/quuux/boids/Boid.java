@@ -10,6 +10,7 @@ public class Boid {
     public float color[] = new float[4];
 
     public Boid(float x, float y, float z) {
+        alive = true;
         position.x = x;
         position.y = y;
         position.z = z;

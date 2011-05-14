@@ -2,4 +2,23 @@
 <resources>
     <string name="service_name">Boids</string>
     <string name="description">A Boids Wallpaper</string>
+
+    <string name="pref_profile_category_title">Flocking Behavior</string>
+    <string name="pref_profile_category_summary">Settings that control the flock\'s behavior</string>
+    <string name="pref_profile_tile">Profile</string>
+    <string name="pref_profile_summary">Select a flock profile</string>
+    <string name="pref_profile_dialog">Select a flock profile</string>
+
+    <string name="pref_flock_category_title">Flock Customization</string>
+    <string name="pref_flock_category_summary">Fine Tune</string>
+
+    <string name="pref_flock_size_tile">Flock Size</string>
+    <string name="pref_flock_size_summary">Set the number of boids in the flock</string>
+
+    <string name="pref_scale_flock_tile">Scale Flock Size</string>
+    <string name="pref_scale_flock_summary">Scale the flock size to target 60 FPS</string>
+
+    <string name="pref_randomize_color_tile">Randomize Colors</string>
+    <string name="pref_randomize_color_summary">Randomize the color of individual boids</string>
+
 </resources>

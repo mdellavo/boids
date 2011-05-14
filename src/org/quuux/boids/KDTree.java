@@ -111,9 +111,12 @@ public class KDTree {
     private NeighborResult neighbors;
     private BoidComparator[] comparators;
 
-    public KDTree(int pool_size, int max_neighbors) {
-        pool = new NodePool(pool_size);
-        neighbors = new NeighborResult(max_neighbors);
+    private Boid[] tmp;
+
+    public KDTree(int size, int max_neighbors) {
+        pool = new NodePool(size);
+        neighbors = new NeighborResult(max_neighbors);        
+        tmp = new Boid[size];
         
         comparators = new BoidComparator[3];
         for(int i=0; i<comparators.length; i++)
@@ -126,7 +129,16 @@ public class KDTree {
     
     public void add(Boid[] boids) {
         pool.recycle();
-        root = build(boids, 0, 0, boids.length);
+
+        int alive = 0;
+        for(int i=0; i<boids.length; i++) {
+            if(boids[i].alive) {
+                tmp[alive] = boids[i];
+                alive++;
+            }
+        }
+
+        root = build(boids, 0, 0, alive);
     }
 
     public void clear() {
@@ -144,7 +156,8 @@ public class KDTree {
 
         int component = depth % 3;
         int median = (end + start) / 2;
-
+        
+        // FIXME need in place quicksort
         Arrays.sort(boids, start, end, comparators[component]);
 
         Node node = pool.getNode();

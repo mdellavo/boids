@@ -10,6 +10,7 @@ public class Flock {
 
     protected Profile profile;
     protected Boid boids[];
+    protected KDTree tree;
 
     // preallocation so we dont trigger gc
     final protected Vector3 tmp = new Vector3();
@@ -20,8 +21,7 @@ public class Flock {
     final protected Vector3 v5 = new Vector3();
     final protected Vector3 v6 = new Vector3();
 
-    protected KDTree tree;
-    final protected Vector3 flee_from = new Vector3();
+    final protected Vector3 center = new Vector3();
     protected long flee;
 
     public void init(Profile profile) {
@@ -43,25 +43,35 @@ public class Flock {
                                                             profile.MAX_SEED));
 
             if(profile.RANDOMIZE_COLORS) 
-                boids[i].seed = RandomGenerator.randomInt(0, 1000000);
+                boids[i].seed = RandomGenerator.randomInt(0, 100000);
         }
 
         tree = new KDTree(profile.FLOCK_SIZE, 5);        
+
+        center.z = -100;
     }
     
-    // public void throttleUp() {
-    //     if(alive < boids.length - 1)
-    //         alive++;
-        
-    //     Log.d(TAG, "Throttle Up: alive = "  + alive);
-    // }
+    public void throttleUp() {
+        Log.d(TAG, "Throttle Up");
 
-    // public void throttleDown() {
-    //     if(alive > 0)
-    //         alive--;
+        for(int i=0; i<boids.length; i++) {
+            if(!boids[i].alive) {
+                boids[i].alive = true;
+                break;
+            }
+        }            
+    }
 
-    //     Log.d(TAG, "Throttle Down: alive = "  + alive);
-    // }
+    public void throttleDown() {
+        Log.d(TAG, "Throttle Down");
+
+        for(int i=0; i<boids.length; i++) {
+            if(boids[i].alive) {
+                boids[i].alive = false;
+                break;
+            }
+        }            
+    }
 
     public void tick(long elapsed) {
 
@@ -70,6 +80,11 @@ public class Flock {
         tree.add(boids);
 
         for(int i=0; i<boids.length; i++) {
+            Boid a = boids[i];
+
+            if(!a.alive)
+                continue;
+
             v1.zero();
             v2.zero();
             v3.zero();
@@ -77,7 +92,6 @@ public class Flock {
             v5.zero();
             v6.zero();
 
-            Boid a = boids[i];
             a.age++;
 
             Boid neighbors[] = tree.findNeighbors(a, profile.RANGE);
@@ -117,15 +131,15 @@ public class Flock {
             
             // Rule 4 - Bound
             rule4(a);
-            //rule5(a);
-                
-            // FIMXE move center to touch position and gradually reset
+
+            // Rule 5 - Center
+            rule5(a);
+
             if(flee>0) {
-                // Rule 6 - gather/scatter
-                rule6(a);
+                v5.scale(.3f); 
             } else {
-                // Rule 5 - Center
-                rule5(a);
+                center.x = 0;
+                center.y = 0;
             }
 
             // Scale the results
@@ -160,7 +174,7 @@ public class Flock {
             
             tmp.zero();
             tmp.copy(a.velocity);
-            tmp.scale(elapsed/60f);
+            tmp.scale(elapsed/30f);
 
             // apply velocity to position
             a.position.add(tmp);
@@ -203,20 +217,13 @@ public class Flock {
 
     // Rule 5 - tend towards center
     private void rule5(Boid b) {
-        v5.z = -100; // FIXME
+        v5.copy(center);
         v5.subtract(b.position);
-    }
-
-    // Rule 6 - fleeing / scattering
-    private void rule6(Boid b) {
-        v6.zero();
-        v6.copy(flee_from);
-        v6.subtract(b.position);
-        v6.scale(10);
     }
     
     public void scare(Vector3 p) {
         flee = profile.FLEE_TIME;
-        flee_from.copy(p);
+        center.copy(p);
+        center.z = -100;
     }
 }

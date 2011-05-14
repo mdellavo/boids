@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
- <PreferenceCategory 
-    android:title="Category Name"                    
-    android:summary="Brief summary of category">
+  <PreferenceCategory
+     android:title="@string/pref_profile_category_title"
+     android:summary="@string/pref_profile_category_summary">
    <ListPreference
       android:key="profile"
-      android:title="Profile"
-      android:summary="Flock profile"
-      android:dialogTitle="Select the flocking profile to use" />  
+      android:title="@string/pref_profile_tile"
+      android:summary="@string/pref_profile_summary"
+      android:dialogTitle="@string/pref_profile_dialog" />  
+ </PreferenceCategory>
+ <PreferenceCategory 
+    android:title="@string/pref_flock_category_title"
+    android:summary="@string/pref_flock_category_summary">
+   <CheckBoxPreference
+      android:key="Randomize Color"
+      android:title="@string/pref_randomize_color_tile"
+      android:summary="@string/pref_randomize_color_summary" />  
+   <CheckBoxPreference
+      android:key="scale_flock"
+      android:title="@string/pref_scale_flock_tile"
+      android:summary="@string/pref_scale_flock_summary" />  
+   <org.quuux.boids.SeekBarPreference  
+      android:key="flock_size"
+      android:defaultValue="30"
+      android:title="Flock Size"/>     
  </PreferenceCategory>
 </PreferenceScreen>
 
