@@ -53,7 +53,7 @@ class ProfileLoader {
             
             do {
                 try { 
-                    JSONObject obj = (JSONObject)tokener.nextValue();                
+                    JSONObject obj = (JSONObject)tokener.nextValue();
                     Profile profile = loadProfile(obj);
                     profiles.put(profile.name, profile);
                 } catch(JSONException e) {

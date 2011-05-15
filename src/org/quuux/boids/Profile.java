@@ -25,5 +25,6 @@ class Profile {
     public float MAX_Y;
     public float MIN_Z;
     public float MAX_Z;
+    public float MIN_ALPHA;
 }
 

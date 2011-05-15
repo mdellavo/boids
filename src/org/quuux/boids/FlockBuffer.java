@@ -8,6 +8,7 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 class FlockBuffer {
+    private static final String TAG = "FlockBuffer";
 
     protected int size;
 
@@ -46,7 +47,9 @@ class FlockBuffer {
             back.vertices.put(a.position.z);
 
             // FIMXE there has to be a better way to do this...
-            int rgb = Color.HSVToColor(a.color);
+            int alpha = Math.round(a.color[3] * 255);
+
+            int rgb = Color.HSVToColor(alpha, a.color);
             float red = (float)Color.red(rgb) / 255f;
             float green = (float)Color.green(rgb) / 255f;
             float blue = (float)Color.blue(rgb) / 255f;

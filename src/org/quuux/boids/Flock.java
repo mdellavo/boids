@@ -82,6 +82,8 @@ public class Flock {
         for(int i=0; i<boids.length; i++) {
             Boid a = boids[i];
 
+            a.age += RandomGenerator.randomInt(0, 2);
+
             if(!a.alive)
                 continue;
 
@@ -91,8 +93,6 @@ public class Flock {
             v4.zero();
             v5.zero();
             v6.zero();
-
-            a.age++;
 
             Boid neighbors[] = tree.findNeighbors(a, profile.RANGE);
             int neighbor_count = 0;
@@ -136,7 +136,10 @@ public class Flock {
             rule5(a);
 
             if(flee>0) {
-                v5.scale(.3f); 
+                v5.scale((float)Math.pow(scaleRange((float)flee,
+                                                    (float)profile.FLEE_TIME, 0,
+                                                    0, 2), 2)); 
+                v2.scale(2);
             } else {
                 center.x = 0;
                 center.y = 0;
@@ -179,17 +182,25 @@ public class Flock {
             // apply velocity to position
             a.position.add(tmp);
 
+            //Log.d(TAG, "depth_percentile: " + depth_percentile);
+            
+            a.size = scaleRange(a.position.z,
+                                profile.MIN_Z, profile.MAX_Z, 
+                                profile.MIN_SIZE, profile.SIZE_SCALE);
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
-            
-            a.size = profile.MIN_SIZE + (1- (a.position.z - profile.MIN_Z) / 
-                                         (profile.MAX_Z - profile.MIN_Z)) * profile.SIZE_SCALE;
+            a.color[3] = scaleRange(a.position.z, profile.MIN_Z, profile.MAX_Z, 0, 1);
 
             //Log.d(TAG, a.toString());
         }
     }
 
+    protected float scaleRange(float n,
+                               float min_a, float max_a,
+                               float min_b, float max_b) {
+        return (n / ((max_a - min_a) / (max_b - min_b))) + min_b;
+    }
 
     // FIXME move this into kdtree 
     private boolean inRange(Boid a, Boid b) {
