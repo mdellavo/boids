@@ -26,5 +26,6 @@ class Profile {
     public float MIN_Z;
     public float MAX_Z;
     public float MIN_ALPHA;
+    public int NEIGHBORS;
 }
 

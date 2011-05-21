@@ -5,20 +5,29 @@
 
     <string name="pref_profile_category_title">Flocking Behavior</string>
     <string name="pref_profile_category_summary">Settings that control the flock\'s behavior</string>
-    <string name="pref_profile_tile">Profile</string>
+    <string name="pref_profile_title">Profile</string>
     <string name="pref_profile_summary">Select a flock profile</string>
     <string name="pref_profile_dialog">Select a flock profile</string>
 
     <string name="pref_flock_category_title">Flock Customization</string>
     <string name="pref_flock_category_summary">Fine Tune</string>
 
-    <string name="pref_flock_size_tile">Flock Size</string>
-    <string name="pref_flock_size_summary">Set the number of boids in the flock</string>
+    <string name="pref_flock_size_title">Flock Size</string>
+    <string name="pref_flock_size_summary">The number of boids in the flock</string>
+    <string name="pref_flock_size_dialog_message">The number of boids in the flock</string>
 
-    <string name="pref_scale_flock_tile">Scale Flock Size</string>
+    <string name="pref_scale_flock_title">Scale Flock Size</string>
     <string name="pref_scale_flock_summary">Scale the flock size to target 60 FPS</string>
 
-    <string name="pref_randomize_color_tile">Randomize Colors</string>
+    <string name="pref_randomize_color_title">Randomize Colors</string>
     <string name="pref_randomize_color_summary">Randomize the color of individual boids</string>
+
+    <string name="pref_range_title">Neighbor Range</string>
+    <string name="pref_range_summary">The range to scan for neighbors</string>
+    <string name="pref_range_dialog_message">The range to scan for neighbors</string>
+
+    <string name="pref_neighbors_title">Number of Neighbors</string>
+    <string name="pref_neighbors_summary">The number of neighbors to weigh</string>
+    <string name="pref_neighbors_dialog_message">The number of neighbors to weigh</string>
 
 </resources>

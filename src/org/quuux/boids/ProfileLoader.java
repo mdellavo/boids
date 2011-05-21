@@ -116,6 +116,5 @@ class ProfileLoader {
 
         return obj;
     }
-
 }
 

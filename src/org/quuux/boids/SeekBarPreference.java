@@ -1,150 +1,109 @@
+/* The following code was written by Matthew Wiggins 
+ * and is released under the APACHE 2.0 license 
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
+
 package org.quuux.boids;
 
-// http://android-journey.blogspot.com/2010/01/for-almost-any-application-we-need-to.html
-
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.preference.Preference;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.graphics.Typeface;
+import android.preference.DialogPreference;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 
-public class SeekBarPreference extends Preference 
-    implements OnSeekBarChangeListener {
 
-    public static int maximum  = 500;
-    public static int interval = 25;
- 
-    private float oldValue = 50;
-    private TextView monitorBox;
- 
-    public SeekBarPreference(Context context) {
-        super(context);
-    }
- 
-    public SeekBarPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
- 
-    public SeekBarPreference(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-   
-    protected View onCreateView(ViewGroup parent){
-  
-        LinearLayout layout = new LinearLayout(getContext());
-   
-        LayoutParams params1 = new LayoutParams(LayoutParams.WRAP_CONTENT,
-                                               LayoutParams.WRAP_CONTENT);
-        params1.gravity = Gravity.LEFT;
-        params1.weight  = 1.0f;
-   
-        LayoutParams params2 = new LayoutParams(160, LayoutParams.WRAP_CONTENT);
-        
-        params2.gravity = Gravity.RIGHT;
-     
-        LayoutParams params3 = new LayoutParams(60, LayoutParams.WRAP_CONTENT);
+public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener
+{
+  private static final String androidns="http://schemas.android.com/apk/res/android";
 
-        params3.gravity = Gravity.CENTER;
-   
-        layout.setPadding(15, 10, 10, 10);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-   
-        TextView view = new TextView(getContext());
-        view.setText(getTitle());
-        view.setTextSize(18);
-        view.setTypeface(Typeface.SANS_SERIF, Typeface.BOLD);
-        view.setGravity(Gravity.LEFT);
-        view.setLayoutParams(params1);
-    
-        SeekBar bar = new SeekBar(getContext());
+  private SeekBar mSeekBar;
+  private TextView mSplashText,mValueText;
+  private Context mContext;
 
-        bar.setMax(maximum);
-        bar.setProgress((int)this.oldValue);
-        bar.setLayoutParams(params2);
-        bar.setOnSeekBarChangeListener(this);
-   
-        this.monitorBox = new TextView(getContext());
-        this.monitorBox.setTextSize(12);
-        this.monitorBox.setTypeface(Typeface.MONOSPACE, Typeface.ITALIC);
-        this.monitorBox.setLayoutParams(params3);
-        this.monitorBox.setPadding(2, 5, 0, 0);
-        this.monitorBox.setText(bar.getProgress() + "");
-   
-        layout.addView(view);
-        layout.addView(bar);
-        layout.addView(this.monitorBox);
-        layout.setId(android.R.id.widget_frame);
-   
-        return layout; 
-    }
- 
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-  
-        progress = Math.round(((float)progress)/interval)*interval;
-  
-        if(!callChangeListener(progress)){
-            seekBar.setProgress((int)this.oldValue); 
-            return; 
-        }
-    
-        seekBar.setProgress(progress);
-        this.oldValue = progress;
-        this.monitorBox.setText(progress + "");
-        updatePreference(progress);
-  
-        notifyChanged();
-    }
+  private String mDialogMessage, mSuffix;
+  private int mDefault, mMax, mValue = 0;
 
-    public void onStartTrackingTouch(SeekBar seekBar) {
-    }
+  public SeekBarPreference(Context context, AttributeSet attrs) { 
+    super(context,attrs); 
+    mContext = context;
 
-    public void onStopTrackingTouch(SeekBar seekBar) {
-    }
-  
-    protected Object onGetDefaultValue(TypedArray ta,int index){
-        
-        int dValue = (int)ta.getInt(index,50);
-        
-        return validateValue(dValue);
-    }
- 
+    mDialogMessage = attrs.getAttributeValue(androidns,"dialogMessage");
+    mSuffix = attrs.getAttributeValue(androidns,"text");
+    mDefault = attrs.getAttributeIntValue(androidns,"defaultValue", 0);
+    mMax = attrs.getAttributeIntValue(androidns,"max", 100);
 
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        int temp = restoreValue ? getPersistedInt(50) : (Integer)defaultValue;
-        
-        if(!restoreValue)
-            persistInt(temp);
-        
-        this.oldValue = temp;
-    }
- 
- 
-    private int validateValue(int value) {
-  
-        if(value > maximum)
-            value = maximum;
-        else if(value < 0)
-            value = 0;
-        else if(value % interval != 0)
-            value = Math.round(((float)value)/interval)*interval;  
-      
-        return value;  
-    }
-      
-    private void updatePreference(int newValue) {  
-        Editor editor = getEditor();
-        editor.putInt(getKey(), newValue);
-        editor.commit();
-    }
- 
+  }
+  @Override 
+  protected View onCreateDialogView() {
+    LinearLayout.LayoutParams params;
+    LinearLayout layout = new LinearLayout(mContext);
+    layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setPadding(6,6,6,6);
+
+    mSplashText = new TextView(mContext);
+    if (mDialogMessage != null)
+      mSplashText.setText(mDialogMessage);
+    layout.addView(mSplashText);
+
+    mValueText = new TextView(mContext);
+    mValueText.setGravity(Gravity.CENTER_HORIZONTAL);
+    mValueText.setTextSize(32);
+    params = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.FILL_PARENT, 
+        LinearLayout.LayoutParams.WRAP_CONTENT);
+    layout.addView(mValueText, params);
+
+    mSeekBar = new SeekBar(mContext);
+    mSeekBar.setOnSeekBarChangeListener(this);
+    layout.addView(mSeekBar, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+    if (shouldPersist())
+      mValue = getPersistedInt(mDefault);
+
+    mSeekBar.setMax(mMax);
+    mSeekBar.setProgress(mValue);
+    return layout;
+  }
+  @Override 
+  protected void onBindDialogView(View v) {
+    super.onBindDialogView(v);
+    mSeekBar.setMax(mMax);
+    mSeekBar.setProgress(mValue);
+  }
+  @Override
+  protected void onSetInitialValue(boolean restore, Object defaultValue)  
+  {
+    super.onSetInitialValue(restore, defaultValue);
+    if (restore) 
+      mValue = shouldPersist() ? getPersistedInt(mDefault) : 0;
+    else 
+      mValue = (Integer)defaultValue;
+  }
+
+  public void onProgressChanged(SeekBar seek, int value, boolean fromTouch)
+  {
+    String t = String.valueOf(value);
+    mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
+    if (shouldPersist())
+      persistInt(value);
+    callChangeListener(new Integer(value));
+  }
+  public void onStartTrackingTouch(SeekBar seek) {}
+  public void onStopTrackingTouch(SeekBar seek) {}
+
+  public void setMax(int max) { mMax = max; }
+  public int getMax() { return mMax; }
+
+  public void setProgress(int progress) { 
+    mValue = progress;
+    if (mSeekBar != null)
+      mSeekBar.setProgress(progress); 
+  }
+  public int getProgress() { return mValue; }
 }
+

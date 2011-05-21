@@ -13,79 +13,11 @@ import android.opengl.GLU;
 
 import javax.microedition.khronos.opengles.GL;
 
+import java.lang.reflect.Field;
+
 // Stolen from:
 // Original code provided by Robert Green
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
-
-class FlockThread extends Thread implements Runnable {
-    private static final String TAG = "FlockThread";
-
-    protected Flock flock;
-    protected FlockBuffer buffer;
-    protected boolean running;
-    protected long frames;
-    protected long last;
-
-    public FlockThread(Flock flock, FlockBuffer buffer) {
-        this.flock = flock;
-        this.buffer = buffer;
-    }
-
-    public void run() {
-        long total_elapsed = 0;
-        
-        while(true) {
-            frames++;
-
-            synchronized(this) {
-                while(!running) {
-                    try {
-                        wait();
-                    } catch(InterruptedException e) {                        
-                    }
-                }
-            }
-
-            long now = System.currentTimeMillis();
-            long elapsed = now - last;
-            flock.tick(elapsed);   
-            buffer.render(flock);
-
-            total_elapsed += elapsed;
-            if(total_elapsed > 1000) {          
-
-                Log.d(TAG, "ticked fps: " + frames);
-            
-                if(frames < 30)
-                    flock.throttleDown();
-                else if(frames>=30)
-                    flock.throttleUp();
-
-                
-                total_elapsed = 0;
-                frames = 0;
-            }
-
-            last = now;
-            if(elapsed < 33) {
-                try {
-                    Thread.sleep(33-elapsed);
-                } catch(InterruptedException e) {
-                }
-            }
-        }
-    }
-
-    public synchronized void pauseSimulation() {
-        running = false;
-    }
-
-    public synchronized void resumeSimulation() {
-        running = true;
-        last = System.currentTimeMillis();
-        notifyAll();
-    }
-}
 
 public class BoidsWallpaperService extends GLWallpaperService {
     public BoidsWallpaperService() {
@@ -118,7 +50,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
                 BoidsWallpaperService.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
 
             preferences.registerOnSharedPreferenceChangeListener(this);
-            onSharedPreferenceChanged(preferences, null);
+            onSharedPreferenceChanged(preferences, "profile");
 
             buffer = new FlockBuffer(flock);
 
@@ -137,12 +69,56 @@ public class BoidsWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
         }
 
+        // FIXME i think i need a lock here
         public void onSharedPreferenceChanged(SharedPreferences preferences,
                                               String key) {
+            
+            if(simulation_thread != null)
+                simulation_thread.pauseSimulation();
 
-            String profile_name = preferences.getString("profile", "Default");
-            Log.d(TAG, "loading proile: " + profile_name);
-            flock.init(ProfileLoader.getProfile(profile_name));
+            Profile profile;
+
+            if(key.equals("profile")) {
+                String profile_name = preferences.getString("profile", "Default");
+                Log.d(TAG, "loading proile: " + profile_name);
+                profile = ProfileLoader.getProfile(profile_name);
+            } else {
+                
+                profile = flock.getProfile();
+
+                Log.d(TAG, "preference changed: " + key);
+        
+                try {
+                    Field field = profile.getClass().getField(key.toUpperCase());
+                    String type_name = field.getType().getName();
+                
+                    Log.d(TAG, "type: " + type_name);
+                
+                    if(type_name.equals("java.lang.String")) {
+                        field.set(profile, preferences.getString(key, ""));
+                    } else if(type_name.equals("float")) {
+                        field.setFloat(profile, preferences.getInt(key, 0));
+                    } else if(type_name.equals("int")) {
+                        field.setInt(profile, preferences.getInt(key, 0));
+                    } else if(type_name.equals("long")) {
+                        field.setLong(profile, preferences.getLong(key, 0));
+                    } else if(type_name.equals("boolean")) {
+                        field.setBoolean(profile, preferences.getBoolean(key, false));
+                    } else {
+                        Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
+                    }
+                
+                } catch(NoSuchFieldException e) {
+                    Log.d(TAG, "no such profile field: " + key + ": " + e);
+                } catch(IllegalAccessException e) {                    
+                    Log.d(TAG, "illeagal illeagl: " + key + ": " + e);
+                }
+            }
+
+            flock.init(profile);
+
+            if(simulation_thread != null)
+                simulation_thread.resumeSimulation();                            
         }
 
         public void onDestroy() {
@@ -164,17 +140,19 @@ public class BoidsWallpaperService extends GLWallpaperService {
             }
         }
 
-        // public void onOffsetsChanged(float xOffset, float yOffset, 
-        //                              float xOffsetStep, float yOffsetStep, 
-        //                              int xPixelOffset, int yPixelOffset) {
-        //     Log.d(TAG, "offset changed");
-        // }
+        public void onOffsetsChanged(float xOffset, float yOffset, 
+                                     float xOffsetStep, float yOffsetStep, 
+                                     int xPixelOffset, int yPixelOffset) {
+            Log.d(TAG, "offset: " + xOffset + ", " + yOffset + 
+                  " | offsetStep: " + xOffsetStep + ", " + yOffsetStep + 
+                  " | pixelOffset: " + xPixelOffset + ", " + yPixelOffset);
+        }
 
-        // public Bundle onCommand(String acxbtion, int x, int y, int z, 
-        //                         Bundle extras, boolean resultRequested) {
-        //     Log.d(TAG, "command: " + action);
-        //     return null;
-        // } 
+        public Bundle onCommand(String action, int x, int y, int z, 
+                                Bundle extras, boolean resultRequested) {
+            Log.d(TAG, "command: " + action);
+            return null;
+        } 
 
         // FIXME pull camera position
         public Vector3 projectTouchToWorld(float x, float y) {
@@ -202,11 +180,12 @@ public class BoidsWallpaperService extends GLWallpaperService {
             return last_touch;
         }
 
+        // FIXME queue event; copy event data into finals
         public void onTouchEvent(MotionEvent event) {
             Vector3 v = projectTouchToWorld(event.getX(), event.getY());
             //Log.d(TAG, "touch: " + v);            
             
-            flock.scare(v);
+            flock.touch(v);
         }
     }
 }

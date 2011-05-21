@@ -25,11 +25,6 @@ class FlockBuffer {
         back = new FlockFrame(flock);
     }
     
-    // wait for consumer/renderer to finish with 
-    protected void swap() {
-            
-    }
-
     public void render(Flock flock) {
 
         back.clear(); 

@@ -20,6 +20,7 @@ public class Flock {
     final protected Vector3 v4 = new Vector3();
     final protected Vector3 v5 = new Vector3();
     final protected Vector3 v6 = new Vector3();
+    final protected Vector3 v7 = new Vector3();
 
     final protected Vector3 center = new Vector3();
     protected long flee;
@@ -42,13 +43,18 @@ public class Flock {
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED));
 
+
             if(profile.RANDOMIZE_COLORS) 
                 boids[i].seed = RandomGenerator.randomInt(0, 100000);
         }
 
-        tree = new KDTree(profile.FLOCK_SIZE, 5);        
+        tree = new KDTree(profile.FLOCK_SIZE, profile.NEIGHBORS);        
 
         center.z = -100;
+    }
+
+    public Profile getProfile() {
+        return profile;
     }
     
     public void throttleUp() {
@@ -82,7 +88,7 @@ public class Flock {
         for(int i=0; i<boids.length; i++) {
             Boid a = boids[i];
 
-            a.age += RandomGenerator.randomInt(0, 2);
+            a.age += RandomGenerator.randomInt(-1, 1);
 
             if(!a.alive)
                 continue;
@@ -111,7 +117,7 @@ public class Flock {
                     tmp.add(b.position);
                     tmp.subtract(a.position);
                     
-                    if(tmp.magnitude() < 100f) // FIXME
+                    if(tmp.magnitude() < profile.RANGE) // FIXME
                         v2.subtract(tmp);                  
                     
                     // Rule 3
@@ -139,7 +145,8 @@ public class Flock {
                 v5.scale((float)Math.pow(scaleRange((float)flee,
                                                     (float)profile.FLEE_TIME, 0,
                                                     0, 2), 2)); 
-                v2.scale(2);
+                v2.scale(4);
+                v1.scale(-2);
             } else {
                 center.x = 0;
                 center.y = 0;
@@ -151,7 +158,7 @@ public class Flock {
             v3.scale(profile.SCALE_V3);
             v4.scale(profile.SCALE_V4);
             v5.scale(profile.SCALE_V5);
-            v6.scale(profile.SCALE_V6);
+            v6.scale(profile.SCALE_V6);          
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
@@ -165,6 +172,7 @@ public class Flock {
             a.velocity.add(v4);
             a.velocity.add(v5);
             a.velocity.add(v6);
+            a.velocity.add(v7);
 
             // limit velocity
             if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
@@ -232,9 +240,13 @@ public class Flock {
         v5.subtract(b.position);
     }
     
-    public void scare(Vector3 p) {
+    public void touch(Vector3 p) {
         flee = profile.FLEE_TIME;
         center.copy(p);
         center.z = -100;
+    }
+
+    public void push(Vector3 f) {
+        v7.copy(f);
     }
 }

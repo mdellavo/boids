@@ -5,25 +5,52 @@
      android:summary="@string/pref_profile_category_summary">
    <ListPreference
       android:key="profile"
-      android:title="@string/pref_profile_tile"
+      android:title="@string/pref_profile_title"
       android:summary="@string/pref_profile_summary"
       android:dialogTitle="@string/pref_profile_dialog" />  
  </PreferenceCategory>
  <PreferenceCategory 
     android:title="@string/pref_flock_category_title"
     android:summary="@string/pref_flock_category_summary">
+
    <CheckBoxPreference
-      android:key="Randomize Color"
-      android:title="@string/pref_randomize_color_tile"
+      android:key="randomize_colors"
+       android:title="@string/pref_randomize_color_title"
       android:summary="@string/pref_randomize_color_summary" />  
+
    <CheckBoxPreference
       android:key="scale_flock"
-      android:title="@string/pref_scale_flock_tile"
+      android:title="@string/pref_scale_flock_title"
       android:summary="@string/pref_scale_flock_summary" />  
-   <org.quuux.boids.SeekBarPreference  
+
+   <org.quuux.boids.SeekBarPreference
       android:key="flock_size"
-      android:defaultValue="30"
-      android:title="Flock Size"/>     
+      android:title="@string/pref_flock_size_title"
+      android:summary="@string/pref_flock_size_summary"
+      android:dialogMessage="@string/pref_flock_size_dialog_message"
+      android:defaultValue="250"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="range"
+      android:title="@string/pref_range_title"
+      android:summary="@string/pref_range_summary"
+      android:dialogMessage="@string/pref_range_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="neighbors"
+      android:title="@string/pref_neighbors_title"
+      android:summary="@string/pref_neighbors_summary"
+      android:dialogMessage="@string/pref_neighbors_dialog_message"
+      android:defaultValue="10"
+      android:text=""
+      android:max="1000" />
+
  </PreferenceCategory>
+
 </PreferenceScreen>
 
