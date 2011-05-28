@@ -4,10 +4,10 @@
      android:title="@string/pref_profile_category_title"
      android:summary="@string/pref_profile_category_summary">
    <ListPreference
-      android:key="profile"
-      android:title="@string/pref_profile_title"
-      android:summary="@string/pref_profile_summary"
-      android:dialogTitle="@string/pref_profile_dialog" />  
+      android:key="profile_name"
+      android:title="@string/pref_profile_name_title"
+      android:summary="@string/pref_profile_name_summary"
+      android:dialogTitle="@string/pref_profile_name_dialog" />  
  </PreferenceCategory>
  <PreferenceCategory 
     android:title="@string/pref_flock_category_title"

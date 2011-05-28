@@ -13,8 +13,6 @@ import android.opengl.GLU;
 
 import javax.microedition.khronos.opengles.GL;
 
-import java.lang.reflect.Field;
-
 // Stolen from:
 // Original code provided by Robert Green
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
@@ -42,15 +40,16 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public BoidsEngine() {
             super();
 
+            SharedPreferences preferences =
+                BoidsWallpaperService.this.getSharedPreferences(ProfileLoader.SHARED_PREFS_NAME, 0);
+            
             ProfileLoader.init(BoidsWallpaperService.this);
+            Profile profile = ProfileLoader.loadProfile(preferences);
 
             flock = new Flock();
+            flock.init(profile);
             
-            SharedPreferences preferences =
-                BoidsWallpaperService.this.getSharedPreferences(SHARED_PREFS_NAME, 0);
-
             preferences.registerOnSharedPreferenceChangeListener(this);
-            onSharedPreferenceChanged(preferences, "profile");
 
             buffer = new FlockBuffer(flock);
 
@@ -73,52 +72,18 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onSharedPreferenceChanged(SharedPreferences preferences,
                                               String key) {
             
-            if(simulation_thread != null)
-                simulation_thread.pauseSimulation();
-
-            Profile profile;
-
             if(key.equals("profile")) {
-                String profile_name = preferences.getString("profile", "Default");
-                Log.d(TAG, "loading proile: " + profile_name);
-                profile = ProfileLoader.getProfile(profile_name);
-            } else {
-                
-                profile = flock.getProfile();
+                if(simulation_thread != null)
+                    simulation_thread.pauseSimulation();           
 
-                Log.d(TAG, "preference changed: " + key);
-        
-                try {
-                    Field field = profile.getClass().getField(key.toUpperCase());
-                    String type_name = field.getType().getName();
-                
-                    Log.d(TAG, "type: " + type_name);
-                
-                    if(type_name.equals("java.lang.String")) {
-                        field.set(profile, preferences.getString(key, ""));
-                    } else if(type_name.equals("float")) {
-                        field.setFloat(profile, preferences.getInt(key, 0));
-                    } else if(type_name.equals("int")) {
-                        field.setInt(profile, preferences.getInt(key, 0));
-                    } else if(type_name.equals("long")) {
-                        field.setLong(profile, preferences.getLong(key, 0));
-                    } else if(type_name.equals("boolean")) {
-                        field.setBoolean(profile, preferences.getBoolean(key, false));
-                    } else {
-                        Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
-                    }
-                
-                } catch(NoSuchFieldException e) {
-                    Log.d(TAG, "no such profile field: " + key + ": " + e);
-                } catch(IllegalAccessException e) {                    
-                    Log.d(TAG, "illeagal illeagl: " + key + ": " + e);
-                }
+                Profile profile = ProfileLoader.loadProfile(preferences);
+
+                flock.init(profile);
+                buffer.allocate(flock);
+
+                if(simulation_thread != null)
+                    simulation_thread.resumeSimulation();                            
             }
-
-            flock.init(profile);
-
-            if(simulation_thread != null)
-                simulation_thread.resumeSimulation();                            
         }
 
         public void onDestroy() {
@@ -133,6 +98,8 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             
+            Log.d(TAG, "visible: " + visible);
+
             if(visible) {
                 simulation_thread.resumeSimulation();
             } else {

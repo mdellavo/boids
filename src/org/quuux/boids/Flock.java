@@ -88,7 +88,7 @@ public class Flock {
         for(int i=0; i<boids.length; i++) {
             Boid a = boids[i];
 
-            a.age += RandomGenerator.randomInt(-1, 1);
+            a.age += RandomGenerator.randomInt(0, 2);
 
             if(!a.alive)
                 continue;
@@ -174,6 +174,7 @@ public class Flock {
             a.velocity.add(v6);
             a.velocity.add(v7);
 
+
             // limit velocity
             if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
                 a.velocity.normalize();
@@ -243,7 +244,7 @@ public class Flock {
     public void touch(Vector3 p) {
         flee = profile.FLEE_TIME;
         center.copy(p);
-        center.z = -100;
+        center.z = -50;
     }
 
     public void push(Vector3 f) {

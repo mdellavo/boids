@@ -10,31 +10,32 @@ import javax.microedition.khronos.opengles.GL11;
 class FlockBuffer {
     private static final String TAG = "FlockBuffer";
 
-    protected int size;
-
-    protected int front_size;
     protected FlockFrame front;
     protected FlockFrame back;
     protected Texture texture;    
-
     protected boolean dirty;
 
     public FlockBuffer(Flock flock) {
-        size = flock.boids.length;
-        front = new FlockFrame(flock);
-        back = new FlockFrame(flock);
+        allocate(flock);
     }
-    
+
+    public void allocate(Flock flock) {
+        front = new FlockFrame(flock.boids.length);
+        back = new FlockFrame(flock.boids.length);        
+    }
+
     public void render(Flock flock) {
 
         back.clear(); 
 
-        size = 0;
-        for(int i=0; i<flock.boids.length; i++) {
+        int alive = 0;
+        for(int i = 0; i<flock.boids.length; i++) {
             Boid a = flock.boids[i];
             
             if(!a.alive)
                 continue;
+
+            alive++;
 
             // update buffers
             back.vertices.put(a.position.x);
@@ -55,9 +56,12 @@ class FlockBuffer {
             back.colors.put(1f);
           
             back.sizes.put(a.size);
-            size++;
         }
             
+        back.vertices.limit(alive*3);
+        back.colors.limit(alive*4);
+        back.sizes.limit(alive);
+
         back.vertices.position(0);
         back.colors.position(0);
         back.sizes.position(0);
@@ -74,7 +78,6 @@ class FlockBuffer {
             FlockFrame tmp = back;
             back = front;
             front = tmp;
-            front_size = size;
             dirty = true;
             notifyAll();
         }
@@ -112,6 +115,8 @@ class FlockBuffer {
                 } catch(InterruptedException e) {
                 }
             }
+
+            notifyAll();
         }
 
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
@@ -127,7 +132,7 @@ class FlockBuffer {
             ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
             gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
             gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-            gl.glDrawArrays(GL10.GL_POINTS, 0, front_size); // XXX 
+            gl.glDrawArrays(GL10.GL_POINTS, 0, front.sizes.limit()); // XXX 
             dirty=false;
             notifyAll();
         }

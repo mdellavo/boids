@@ -3,6 +3,11 @@ package org.quuux.boids;
 import android.content.res.AssetManager;
 import android.content.Context;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.preference.PreferenceManager;
+
 import android.util.Log;
 
 import java.util.Map;
@@ -20,6 +25,8 @@ import org.json.JSONException;
 class ProfileLoader {
     private static final String TAG = "ProfileLoader";
     
+    public static final String SHARED_PREFS_NAME = "BoidsSettings";        
+
     private static Context context;
     private static Map<String, Profile> profiles = new HashMap<String, Profile>();
     
@@ -38,6 +45,7 @@ class ProfileLoader {
 
     protected static void loadProfiles(String key) {
         AssetManager asset_manager = context.getAssets();
+
         try {
             String profile_path = "profiles/" + key + ".json";
             
@@ -70,7 +78,7 @@ class ProfileLoader {
         Profile profile = null;
 
         try {
-            Class profile_class = Class.forName(obj.optString("class", "Profile"));
+            Class profile_class = Class.forName(obj.optString("class", "org.quuux.boids.Profile"));
             Field fields[] = profile_class.getFields();
             profile = (Profile) profile_class.newInstance();
 
@@ -106,15 +114,61 @@ class ProfileLoader {
         Field fields[] = profile.getClass().getFields();
         for(Field f : fields) {
             String name = f.getName();
-                
+            
+
             try {
-                obj.put(name, f);
+                obj.put(name, f.get(profile));
             } catch(JSONException e) {
+                Log.d(TAG, "Could not store field " + name + ": " + e);
+            } catch(IllegalAccessException e) {
                 Log.d(TAG, "Could not store field " + name + ": " + e);
             }
         }
 
         return obj;
+    }
+
+    public static void saveProfile(Profile profile,
+                                          SharedPreferences preferences) {
+        String json = storeProfile(profile).toString();
+        
+        Log.d(TAG, "saving profile to preferences: " + json);
+
+        Editor editor = preferences.edit();
+        editor.putString("profile", json);       
+        editor.commit();
+    }
+
+    public static Profile loadProfile(SharedPreferences preferences) {
+
+        Profile rv = null;
+
+        // FIXME move to ProfileLoader
+        if(preferences.contains("profile")) {
+            String json = preferences.getString("profile", "{}");
+
+            Log.d(TAG, "loading profile from preferences: " + json);
+
+            JSONTokener tokener = new JSONTokener(json);
+
+            try {
+                Object obj = tokener.nextValue();
+
+                if(obj instanceof JSONObject)
+                    rv = loadProfile((JSONObject)obj);
+
+            } catch(JSONException e) {                
+                Log.d(TAG, "Could not load json: " + json);
+            }
+        }
+
+        if(rv == null) {
+            String profile_name = preferences.getString("", "Default");
+            Log.d(TAG, "loading proile: " + profile_name);
+            rv = getProfile(profile_name);
+        }
+
+        return rv;
     }
 }
 

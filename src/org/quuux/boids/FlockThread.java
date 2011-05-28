@@ -29,6 +29,7 @@ class FlockThread extends Thread implements Runnable {
                     } catch(InterruptedException e) {                        
                     }
                 }
+                notifyAll();
             }
 
             long now = System.currentTimeMillis();
@@ -41,7 +42,6 @@ class FlockThread extends Thread implements Runnable {
 
                 Log.d(TAG, "ticked fps: " + frames);
 
-                // FIXME queue event; copy event data into finals            
                 if(frames < 30)
                     flock.throttleDown();
                 else if(frames>=30)
@@ -63,13 +63,15 @@ class FlockThread extends Thread implements Runnable {
         }
     }
 
-    public synchronized void pauseSimulation() {
+    public void pauseSimulation() {
         running = false;
+        Log.d(TAG, "pause thread");
     }
 
     public synchronized void resumeSimulation() {
         running = true;
         last = System.currentTimeMillis();
         notifyAll();
+        Log.d(TAG, "resume thread");
     }
 }
