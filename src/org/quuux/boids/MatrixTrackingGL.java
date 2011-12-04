@@ -919,7 +919,7 @@ public class MatrixTrackingGL implements GL, GL10, GL10Ext, GL11, GL11Ext {
     }
 
     public void glPointParameterfv(int pname, float[] params, int offset) {
-        throw new UnsupportedOperationException();
+        mgl11.glPointParameterfv(pname, params, offset);
     }
 
     public void glPointParameterfv(int pname, FloatBuffer params) {

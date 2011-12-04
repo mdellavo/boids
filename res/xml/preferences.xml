@@ -14,17 +14,17 @@
     android:summary="@string/pref_flock_category_summary">
 
    <CheckBoxPreference
-      android:key="randomize_colors"
+      android:key="RANDOMIZE_COLORS"
        android:title="@string/pref_randomize_color_title"
       android:summary="@string/pref_randomize_color_summary" />  
 
    <CheckBoxPreference
-      android:key="scale_flock"
+      android:key="SCALE_FLOCK"
       android:title="@string/pref_scale_flock_title"
       android:summary="@string/pref_scale_flock_summary" />  
 
    <org.quuux.boids.SeekBarPreference
-      android:key="flock_size"
+      android:key="FLOCK_SIZE"
       android:title="@string/pref_flock_size_title"
       android:summary="@string/pref_flock_size_summary"
       android:dialogMessage="@string/pref_flock_size_dialog_message"
@@ -33,7 +33,7 @@
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="range"
+      android:key="RANGE"
       android:title="@string/pref_range_title"
       android:summary="@string/pref_range_summary"
       android:dialogMessage="@string/pref_range_dialog_message"
@@ -42,13 +42,76 @@
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="neighbors"
+      android:key="NEIGHBORS"
       android:title="@string/pref_neighbors_title"
       android:summary="@string/pref_neighbors_summary"
       android:dialogMessage="@string/pref_neighbors_dialog_message"
       android:defaultValue="10"
       android:text=""
       android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V1"
+      android:title="@string/pref_v1_title"
+      android:summary="@string/pref_v1_summary"
+      android:dialogMessage="@string/pref_v1_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V2"
+      android:title="@string/pref_v2_title"
+      android:summary="@string/pref_v2_summary"
+      android:dialogMessage="@string/pref_v2_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V3"
+      android:title="@string/pref_v3_title"
+      android:summary="@string/pref_v3_summary"
+      android:dialogMessage="@string/pref_v3_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V4"
+      android:title="@string/pref_v4_title"
+      android:summary="@string/pref_v4_summary"
+      android:dialogMessage="@string/pref_v4_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V5"
+      android:title="@string/pref_v5_title"
+      android:summary="@string/pref_v5_summary"
+      android:dialogMessage="@string/pref_v5_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="SCALE_V6"
+      android:title="@string/pref_v6_title"
+      android:summary="@string/pref_v6_summary"
+      android:dialogMessage="@string/pref_v6_dialog_message"
+      android:defaultValue="100"
+      android:text=""
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+      android:key="FLEE_TIME"
+      android:title="@string/pref_flee_time_title"
+      android:summary="@string/pref_flee_time_summary"
+      android:dialogMessage="@string/pref_flee_time_dialog_message"
+      android:defaultValue="1000"
+      android:text=""
+      android:max="10000" />
 
  </PreferenceCategory>
 

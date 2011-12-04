@@ -43,9 +43,10 @@ public class Flock {
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED));
 
-
             if(profile.RANDOMIZE_COLORS) 
                 boids[i].seed = RandomGenerator.randomInt(0, 100000);
+
+            Log.d(TAG, boids[i].toString());
         }
 
         tree = new KDTree(profile.FLOCK_SIZE, profile.NEIGHBORS);        
@@ -116,9 +117,10 @@ public class Flock {
                     tmp.zero();       
                     tmp.add(b.position);
                     tmp.subtract(a.position);
-                    
-                    if(tmp.magnitude() < profile.RANGE) // FIXME
-                        v2.subtract(tmp);                  
+
+                    // FIXME Does this actually work?                    
+                    if(tmp.magnitude() < profile.RANGE)
+                        v2.subtract(tmp);                 
                     
                     // Rule 3
                     v3.add(b.velocity);
@@ -138,6 +140,7 @@ public class Flock {
             // Rule 4 - Bound
             rule4(a);
 
+
             // Rule 5 - Center
             rule5(a);
 
@@ -145,8 +148,9 @@ public class Flock {
                 v5.scale((float)Math.pow(scaleRange((float)flee,
                                                     (float)profile.FLEE_TIME, 0,
                                                     0, 2), 2)); 
-                v2.scale(4);
-                v1.scale(-2);
+                v1.scale(-10);
+                v2.scale(10);
+                v3.scale(10);
             } else {
                 center.x = 0;
                 center.y = 0;
@@ -181,26 +185,29 @@ public class Flock {
                 a.velocity.scale(profile.MAX_VELOCITY);            
             }
 
-            // move independant of framerate
-            //Log.d(TAG, "elapsed=" + elapsed);
-            
+
             tmp.zero();
             tmp.copy(a.velocity);
-            tmp.scale(elapsed/30f);
+            
+            // FIXME
+            // move independant of framerate
+            //Log.d(TAG, "elapsed=" + elapsed);            
+            // tmp.scale(elapsed/30f);
 
             // apply velocity to position
             a.position.add(tmp);
-
+          
             //Log.d(TAG, "depth_percentile: " + depth_percentile);
             
             a.size = scaleRange(a.position.z,
                                 profile.MIN_Z, profile.MAX_Z, 
                                 profile.MIN_SIZE, profile.SIZE_SCALE);
+
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
             a.color[3] = scaleRange(a.position.z, profile.MIN_Z, profile.MAX_Z, 0, 1);
-
+            
             //Log.d(TAG, a.toString());
         }
     }
@@ -244,7 +251,7 @@ public class Flock {
     public void touch(Vector3 p) {
         flee = profile.FLEE_TIME;
         center.copy(p);
-        center.z = -50;
+        center.z = -200;
     }
 
     public void push(Vector3 f) {

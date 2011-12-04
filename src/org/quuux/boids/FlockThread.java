@@ -16,11 +16,23 @@ class FlockThread extends Thread implements Runnable {
         this.buffer = buffer;
     }
 
+    public void setFlock(Flock flock) {
+        this.flock = flock;
+    }
+
+    public void setBuffer(FlockBuffer buffer) {
+        this.buffer = buffer;
+    }
+
     public void run() {
         long total_elapsed = 0;
         
         while(true) {
             frames++;
+
+            long now = System.currentTimeMillis();
+            long elapsed = now - last;
+            last = now;
 
             synchronized(this) {
                 while(!running) {
@@ -29,11 +41,10 @@ class FlockThread extends Thread implements Runnable {
                     } catch(InterruptedException e) {                        
                     }
                 }
+
                 notifyAll();
             }
 
-            long now = System.currentTimeMillis();
-            long elapsed = now - last;
             flock.tick(elapsed);   
             buffer.render(flock);
 
@@ -52,7 +63,6 @@ class FlockThread extends Thread implements Runnable {
                 frames = 0;
             }
 
-            last = now;
             if(elapsed < 33) {
                 try {
                     Thread.sleep(33-elapsed);
@@ -63,15 +73,16 @@ class FlockThread extends Thread implements Runnable {
         }
     }
 
-    public void pauseSimulation() {
+    public synchronized void pauseSimulation() {
         running = false;
         Log.d(TAG, "pause thread");
+        notifyAll();
     }
 
     public synchronized void resumeSimulation() {
         running = true;
         last = System.currentTimeMillis();
-        notifyAll();
         Log.d(TAG, "resume thread");
+        notifyAll();
     }
 }

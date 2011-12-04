@@ -103,6 +103,9 @@ class FlockBuffer {
         
         gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
                      GL11.GL_TRUE);
+
+        //float[] att = {0, 0, 1f/64f};
+        //((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
     }
 
     public void draw(GL10 gl) {

@@ -20,6 +20,7 @@ public class BoidsPreferenceActivity extends PreferenceActivity
 
     private static final String TAG = "BoidsPreferenceActivity";
 
+    protected boolean dirty;
     protected Profile profile;
     protected SharedPreferences preferences;
 
@@ -47,52 +48,33 @@ public class BoidsPreferenceActivity extends PreferenceActivity
 
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "Storing profile perefence");
-        ProfileLoader.saveProfile(profile, preferences);
+        if(dirty) {
+            Log.d(TAG, "Storing profile preference");
+            ProfileLoader.saveProfile(profile, preferences);
+        }
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences preferences,
+    public void onSharedPreferenceChanged(SharedPreferences preferences, 
                                           String key) {
-        
+
         if(key.equals("profile_name")) {
+
             String profile_name = preferences.getString("profile_name", "Default");
             Log.d(TAG, "loading proile: " + profile_name);
+            dirty = false;
             profile = ProfileLoader.getProfile(profile_name);
 
             // FIXME update preference views from new profile
 
-        } else {                
+        } else {
+
             Log.d(TAG, "preference changed: " + key);
-            
-            try {
-                Field field = profile.getClass().getField(key.toUpperCase());
-                String type_name = field.getType().getName();
-                
-                Log.d(TAG, "type: " + type_name);
-                
-                if(type_name.equals("java.lang.String")) {
-                    field.set(profile, preferences.getString(key, ""));
-                } else if(type_name.equals("float")) {
-                    field.setFloat(profile, preferences.getInt(key, 0));
-                } else if(type_name.equals("int")) {
-                    field.setInt(profile, preferences.getInt(key, 0));
-                } else if(type_name.equals("long")) {
-                    field.setLong(profile, preferences.getLong(key, 0));
-                } else if(type_name.equals("boolean")) {
-                    field.setBoolean(profile, preferences.getBoolean(key, false));
-                } else {
-                    Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
-                }
-                
-            } catch(NoSuchFieldException e) {
-                Log.d(TAG, "no such profile field: " + key + ": " + e);
-            } catch(IllegalAccessException e) {                    
-                Log.d(TAG, "illeagal illeagl: " + key + ": " + e);
-            }
+            ProfileLoader.updateProfile(profile, preferences, key);
+            dirty = true;
+
         }
     }
     
     // Store preference json
-    
     
 }

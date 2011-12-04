@@ -32,11 +32,12 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
         protected BoidsRenderer renderer;
         final protected FlockThread simulation_thread;
-        final protected Flock flock;
-        final protected FlockBuffer buffer;
-        
+        protected Flock flock;
+        protected FlockBuffer buffer;
         final protected Vector3 last_touch = new Vector3();
         
+        protected Profile profile;
+
         public BoidsEngine() {
             super();
 
@@ -44,13 +45,15 @@ public class BoidsWallpaperService extends GLWallpaperService {
                 BoidsWallpaperService.this.getSharedPreferences(ProfileLoader.SHARED_PREFS_NAME, 0);
             
             ProfileLoader.init(BoidsWallpaperService.this);
-            Profile profile = ProfileLoader.loadProfile(preferences);
+            profile = ProfileLoader.getProfile("Default");
+
+            Log.d(TAG, "loaded profile: " + profile.name);
+
+            //preferences.registerOnSharedPreferenceChangeListener(this);
 
             flock = new Flock();
             flock.init(profile);
             
-            preferences.registerOnSharedPreferenceChangeListener(this);
-
             buffer = new FlockBuffer(flock);
 
             simulation_thread = new FlockThread(flock, buffer);
@@ -68,22 +71,39 @@ public class BoidsWallpaperService extends GLWallpaperService {
             setTouchEventsEnabled(true);
         }
 
-        // FIXME i think i need a lock here
+        // FIXME i think i need a lock here or queue on renderer
         public void onSharedPreferenceChanged(SharedPreferences preferences,
                                               String key) {
-            
-            if(key.equals("profile")) {
-                if(simulation_thread != null)
-                    simulation_thread.pauseSimulation();           
+            Log.d(TAG, "profile update: " + key);
 
-                Profile profile = ProfileLoader.loadProfile(preferences);
+            if(simulation_thread != null)
+                simulation_thread.pauseSimulation();
 
-                flock.init(profile);
-                buffer.allocate(flock);
+            if(key.equals("profile_name")) {              
+                String profile_name = preferences.getString(key, "");
+                profile = ProfileLoader.getProfile(profile_name);
 
-                if(simulation_thread != null)
-                    simulation_thread.resumeSimulation();                            
+                Log.d(TAG, "profile: " + ProfileLoader.storeProfile(profile));
+            } else {
+                Log.d(TAG, "preference changed: " + key);
+                ProfileLoader.updateProfile(profile, preferences, key);
             }
+
+
+            flock = new Flock();
+            flock.init(profile);
+            
+            buffer = new FlockBuffer(flock);
+
+            flock.init(profile);
+            buffer.allocate(flock);
+            
+            simulation_thread.setFlock(flock);
+            simulation_thread.setBuffer(buffer);
+
+            if(simulation_thread != null)
+                simulation_thread.resumeSimulation();
+
         }
 
         public void onDestroy() {

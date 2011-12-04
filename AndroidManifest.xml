@@ -14,6 +14,7 @@
     <activity
        android:name=".BoidsPreferenceActivity"
        android:label="Boids Settings"
+       android:theme="@android:style/Theme.WallpaperSettings"
        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

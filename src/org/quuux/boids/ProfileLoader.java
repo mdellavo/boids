@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 import java.lang.reflect.Field;
+import java.lang.IllegalAccessException;
 
 import org.json.JSONTokener;
 import org.json.JSONObject;
@@ -101,6 +102,7 @@ class ProfileLoader {
                     Log.d(TAG, "Unknown Type " + type_name + " in field " + field_name);
                 }
             }
+
         } catch(Throwable e) {
             Log.d(TAG, "Could not load profile: " + e);
         }
@@ -109,12 +111,12 @@ class ProfileLoader {
     }
 
     public static JSONObject storeProfile(Profile profile) {
+
         JSONObject obj = new JSONObject();
-        
         Field fields[] = profile.getClass().getFields();
+
         for(Field f : fields) {
             String name = f.getName();
-            
 
             try {
                 obj.put(name, f.get(profile));
@@ -141,34 +143,60 @@ class ProfileLoader {
 
     public static Profile loadProfile(SharedPreferences preferences) {
 
-        Profile rv = null;
+        Profile profile = null;
 
-        // FIXME move to ProfileLoader
-        if(preferences.contains("profile")) {
-            String json = preferences.getString("profile", "{}");
+        try {
+            String class_name = preferences.getString("class", "org.quuux.boids.Profile");
+            Class profile_class = Class.forName(class_name);
+            Field fields[] = profile_class.getFields();
+            profile = (Profile)profile_class.newInstance();
 
-            Log.d(TAG, "loading profile from preferences: " + json);
 
-            JSONTokener tokener = new JSONTokener(json);
+            for(int i=0; i<fields.length; i++) {
+
+                String field_name = fields[i].getName();
+
+                if(preferences.contains(field_name.toLowerCase()))
+                    updateProfile(profile, preferences, field_name);
+
+            }
+        } catch(Throwable e) {
+            Log.d(TAG, "Could not load profile: " + e);
+        }
+
+        return profile;
+    }
+
+    public static void updateProfile(Profile profile, SharedPreferences preferences, String key) {
+
+        try {
+            Field field = profile.getClass().getField(key.toUpperCase());
+            String type_name = field.getType().getName();
 
             try {
-                Object obj = tokener.nextValue();
+                Log.d(TAG, "Setting field: " + key);
 
-                if(obj instanceof JSONObject)
-                    rv = loadProfile((JSONObject)obj);
+                if(type_name.equals("java.lang.String")) {
+                    field.set(profile, preferences.getString(key, ""));
+                } else if(type_name.equals("float")) {
+                    field.setFloat(profile, preferences.getInt(key, 0));
+                } else if(type_name.equals("int")) {
+                    field.setInt(profile, preferences.getInt(key, 0));
+                } else if(type_name.equals("long")) {
+                    field.setLong(profile, preferences.getLong(key, 0));
+                } else if(type_name.equals("boolean")) {
+                    field.setBoolean(profile, preferences.getBoolean(key, false));
+                } else {
+                    Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
+                }
 
-            } catch(JSONException e) {                
-                Log.d(TAG, "Could not load json: " + json);
+            } catch(IllegalAccessException e) {
+                Log.d(TAG, "Error setting field " + key + ": " + e);
             }
-        }
 
-        if(rv == null) {
-            String profile_name = preferences.getString("", "Default");
-            Log.d(TAG, "loading proile: " + profile_name);
-            rv = getProfile(profile_name);
+        } catch(NoSuchFieldException e) {
+            Log.d(TAG, "No Such Field " + key + ": " + e);
         }
-
-        return rv;
     }
 }
 
