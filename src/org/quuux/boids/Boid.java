@@ -5,6 +5,7 @@ public class Boid {
     public Vector3 velocity = new Vector3();
     public float seed;
     public float size;
+    public float opacity;
     public int age;
     public boolean alive;
     public float color[] = new float[4];

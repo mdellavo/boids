@@ -203,6 +203,10 @@ public class Flock {
                                 profile.MIN_Z, profile.MAX_Z, 
                                 profile.MIN_SIZE, profile.SIZE_SCALE);
 
+            a.opacity = scaleRange(a.position.z,
+                                   profile.MIN_Z, profile.MAX_Z, 
+                                   1.0f, 0.0f);
+
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));

@@ -5,14 +5,14 @@
    "RANDOMIZE_COLORS" : false,
    "MIN_SEED"         : -500,
    "MAX_SEED"         : 500,
-   "MAX_SIZE"         : 50,
+   "MAX_SIZE"         : 100,
    "MAX_VELOCITY"     : 5,
    "RANGE"            : 100,
    "NEIGHBORS"        : 10,
    "REBOUND_VELOCITY" : 0.01,
    "MIN_SIZE"         : 75,
-   "SIZE_SCALE"       : 200,
-   "FLEE_TIME"        : 1000,
+   "SIZE_SCALE"       : 750,
+   "FLEE_TIME"        : 3000,
    "SCALE_V1"         : 0.005, 
    "SCALE_V2"         : 0.001, 
    "SCALE_V3"         : 0.01, 
@@ -25,6 +25,6 @@
    "MAX_Y"            : 800,
    "MIN_Z"            : -800,
    "MAX_Z"            : 800,
-   "MIN_ALPHA"        : 1
+   "MIN_ALPHA"        : 0.4
 }
 

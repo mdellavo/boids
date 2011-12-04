@@ -53,8 +53,8 @@ class FlockBuffer {
             back.colors.put(red);
             back.colors.put(green);
             back.colors.put(blue);
-            back.colors.put(1f);
-          
+
+            back.colors.put(a.opacity);
             back.sizes.put(a.size);
         }
             
