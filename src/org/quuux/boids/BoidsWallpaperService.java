@@ -18,15 +18,46 @@ import javax.microedition.khronos.opengles.GL;
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
 
 public class BoidsWallpaperService extends GLWallpaperService {
+
+    private Thread checkin_thread;
+
     public BoidsWallpaperService() {
         super();
-        TextureLoader.init(this);
+        checkin_thread = new CheckInThread();
     }
+    
+    class CheckInThread extends Thread {
+        public void run() {
+
+            // let rendering spin up
+            try {
+                Thread.sleep(5000);
+            } catch(InterruptedException e) {
+            }
+                
+            do {
+                StatsCollector.post();           
+                try {
+                    Thread.sleep(86400000); // every 24h
+                } catch(InterruptedException e) {
+                }
+            } while(true);
+
+
+        };       
+    }
+
     public Engine onCreateEngine() {
+        TextureLoader.init(this);
+        StatsCollector.init(this);
+        checkin_thread.start();
+
         return new BoidsEngine();
     }
 
-    class BoidsEngine extends GLEngine implements OnSharedPreferenceChangeListener {
+    class BoidsEngine extends GLEngine 
+        implements OnSharedPreferenceChangeListener {
+
         private static final String TAG = "BoidsEngine";
         private static final String SHARED_PREFS_NAME = "BoidsSettings";        
 

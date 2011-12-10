@@ -4,24 +4,18 @@
       android:versionCode="1"
       android:versionName="1.0">
 
-  <uses-sdk android:minSdkVersion="7" />
   <uses-feature android:name="android.software.live_wallpaper" />
+
+  <uses-sdk android:minSdkVersion="7" />
+
+  <uses-permission
+      android:name="android.permission.INTERNET" />
 
   <application
      android:debuggable="true" 
+     android:icon="@drawable/icon"
      android:label="@string/service_name">
 
-    <activity
-       android:name=".BoidsPreferenceActivity"
-       android:label="Boids Settings"
-       android:theme="@android:style/Theme.WallpaperSettings"
-       android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-    
     <service 
        android:label="@string/service_name" 
        android:name=".BoidsWallpaperService"

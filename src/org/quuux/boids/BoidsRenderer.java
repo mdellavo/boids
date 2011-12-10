@@ -93,6 +93,11 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         buffer.init(gl);
         GLHelper.init(gl);
 
+        StatsCollector.put("gl_vendor", GLHelper.getVendor());
+        StatsCollector.put("gl_renderer", GLHelper.getRenderer());
+        StatsCollector.put("gl_version", GLHelper.getVersion());
+        StatsCollector.put("gl_extensions", GLHelper.getExtensions());
+
         last = System.currentTimeMillis();
     }
 

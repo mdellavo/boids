@@ -185,14 +185,11 @@ public class Flock {
                 a.velocity.scale(profile.MAX_VELOCITY);            
             }
 
-
             tmp.zero();
             tmp.copy(a.velocity);
             
-            // FIXME
-            // move independant of framerate
             //Log.d(TAG, "elapsed=" + elapsed);            
-            // tmp.scale(elapsed/30f);
+            tmp.scale(elapsed/30f);
 
             // apply velocity to position
             a.position.add(tmp);

@@ -27,6 +27,7 @@ class FlockThread extends Thread implements Runnable {
     public void run() {
         long total_elapsed = 0;
         
+        last = System.currentTimeMillis();
         while(true) {
             frames++;
 
