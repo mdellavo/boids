@@ -16,19 +16,19 @@ public class Vector2 extends Vector3 {
         return "Vector2(" + this.x + ", " + this.y + ")";
     }
 
-    public void add(float x, float y) {
+    final public void add(float x, float y) {
         add(x, y, 0);
     }
 
-    public void add(Vector2 o) {
+    final public void add(Vector2 o) {
         add(o.x, o.y);
     }
 
-    public void subtract(float x, float y) {
+    final public void subtract(float x, float y) {
         subtract(x, y, 0);
     }
 
-    public void subtract(Vector2 o) {
+    final public void subtract(Vector2 o) {
         subtract(o.x, o.y, 0);
     }
 }

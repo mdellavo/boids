@@ -22,10 +22,14 @@ public class Flock {
     final protected Vector3 v6 = new Vector3();
     final protected Vector3 v7 = new Vector3();
 
+    final protected Vector3 origin = new Vector3(0, 0, -100f);
+    final protected Vector3 focal = new Vector3();
     final protected Vector3 center = new Vector3();
-    protected long flee;
 
-    public void init(Profile profile) {
+    protected long flee;
+    protected int alive;
+    
+    final public void init(Profile profile) {
         this.profile = profile;
         boids = new Boid[profile.FLOCK_SIZE];
 
@@ -47,43 +51,54 @@ public class Flock {
                 boids[i].seed = RandomGenerator.randomInt(0, 100000);
 
             Log.d(TAG, boids[i].toString());
+
+            alive++;
         }
 
         tree = new KDTree(profile.FLOCK_SIZE, profile.NEIGHBORS);        
 
-        center.z = -100;
+        center.copy(origin);
     }
-
-    public Profile getProfile() {
+    
+   final public Profile getProfile() {
         return profile;
     }
     
-    public void throttleUp() {
-        Log.d(TAG, "Throttle Up");
-
+    final public int throttleUp() {
         for(int i=0; i<boids.length; i++) {
             if(!boids[i].alive) {
                 boids[i].alive = true;
+                alive++;
+                Log.d(TAG, "Throttled up to " + alive + " boids");
                 break;
             }
-        }            
+        }           
+        
+        return alive;
     }
 
-    public void throttleDown() {
-        Log.d(TAG, "Throttle Down");
-
+    final public int throttleDown() {
         for(int i=0; i<boids.length; i++) {
             if(boids[i].alive) {
                 boids[i].alive = false;
+                alive--;
+
+                Log.d(TAG, "Throttled down to " + alive + " boids");
                 break;
             }
         }            
+        
+        return alive;
     }
 
-    public void tick(long elapsed) {
+    final public void tick(long elapsed) {
 
-        flee -= elapsed;
+        if(flee > 0)
+            flee -= elapsed;
 
+        if(flee < 0)
+            flee = 0;
+       
         tree.add(boids);
 
         for(int i=0; i<boids.length; i++) {
@@ -136,24 +151,19 @@ public class Flock {
                 v3.scale((float)1.0/neighbor_count);
                 v3.normalize();
             }
-            
+
             // Rule 4 - Bound
             rule4(a);
 
-
             // Rule 5 - Center
             rule5(a);
-
+            
             if(flee>0) {
-                v5.scale((float)Math.pow(scaleRange((float)flee,
-                                                    (float)profile.FLEE_TIME, 0,
-                                                    0, 2), 2)); 
-                v1.scale(-10);
-                v2.scale(10);
-                v3.scale(10);
-            } else {
-                center.x = 0;
-                center.y = 0;
+                if(center.distance(focal) > 0)
+                    ease(center, focal);
+            } else if(flee == 0) {
+                if(center.distance(origin) > 0)
+                    ease(center, origin);
             }
 
             // Scale the results
@@ -213,14 +223,40 @@ public class Flock {
         }
     }
 
-    protected float scaleRange(float n,
+    // FIXME bad math, should be able to handle min > max
+    final protected float scaleRange(float n,
                                float min_a, float max_a,
                                float min_b, float max_b) {
         return (n / ((max_a - min_a) / (max_b - min_b))) + min_b;
     }
 
+    final protected float percentile(float min, float max, float n) {
+        return (n - min) / (max - min);
+    } 
+
+    final protected float  ease(float a, float b) {
+        float dx = b - a;
+
+        if(Math.abs(dx) > 1)
+            dx /= 0.5f;
+
+        return dx;
+    } 
+    
+    final protected void ease(Vector3 a, Vector3 b) {
+        tmp.copy(b);
+        tmp.subtract(a);
+        
+        if(tmp.magnitude() > 1f)
+            tmp.scale(0.5f);
+        
+        Log.d(TAG, "easing from " + a + " to " + b + " at " + tmp);
+
+        a.add(tmp);
+    }
+
     // FIXME move this into kdtree 
-    private boolean inRange(Boid a, Boid b) {
+    final private boolean inRange(Boid a, Boid b) {
         tmp.zero();
         tmp.add(a.position);
         tmp.subtract(b.position);
@@ -228,7 +264,7 @@ public class Flock {
     }
 
     // Rule 4 - keep within bounds
-    private void rule4(Boid b) {
+    final private void rule4(Boid b) {
         if(b.position.x < profile.MIN_X)
             v4.x = profile.REBOUND_VELOCITY;
         else if(b.position.x > profile.MAX_X)
@@ -244,18 +280,22 @@ public class Flock {
     }
 
     // Rule 5 - tend towards center
-    private void rule5(Boid b) {
+    final private void rule5(Boid b) {
         v5.copy(center);
         v5.subtract(b.position);
     }
     
-    public void touch(Vector3 p) {
+    final public void touch(Vector3 p) {
         flee = profile.FLEE_TIME;
-        center.copy(p);
-        center.z = -200;
-    }
 
-    public void push(Vector3 f) {
+        Log.d(TAG, "touch: " + p);
+
+        focal.copy(p);
+        focal.z = center.z + 50;
+    }
+    
+    final public void push(Vector3 f) {
         v7.copy(f);
+        v7.scale(v1.magnitude() * -10);
     }
 }

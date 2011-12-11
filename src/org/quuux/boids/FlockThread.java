@@ -16,15 +16,15 @@ class FlockThread extends Thread implements Runnable {
         this.buffer = buffer;
     }
 
-    public void setFlock(Flock flock) {
+    final public void setFlock(Flock flock) {
         this.flock = flock;
     }
 
-    public void setBuffer(FlockBuffer buffer) {
+    final public void setBuffer(FlockBuffer buffer) {
         this.buffer = buffer;
     }
 
-    public void run() {
+    final public void run() {
         long total_elapsed = 0;
         
         last = System.currentTimeMillis();
@@ -56,9 +56,8 @@ class FlockThread extends Thread implements Runnable {
 
                 if(frames < 30)
                     flock.throttleDown();
-                else if(frames>=30)
+                else if(frames >= 30)
                     flock.throttleUp();
-
                 
                 total_elapsed = 0;
                 frames = 0;
@@ -66,7 +65,7 @@ class FlockThread extends Thread implements Runnable {
 
             if(elapsed < 33) {
                 try {
-                    Thread.sleep(33-elapsed);
+                    Thread.sleep(33 - elapsed);
                 } catch(InterruptedException e) {
                 }
 
@@ -74,13 +73,13 @@ class FlockThread extends Thread implements Runnable {
         }
     }
 
-    public synchronized void pauseSimulation() {
+    final public synchronized void pauseSimulation() {
         running = false;
         Log.d(TAG, "pause thread");
         notifyAll();
     }
 
-    public synchronized void resumeSimulation() {
+    final public synchronized void resumeSimulation() {
         running = true;
         last = System.currentTimeMillis();
         Log.d(TAG, "resume thread");

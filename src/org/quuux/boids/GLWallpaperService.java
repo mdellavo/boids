@@ -63,7 +63,7 @@ public class GLWallpaperService extends WallpaperService {
         }
 
         @Override
-            public void onVisibilityChanged(boolean visible) {
+        public void onVisibilityChanged(boolean visible) {
             if (visible) {
                 onResume();
             } else {
@@ -73,34 +73,34 @@ public class GLWallpaperService extends WallpaperService {
         }
 
         @Override
-            public void onCreate(SurfaceHolder surfaceHolder) {
+        public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
             // Log.d(TAG, "GLEngine.onCreate()");
         }
 
         @Override
-            public void onDestroy() {
+        public void onDestroy() {
             super.onDestroy();
             // Log.d(TAG, "GLEngine.onDestroy()");
             mGLThread.requestExitAndWait();
         }
 
         @Override
-            public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             // Log.d(TAG, "onSurfaceChanged()");
             mGLThread.onWindowResize(width, height);
             super.onSurfaceChanged(holder, format, width, height);
         }
 
         @Override
-            public void onSurfaceCreated(SurfaceHolder holder) {
+        public void onSurfaceCreated(SurfaceHolder holder) {
             Log.d(TAG, "onSurfaceCreated()");
             mGLThread.surfaceCreated(holder);
             super.onSurfaceCreated(holder);
         }
 
         @Override
-            public void onSurfaceDestroyed(SurfaceHolder holder) {
+        public void onSurfaceDestroyed(SurfaceHolder holder) {
             Log.d(TAG, "onSurfaceDestroyed()");
             mGLThread.surfaceDestroyed();
             super.onSurfaceDestroyed(holder);

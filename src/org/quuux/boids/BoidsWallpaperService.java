@@ -19,39 +19,13 @@ import javax.microedition.khronos.opengles.GL;
 
 public class BoidsWallpaperService extends GLWallpaperService {
 
-    private Thread checkin_thread;
-
     public BoidsWallpaperService() {
         super();
-        checkin_thread = new CheckInThread();
-    }
-    
-    class CheckInThread extends Thread {
-        public void run() {
-
-            // let rendering spin up
-            try {
-                Thread.sleep(5000);
-            } catch(InterruptedException e) {
-            }
-                
-            do {
-                StatsCollector.post();           
-                try {
-                    Thread.sleep(86400000); // every 24h
-                } catch(InterruptedException e) {
-                }
-            } while(true);
-
-
-        };       
     }
 
     public Engine onCreateEngine() {
         TextureLoader.init(this);
-        StatsCollector.init(this);
-        checkin_thread.start();
-
+        CheckInManager.init(this);
         return new BoidsEngine();
     }
 

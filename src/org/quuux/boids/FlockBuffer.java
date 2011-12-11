@@ -24,8 +24,8 @@ class FlockBuffer {
         back = new FlockFrame(flock.boids.length);        
     }
 
-    public void render(Flock flock) {
-
+    final public void render(Flock flock) {
+        
         back.clear(); 
 
         int alive = 0;
@@ -85,7 +85,7 @@ class FlockBuffer {
         Thread.yield();
     }
 
-    public void init(GL10 gl) {
+    final public void init(GL10 gl) {
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         
         texture = TextureLoader.get("boid");
@@ -108,7 +108,7 @@ class FlockBuffer {
         //((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
     }
 
-    public void draw(GL10 gl) {
+    final public void draw(GL10 gl) {
 
         // wait for a frame to render
         synchronized(this) {

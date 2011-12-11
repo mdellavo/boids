@@ -34,7 +34,7 @@ class NodePool {
             nodes[i] = new Node(null, null, null);
     }
 
-    public Node getNode() {
+    final public Node getNode() {
         Node rv = null;
 
         if(next < nodes.length) {
@@ -47,7 +47,7 @@ class NodePool {
         return rv;
     }
 
-    public void recycle() {
+    final public void recycle() {
         next = 0;
     }
 }
@@ -59,7 +59,7 @@ class BoidComparator implements Comparator {
         this.component = component;
     }
 
-    public int compare(Object a, Object b) {
+    final public int compare(Object a, Object b) {
         Boid ba = (Boid)a;
         Boid bb = (Boid)b;
         return Float.compare(ba.position.component(this.component), 
@@ -77,7 +77,7 @@ class NeighborResult {
         boids = new Boid[num];
     }
 
-    public void add(float distance, Boid boid) {
+    final public void add(float distance, Boid boid) {
         int i = 0;
 
         while(i<found && i<distances.length && distances[i] < distance)
@@ -98,7 +98,7 @@ class NeighborResult {
         }
     }    
 
-    public void clear() {
+    final public void clear() {
         found = 0;
     }
 }
@@ -127,7 +127,7 @@ public class KDTree {
         return root.toString();
     }
     
-    public void add(Boid[] boids) {
+    final public void add(Boid[] boids) {
         pool.recycle();
 
         int alive = 0;
@@ -141,11 +141,11 @@ public class KDTree {
         root = build(boids, 0, 0, alive);
     }
 
-    public void clear() {
+    final public void clear() {
         pool.recycle();
     }
     
-    public boolean isEmpty() {
+    final public boolean isEmpty() {
         return root != null;
     }
 
@@ -168,17 +168,17 @@ public class KDTree {
         return node;
     }
 
-    public void dumpTree() {
+    final public void dumpTree() {
         Log.d(TAG, "KDTree: " + toString());
     }
 
-    private float distance(Boid a, Boid b) {
+    final private float distance(Boid a, Boid b) {
         return (float)(Math.pow(a.position.x - b.position.x, 2) + 
                        Math.pow(a.position.y - b.position.y, 2) + 
                        Math.pow(a.position.z - b.position.z, 2));
     }
 
-    public Boid[] findNeighbors(Boid boid, float range) {
+    final public Boid[] findNeighbors(Boid boid, float range) {
         neighbors.clear();
         search(boid, range, root, 0);
         return neighbors.boids;

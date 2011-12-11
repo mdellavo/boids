@@ -31,23 +31,23 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         this.buffer = buffer;
     }
 
-    public float[] getCurrentProjection() {
+    final public float[] getCurrentProjection() {
         return matrix_grabber.mProjection;
     }
 
-    public float[] getCurrentModelView() {
+    final public float[] getCurrentModelView() {
         return matrix_grabber.mModelView;
     }
 
-    public int getWidth() {
+    final public int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    final public int getHeight() {
         return height;
     }
     
-    public void onDrawFrame(GL10 gl) {
+    final public void onDrawFrame(GL10 gl) {
         long now = System.currentTimeMillis();
         long elapsed = now - last;
         total_elapsed += elapsed;
@@ -77,13 +77,13 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         if(elapsed < 33) {
             try {
-                Thread.sleep(33-elapsed);
+                Thread.sleep(33 - elapsed);
             } catch(InterruptedException e) {
             }
         }
     }
 
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
+    final public void onSurfaceChanged(GL10 gl, int width, int height) {
         this.width = width;
         this.height = height;
 
@@ -91,17 +91,14 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         camera.init(gl, width, height);
         buffer.init(gl);
-        GLHelper.init(gl);
 
-        StatsCollector.put("gl_vendor", GLHelper.getVendor());
-        StatsCollector.put("gl_renderer", GLHelper.getRenderer());
-        StatsCollector.put("gl_version", GLHelper.getVersion());
-        StatsCollector.put("gl_extensions", GLHelper.getExtensions());
+        GLHelper.init(gl);
+        CheckInManager.sendGLProfile();
 
         last = System.currentTimeMillis();
     }
 
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+    final public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         gl.glShadeModel(GL10.GL_SMOOTH);
 
         gl.glClearDepthf(1f);
@@ -143,5 +140,5 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, lightPosition0, 0);
     }
 
-    public void release() {}
+    final public void release() {}
 }

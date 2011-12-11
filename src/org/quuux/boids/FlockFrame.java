@@ -11,13 +11,13 @@ class FlockFrame {
         allocate(size);
     }        
 
-    public void allocate(int size) {
+    final public void allocate(int size) {
         vertices = GLHelper.floatBuffer(size * 3);
         sizes = GLHelper.floatBuffer(size);
         colors = GLHelper.floatBuffer(size * 4);        
     }
 
-    public void clear() {
+    final public void clear() {
         vertices.clear();
         colors.clear();
         sizes.clear();        
