@@ -148,7 +148,7 @@ class ProfileLoader {
     }
 
     public static void  updateProfile(Profile profile, 
-                                        SharedPreferences preferences) {
+                                      SharedPreferences preferences) {
 
         try {
             Field fields[] = profile.getClass().getFields();
@@ -177,15 +177,18 @@ class ProfileLoader {
                 Log.d(TAG, "Setting field: " + key);
 
                 if(type_name.equals("java.lang.String")) {
-                    field.set(profile, preferences.getString(key, ""));
+                    field.set(profile,
+                              preferences.getString(key, (String)field.get(profile)));
                 } else if(type_name.equals("float")) {
-                    field.setFloat(profile, preferences.getFloat(key, 0));
+                    field.setFloat(profile,
+                                   (float)preferences.getInt(key,
+                                                             (int)field.getFloat(profile)));
                 } else if(type_name.equals("int")) {
-                    field.setInt(profile, preferences.getInt(key, 0));
+                    field.setInt(profile, preferences.getInt(key, field.getInt(profile)));
                 } else if(type_name.equals("long")) {
-                    field.setLong(profile, preferences.getLong(key, 0));
+                    field.setLong(profile, (long)preferences.getInt(key, (int)field.getLong(profile)));
                 } else if(type_name.equals("boolean")) {
-                    field.setBoolean(profile, preferences.getBoolean(key, false));
+                    field.setBoolean(profile, preferences.getBoolean(key, field.getBoolean(profile)));
                 } else {
                     Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
                 }

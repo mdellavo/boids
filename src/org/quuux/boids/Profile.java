@@ -26,14 +26,14 @@ class Profile {
     public float SCALE_V5;
     public float SCALE_V6;
 
-    public int BONUS_V1 = 1;
-    public int BONUS_V2 = 1;
-    public int BONUS_V3 = 1;
-    public int BONUS_V4 = 1;
-    public int BONUS_V5 = 1;
-    public int BONUS_V6 = 1;
-    public int BONUS_V7 = 1;
-    public int BONUS_VELOCITY = 1;
+    public int BONUS_V1 = 100;
+    public int BONUS_V2 = 100;
+    public int BONUS_V3 = 100;
+    public int BONUS_V4 = 100;
+    public int BONUS_V5 = 100;
+    public int BONUS_V6 = 100;
+    public int BONUS_V7 = 100;
+    public int BONUS_VELOCITY = 100;
 
     public float MIN_X;
     public float MAX_X;

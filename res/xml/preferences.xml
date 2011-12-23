@@ -30,7 +30,7 @@
       android:summary="@string/pref_flock_size_summary"
       android:dialogMessage="@string/pref_flock_size_dialog_message"
       android:defaultValue="250"
-      android:text=""
+      android:text="@string/percent"
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
@@ -48,7 +48,7 @@
       android:summary="@string/pref_range_summary"
       android:dialogMessage="@string/pref_range_dialog_message"
       android:defaultValue="100"
-      android:text=""
+      android:text="@string/percent"
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
@@ -57,7 +57,7 @@
       android:summary="@string/pref_neighbors_summary"
       android:dialogMessage="@string/pref_neighbors_dialog_message"
       android:defaultValue="10"
-      android:text=""
+      android:text="@string/percent"
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
@@ -120,7 +120,7 @@
       android:summary="@string/pref_flee_time_summary"
       android:dialogMessage="@string/pref_flee_time_dialog_message"
       android:defaultValue="3000"
-      android:text=""
+      android:text="@string/percent"
       android:max="10000" />
 
  </PreferenceCategory>
