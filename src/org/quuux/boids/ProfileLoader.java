@@ -167,7 +167,9 @@ class ProfileLoader {
         return profile;
     }
 
-    public static void updateProfile(Profile profile, SharedPreferences preferences, String key) {
+    public static void updateProfile(Profile profile,
+                                     SharedPreferences preferences,
+                                     String key) {
 
         try {
             Field field = profile.getClass().getField(key.toUpperCase());

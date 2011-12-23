@@ -51,65 +51,65 @@
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V1"
+      android:key="BONUS_V1"
       android:title="@string/pref_v1_title"
       android:summary="@string/pref_v1_summary"
       android:dialogMessage="@string/pref_v1_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V2"
+      android:key="BONUS_V2"
       android:title="@string/pref_v2_title"
       android:summary="@string/pref_v2_summary"
       android:dialogMessage="@string/pref_v2_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V3"
+      android:key="BONUS_V3"
       android:title="@string/pref_v3_title"
       android:summary="@string/pref_v3_summary"
       android:dialogMessage="@string/pref_v3_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V4"
+      android:key="BONUS_V4"
       android:title="@string/pref_v4_title"
       android:summary="@string/pref_v4_summary"
       android:dialogMessage="@string/pref_v4_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V5"
+      android:key="BONUS_V5"
       android:title="@string/pref_v5_title"
       android:summary="@string/pref_v5_summary"
       android:dialogMessage="@string/pref_v5_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
-      android:key="SCALE_V6"
+      android:key="BONUS_V6"
       android:title="@string/pref_v6_title"
       android:summary="@string/pref_v6_summary"
       android:dialogMessage="@string/pref_v6_dialog_message"
       android:defaultValue="100"
-      android:text=""
-      android:max="1000" />
+      android:text="@string/percent"
+      android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
       android:key="FLEE_TIME"
       android:title="@string/pref_flee_time_title"
       android:summary="@string/pref_flee_time_summary"
       android:dialogMessage="@string/pref_flee_time_dialog_message"
-      android:defaultValue="1000"
+      android:defaultValue="3000"
       android:text=""
       android:max="10000" />
 

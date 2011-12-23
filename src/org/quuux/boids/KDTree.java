@@ -59,7 +59,7 @@ class BoidComparator implements Comparator {
         this.component = component;
     }
 
-    final public int compare(Object a, Object b) {
+    public final int compare(Object a, Object b) {
         Boid ba = (Boid)a;
         Boid bb = (Boid)b;
         return Float.compare(ba.position.component(this.component), 
@@ -157,7 +157,8 @@ public class KDTree {
         int component = depth % 3;
         int median = (end + start) / 2;
         
-        // FIXME need in place quicksort
+        // FIXME my in-place sorter is broken or timsort is magic
+        //Sorter.sort(boids, start, end, comparators[component]);
         Arrays.sort(boids, start, end, comparators[component]);
 
         Node node = pool.getNode();

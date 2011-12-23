@@ -48,10 +48,10 @@ public class Flock {
                                                             profile.MAX_SEED));
 
             if(profile.RANDOMIZE_COLORS) 
-                boids[i].seed = RandomGenerator.randomInt(0, 100000);
+                randomizeColors();
 
-            Log.d(TAG, boids[i].toString());
-
+            //Log.d(TAG, boids[i].toString());
+            
             alive++;
         }
 
@@ -60,8 +60,19 @@ public class Flock {
         center.copy(origin);
     }
     
-   final public Profile getProfile() {
+    final public Profile getProfile() {
         return profile;
+    }
+
+    final public void randomizeColors() {
+        for(int i=0; i<boids.length; i++)
+            boids[i].seed = RandomGenerator.randomInt(0, 100000);
+    }
+
+    final public void normalizeColors() {
+        int seed = RandomGenerator.randomInt(0, 100000);
+        for(int i=0; i<boids.length; i++)
+            boids[i].seed = seed;
     }
     
     final public int throttleUp() {
@@ -155,16 +166,19 @@ public class Flock {
             // Rule 4 - Bound
             rule4(a);
 
+            if(flee>0) {
+                // if(center.distance(focal) > 0)
+                //     ease(center, focal);
+
+                center.copy(focal);
+            } else if(flee == 0) {
+                // if(center.distance(origin) > 0)
+                //     ease(center, origin);
+                center.copy(origin);
+            }
+
             // Rule 5 - Center
             rule5(a);
-            
-            if(flee>0) {
-                if(center.distance(focal) > 0)
-                    ease(center, focal);
-            } else if(flee == 0) {
-                if(center.distance(origin) > 0)
-                    ease(center, origin);
-            }
 
             // Scale the results
             v1.scale(profile.SCALE_V1);
@@ -173,6 +187,29 @@ public class Flock {
             v4.scale(profile.SCALE_V4);
             v5.scale(profile.SCALE_V5);
             v6.scale(profile.SCALE_V6);          
+
+            if(flee>0) {
+                v1.scale(-10 * RandomGenerator.randomPercentile(), 
+                         -10 * RandomGenerator.randomPercentile(),
+                         -10 * RandomGenerator.randomPercentile());
+
+                v3.scale(-10 * RandomGenerator.randomPercentile(), 
+                         -10 * RandomGenerator.randomPercentile(),
+                         -10 * RandomGenerator.randomPercentile());
+
+                v5.scale(10 * RandomGenerator.randomPercentile(), 
+                         10 * RandomGenerator.randomPercentile(),
+                         10 * RandomGenerator.randomPercentile());
+            }
+
+            
+            // Scale according to settings
+            // v1.scale(profile.BONUS_V1 / 100.0f);
+            // v2.scale(profile.BONUS_V2 / 100.0f);
+            // v3.scale(profile.BONUS_V3 / 100.0f);
+            // v4.scale(profile.BONUS_V4 / 100.0f);
+            // v5.scale(profile.BONUS_V5 / 100.0f);
+            // v6.scale(profile.BONUS_V6 / 100.0f);
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
@@ -188,7 +225,6 @@ public class Flock {
             a.velocity.add(v6);
             a.velocity.add(v7);
 
-
             // limit velocity
             if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
                 a.velocity.normalize();
@@ -199,7 +235,7 @@ public class Flock {
             tmp.copy(a.velocity);
             
             //Log.d(TAG, "elapsed=" + elapsed);            
-            tmp.scale(elapsed/30f);
+            tmp.scale(elapsed/33f);
 
             // apply velocity to position
             a.position.add(tmp);
@@ -212,7 +248,7 @@ public class Flock {
 
             a.opacity = scaleRange(a.position.z,
                                    profile.MIN_Z, profile.MAX_Z, 
-                                   1.0f, 0.0f);
+                                   0.4f, 1.0f);
 
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
@@ -290,12 +326,11 @@ public class Flock {
 
         Log.d(TAG, "touch: " + p);
 
-        focal.copy(p);
-        focal.z = center.z + 50;
+        focal.x = p.x;
+        focal.y = p.y;
     }
     
     final public void push(Vector3 f) {
         v7.copy(f);
-        v7.scale(v1.magnitude() * -10);
     }
 }

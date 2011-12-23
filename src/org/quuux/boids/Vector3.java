@@ -42,6 +42,12 @@ public class Vector3 {
         z *= factor;
     }
 
+    final public void scale(float x, float y, float z) {
+        this.x *= x;
+        this.y *= y;
+        this.z *= z;
+    }
+   
     public String toString() {
         return "Vector3(" + this.x + ", " + this.y + ", " + this.z + ")";
     }

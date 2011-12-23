@@ -53,8 +53,8 @@ public class BoidsWallpaperService extends GLWallpaperService {
             profile = ProfileLoader.getProfile("Default");
 
             Log.d(TAG, "loaded profile: " + profile.name);
-
-            //preferences.registerOnSharedPreferenceChangeListener(this);
+            
+            preferences.registerOnSharedPreferenceChangeListener(this);
 
             flock = new Flock();
             flock.init(profile);
@@ -84,27 +84,39 @@ public class BoidsWallpaperService extends GLWallpaperService {
             if(simulation_thread != null)
                 simulation_thread.pauseSimulation();
 
-            if(key.equals("profile_name")) {              
-                String profile_name = preferences.getString(key, "");
-                profile = ProfileLoader.getProfile(profile_name);
+            boolean reinit = false;
 
+            if(key.equals("profile_name")) {
+                String profile_name = preferences.getString(key, "");
+
+                profile = ProfileLoader.getProfile(profile_name);
                 Log.d(TAG, "profile: " + ProfileLoader.storeProfile(profile));
+                
+                reinit = true;
+            } else if(key.equals("RANDOMIZE_COLORS")) {
+                flock.randomizeColors();                
             } else {
+
+                if(key.equals("FLOCK_SIZE"))
+                    reinit = true;
+
                 Log.d(TAG, "preference changed: " + key);
                 ProfileLoader.updateProfile(profile, preferences, key);
+                Log.d(TAG, "updated profile: " + profile);
             }
 
-
-            flock = new Flock();
-            flock.init(profile);
+            if(reinit) {
+                flock = new Flock();
+                flock.init(profile);
             
-            buffer = new FlockBuffer(flock);
+                buffer = new FlockBuffer(flock);
 
-            flock.init(profile);
-            buffer.allocate(flock);
+                flock.init(profile);
+                buffer.allocate(flock);
             
-            simulation_thread.setFlock(flock);
-            simulation_thread.setBuffer(buffer);
+                simulation_thread.setFlock(flock);
+                simulation_thread.setBuffer(buffer);
+            }   
 
             if(simulation_thread != null)
                 simulation_thread.resumeSimulation();

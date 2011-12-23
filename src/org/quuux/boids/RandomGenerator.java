@@ -9,6 +9,10 @@ public class RandomGenerator {
         return min + ((max-min) * random.nextFloat());
     }
 
+    public static float randomPercentile() {
+        return randomRange(0, 1);
+    }
+
     public static int randomInt(int min, int max) {
         return min + random.nextInt(max-min);
     }

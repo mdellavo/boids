@@ -30,6 +30,9 @@
     <string name="pref_neighbors_summary">The number of neighbors to weigh</string>
     <string name="pref_neighbors_dialog_message">The number of neighbors to weigh</string>
 
+    <string name="blank">xxx</string>
+    <string name="percent">%</string>
+
     <string name="pref_v1_title">Attraction Force</string>
     <string name="pref_v1_summary">Attraction Force</string>
     <string name="pref_v1_dialog_message">Attraction Force</string>

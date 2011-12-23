@@ -116,7 +116,6 @@ public class CheckInManager {
     }
 
     public static void sendGLProfile() {
-
         if(hasCheckedIn(GL_CHECKIN))
             return;
 
