@@ -66,12 +66,12 @@ class ProfileLoader {
                     Profile profile = loadProfile(obj);
                     profiles.put(profile.name, profile);
                 } catch(JSONException e) {
-                    Log.d(TAG, "Could not load profile object: " + e);
+                    Log.d(TAG, "Could not load profile object: " + e, e);
                 }
             } while(tokener.more());
 
         } catch(IOException e) {
-            Log.d(TAG, "Could not open profile: " + key);
+            Log.d(TAG, "Could not open profile: " + key, e);
         }
     }
 
@@ -88,23 +88,29 @@ class ProfileLoader {
                 String type_name = fields[i].getType().getName();
 
                 if(type_name.equals("java.lang.String")) {
-                    fields[i].set(profile,obj.optString(field_name, ""));
+                    fields[i].set(profile,
+                                  obj.optString(field_name,
+                                                (String)fields[i].get(profile)));
                 } else if(type_name.equals("float")) {
                     fields[i].setFloat(profile,
-                                       (float)obj.optDouble(field_name, 0));
+                                       (float)obj.optDouble(field_name,
+                                                            fields[i].getFloat(profile)));
                 } else if(type_name.equals("int")) {
-                    fields[i].setInt(profile, obj.optInt(field_name, 0));
+                    fields[i].setInt(profile, obj.optInt(field_name,
+                                                         fields[i].getInt(profile)));
                 } else if(type_name.equals("long")) {
-                    fields[i].setLong(profile, obj.optLong(field_name, 0));
+                    fields[i].setLong(profile, obj.optLong(field_name,
+                                                           fields[i].getLong(profile)));
                 } else if(type_name.equals("boolean")) {
-                    fields[i].setBoolean(profile, obj.optBoolean(field_name, false));
+                    fields[i].setBoolean(profile, obj.optBoolean(field_name,
+                                                                 fields[i].getBoolean(profile)));
                 } else {
                     Log.d(TAG, "Unknown Type " + type_name + " in field " + field_name);
                 }
             }
 
         } catch(Throwable e) {
-            Log.d(TAG, "Could not load profile: " + e);
+            Log.d(TAG, "Could not load profile: " + e, e);
         }
 
         return profile;
@@ -121,9 +127,9 @@ class ProfileLoader {
             try {
                 obj.put(name, f.get(profile));
             } catch(JSONException e) {
-                Log.d(TAG, "Could not store field " + name + ": " + e);
+                Log.d(TAG, "Could not store field " + name + ": " + e, e);
             } catch(IllegalAccessException e) {
-                Log.d(TAG, "Could not store field " + name + ": " + e);
+                Log.d(TAG, "Could not store field " + name + ": " + e, e);
             }
         }
 
@@ -141,30 +147,22 @@ class ProfileLoader {
         editor.commit();
     }
 
-    public static Profile loadProfile(SharedPreferences preferences) {
-
-        Profile profile = null;
+    public static void  updateProfile(Profile profile, 
+                                        SharedPreferences preferences) {
 
         try {
-            String class_name = preferences.getString("class", "org.quuux.boids.Profile");
-            Class profile_class = Class.forName(class_name);
-            Field fields[] = profile_class.getFields();
-            profile = (Profile)profile_class.newInstance();
+            Field fields[] = profile.getClass().getFields();
 
+            for(Field field : fields) {
+                String field_name = field.getName();
 
-            for(int i=0; i<fields.length; i++) {
-
-                String field_name = fields[i].getName();
-
-                if(preferences.contains(field_name.toLowerCase()))
+                if(preferences.contains(field_name))
                     updateProfile(profile, preferences, field_name);
-
             }
         } catch(Throwable e) {
-            Log.d(TAG, "Could not load profile: " + e);
+            Log.d(TAG, "Could not update profile: " + e, e);
         }
 
-        return profile;
     }
 
     public static void updateProfile(Profile profile,
@@ -181,7 +179,7 @@ class ProfileLoader {
                 if(type_name.equals("java.lang.String")) {
                     field.set(profile, preferences.getString(key, ""));
                 } else if(type_name.equals("float")) {
-                    field.setFloat(profile, preferences.getInt(key, 0));
+                    field.setFloat(profile, preferences.getFloat(key, 0));
                 } else if(type_name.equals("int")) {
                     field.setInt(profile, preferences.getInt(key, 0));
                 } else if(type_name.equals("long")) {
@@ -193,11 +191,11 @@ class ProfileLoader {
                 }
 
             } catch(IllegalAccessException e) {
-                Log.d(TAG, "Error setting field " + key + ": " + e);
+                Log.d(TAG, "Error setting field " + key + ": " + e, e);
             }
 
         } catch(NoSuchFieldException e) {
-            Log.d(TAG, "No Such Field " + key + ": " + e);
+            Log.d(TAG, "No Such Field " + key + ": " + e, e);
         }
     }
 }

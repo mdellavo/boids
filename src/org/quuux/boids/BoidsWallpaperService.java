@@ -33,7 +33,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         implements OnSharedPreferenceChangeListener {
 
         private static final String TAG = "BoidsEngine";
-        private static final String SHARED_PREFS_NAME = "BoidsSettings";        
+        private static final String SHARED_PREFS_NAME = "BoidsSettings";
 
         protected BoidsRenderer renderer;
         final protected FlockThread simulation_thread;
@@ -51,8 +51,12 @@ public class BoidsWallpaperService extends GLWallpaperService {
             
             ProfileLoader.init(BoidsWallpaperService.this);
             profile = ProfileLoader.getProfile("Default");
-
+            ProfileLoader.updateProfile(profile, preferences);
+            
             Log.d(TAG, "loaded profile: " + profile.name);
+            Log.d(TAG, profile.toString(3));
+            Log.d(TAG, "------------------------------------");
+            
             
             preferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -88,10 +92,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
             if(key.equals("profile_name")) {
                 String profile_name = preferences.getString(key, "");
-
                 profile = ProfileLoader.getProfile(profile_name);
-                Log.d(TAG, "profile: " + ProfileLoader.storeProfile(profile));
-                
                 reinit = true;
             } else if(key.equals("RANDOMIZE_COLORS")) {
                 flock.randomizeColors();                
@@ -102,8 +103,11 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
                 Log.d(TAG, "preference changed: " + key);
                 ProfileLoader.updateProfile(profile, preferences, key);
-                Log.d(TAG, "updated profile: " + profile);
             }
+
+            Log.d(TAG, "Profile updated ------------------------");
+            Log.d(TAG, profile.toString(3));
+            Log.d(TAG, "----------------------------------------");
 
             if(reinit) {
                 flock = new Flock();

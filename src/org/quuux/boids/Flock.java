@@ -204,12 +204,12 @@ public class Flock {
 
             
             // Scale according to settings
-            // v1.scale(profile.BONUS_V1 / 100.0f);
-            // v2.scale(profile.BONUS_V2 / 100.0f);
-            // v3.scale(profile.BONUS_V3 / 100.0f);
-            // v4.scale(profile.BONUS_V4 / 100.0f);
-            // v5.scale(profile.BONUS_V5 / 100.0f);
-            // v6.scale(profile.BONUS_V6 / 100.0f);
+            v1.scale(profile.BONUS_V1 / 100.0f);
+            v2.scale(profile.BONUS_V2 / 100.0f);
+            v3.scale(profile.BONUS_V3 / 100.0f);
+            v4.scale(profile.BONUS_V4 / 100.0f);
+            v5.scale(profile.BONUS_V5 / 100.0f);
+            v6.scale(profile.BONUS_V6 / 100.0f);
 
             // Log.d(TAG, "v1=" + v1);
             // Log.d(TAG, "v2=" + v2);
@@ -217,7 +217,7 @@ public class Flock {
             // Log.d(TAG, "v4=" + v4);
 
             // Combine components
-            a.velocity.add(v1);
+            
             a.velocity.add(v2);
             a.velocity.add(v3);
             a.velocity.add(v4);
@@ -228,14 +228,13 @@ public class Flock {
             // limit velocity
             if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
                 a.velocity.normalize();
-                a.velocity.scale(profile.MAX_VELOCITY);            
+                a.velocity.scale(profile.MAX_VELOCITY);
             }
-
+            
             tmp.zero();
             tmp.copy(a.velocity);
-            
-            //Log.d(TAG, "elapsed=" + elapsed);            
-            tmp.scale(elapsed/33f);
+
+            tmp.scale(profile.BONUS_VELOCITY / 100f);
 
             // apply velocity to position
             a.position.add(tmp);

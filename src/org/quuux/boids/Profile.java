@@ -1,9 +1,11 @@
 package org.quuux.boids;
 
+import org.json.JSONException;
+
 class Profile {
     public String name;
 
-    public boolean RANDOMIZE_COLORS;
+    public boolean RANDOMIZE_COLORS = false;
 
     public float MIN_SEED;
     public float MAX_SEED;
@@ -24,12 +26,14 @@ class Profile {
     public float SCALE_V5;
     public float SCALE_V6;
 
-    public float BONUS_V1 = 1;
-    public float BONUS_V2 = 1;
-    public float BONUS_V3 = 1;
-    public float BONUS_V4 = 1;
-    public float BONUS_V5 = 1;
-    public float BONUS_V6 = 1;
+    public int BONUS_V1 = 1;
+    public int BONUS_V2 = 1;
+    public int BONUS_V3 = 1;
+    public int BONUS_V4 = 1;
+    public int BONUS_V5 = 1;
+    public int BONUS_V6 = 1;
+    public int BONUS_V7 = 1;
+    public int BONUS_VELOCITY = 1;
 
     public float MIN_X;
     public float MAX_X;
@@ -43,6 +47,14 @@ class Profile {
 
     public String toString() {
         return ProfileLoader.storeProfile(this).toString();
+    }
+
+    public String toString(int spaces) {
+        try {
+            return ProfileLoader.storeProfile(this).toString(spaces);   
+        } catch(JSONException e) {
+            return null;
+        }
     }
 
 }

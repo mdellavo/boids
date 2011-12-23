@@ -33,6 +33,10 @@
     <string name="blank">xxx</string>
     <string name="percent">%</string>
 
+    <string name="pref_velocity_title">Maximum Velocity</string>
+    <string name="pref_velocity_summary">Maximum Velocity</string>
+    <string name="pref_velocity_dialog_message">Maximum Velocity</string>
+
     <string name="pref_v1_title">Attraction Force</string>
     <string name="pref_v1_summary">Attraction Force</string>
     <string name="pref_v1_dialog_message">Attraction Force</string>

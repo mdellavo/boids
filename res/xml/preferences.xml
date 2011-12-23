@@ -9,13 +9,14 @@
       android:summary="@string/pref_profile_name_summary"
       android:dialogTitle="@string/pref_profile_name_dialog" />  
  </PreferenceCategory>
+
  <PreferenceCategory 
     android:title="@string/pref_flock_category_title"
     android:summary="@string/pref_flock_category_summary">
 
    <CheckBoxPreference
       android:key="RANDOMIZE_COLORS"
-       android:title="@string/pref_randomize_color_title"
+      android:title="@string/pref_randomize_color_title"
       android:summary="@string/pref_randomize_color_summary" />  
 
    <CheckBoxPreference
@@ -31,6 +32,15 @@
       android:defaultValue="250"
       android:text=""
       android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
+       android:key="BONUS_VELOCITY"
+       android:title="@string/pref_velocity_title"
+       android:summary="@string/pref_velocity_summary"
+       android:dialogMessage="@string/pref_velocity_dialog_message"
+       android:defaultValue="100"
+       android:text="@string/percent"
+       android:max="200" />
 
    <org.quuux.boids.SeekBarPreference
       android:key="RANGE"
