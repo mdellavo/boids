@@ -5,7 +5,7 @@
    "RANDOMIZE_COLORS" : false,
    "MIN_SEED"         : -500,
    "MAX_SEED"         : 500,
-   "MAX_SIZE"         : 100,
+   "MAX_SIZE"         : 100.0,
    "MAX_VELOCITY"     : 2.5,
    "RANGE"            : 100.0,
    "NEIGHBORS"        : 10,
@@ -17,7 +17,7 @@
    "SCALE_V2"         : 0.001, 
    "SCALE_V3"         : 0.01, 
    "SCALE_V4"         : 1.0, 
-   "SCALE_V5"         : 0.00025, 
+   "SCALE_V5"         : 0.0005, 
    "SCALE_V6"         : 1.0, 
 
    "BONUS_V1"         : 100.0, 

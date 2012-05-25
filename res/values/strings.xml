@@ -16,6 +16,10 @@
     <string name="pref_flock_size_summary">The number of boids in the flock</string>
     <string name="pref_flock_size_dialog_message">The number of boids in the flock</string>
 
+    <string name="pref_max_size_title">Maximum Boid Size</string>
+    <string name="pref_max_size_summary">The maximum size of the boids</string>
+    <string name="pref_max_size_dialog_message">The number of boids in the max</string>
+
     <string name="pref_scale_flock_title">Scale Flock Size</string>
     <string name="pref_scale_flock_summary">Scale the flock size to target 60 FPS</string>
 

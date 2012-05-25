@@ -67,6 +67,12 @@ public class GLHelper
         return hasExtension("point_sprite");
     }
 
+    final public static ByteBuffer byteBuffer(int size) {
+        ByteBuffer byte_buf = ByteBuffer.allocateDirect(size);
+        byte_buf.order(ByteOrder.nativeOrder());
+        return byte_buf;
+    }
+
     final public static FloatBuffer floatBuffer(int size) {
         ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
         byte_buf.order(ByteOrder.nativeOrder());

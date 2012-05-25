@@ -34,6 +34,15 @@
       android:max="1000" />
 
    <org.quuux.boids.SeekBarPreference
+      android:key="MAX_SIZE"
+      android:title="@string/pref_max_size_title"
+      android:summary="@string/pref_max_size_summary"
+      android:dialogMessage="@string/pref_max_size_dialog_message"
+      android:defaultValue="100"
+      android:text="@string/percent"
+      android:max="1000" />
+
+   <org.quuux.boids.SeekBarPreference
        android:key="BONUS_VELOCITY"
        android:title="@string/pref_velocity_title"
        android:summary="@string/pref_velocity_summary"

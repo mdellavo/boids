@@ -5,12 +5,25 @@ import android.util.Log;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
+class DepthComparator implements Comparator {
+    public final int compare(Object a, Object b) {
+        Boid ba = (Boid)a;
+        Boid bb = (Boid)b;
+        return Float.compare(ba.position.z, bb.position.z); 
+    }
+}
+
 public class Flock {
     protected static final String TAG = "Flock";
 
     protected Profile profile;
     protected Boid boids[];
     protected KDTree tree;
+
+    protected DepthComparator comparator = new DepthComparator();
 
     // preallocation so we dont trigger gc
     final protected Vector3 tmp = new Vector3();
@@ -22,7 +35,7 @@ public class Flock {
     final protected Vector3 v6 = new Vector3();
     final protected Vector3 v7 = new Vector3();
 
-    final protected Vector3 origin = new Vector3(0, 0, -100f);
+    final protected Vector3 origin = new Vector3(0, 0, 150f);
     final protected Vector3 focal = new Vector3();
     final protected Vector3 center = new Vector3();
 
@@ -47,13 +60,13 @@ public class Flock {
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED));
 
-            if(profile.RANDOMIZE_COLORS) 
-                randomizeColors();
-
             //Log.d(TAG, boids[i].toString());
             
             alive++;
         }
+
+        if(profile.RANDOMIZE_COLORS) 
+            randomizeColors();
 
         tree = new KDTree(profile.FLOCK_SIZE, profile.NEIGHBORS);        
 
@@ -73,6 +86,10 @@ public class Flock {
         int seed = RandomGenerator.randomInt(0, 100000);
         for(int i=0; i<boids.length; i++)
             boids[i].seed = seed;
+    }
+
+    final public void sort() {
+        Arrays.sort(boids, 0, boids.length, comparator);
     }
     
     final public int throttleUp() {
@@ -240,29 +257,29 @@ public class Flock {
             a.position.add(tmp);
           
             //Log.d(TAG, "depth_percentile: " + depth_percentile);
-            
-            a.size = scaleRange(a.position.z,
-                                profile.MIN_Z, profile.MAX_Z, 
-                                profile.MIN_SIZE, profile.SIZE_SCALE);
+            a.size = 1000f;
 
+            // a.size = scaleRange(a.position.z,
+            //                     profile.MIN_Z, profile.MAX_Z, 
+            //                     profile.MIN_SIZE, profile.MAX_SIZE);
             a.opacity = scaleRange(a.position.z,
                                    profile.MIN_Z, profile.MAX_Z, 
-                                   0.4f, 1.0f);
+                                   0f, 1f);
 
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
             a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
-            a.color[3] = scaleRange(a.position.z, profile.MIN_Z, profile.MAX_Z, 0, 1);
-            
+            a.color[3] = a.opacity;
+
             //Log.d(TAG, a.toString());
         }
     }
 
     // FIXME bad math, should be able to handle min > max
-    final protected float scaleRange(float n,
-                               float min_a, float max_a,
-                               float min_b, float max_b) {
-        return (n / ((max_a - min_a) / (max_b - min_b))) + min_b;
+    final protected float scaleRange(float x,
+                                     float min, float max,
+                                     float a, float b) {
+        return (b-a) * (x-min) / (max - min) + a;
     }
 
     final protected float percentile(float min, float max, float n) {
@@ -300,14 +317,17 @@ public class Flock {
 
     // Rule 4 - keep within bounds
     final private void rule4(Boid b) {
+
         if(b.position.x < profile.MIN_X)
             v4.x = profile.REBOUND_VELOCITY;
         else if(b.position.x > profile.MAX_X)
             v4.x = -profile.REBOUND_VELOCITY;
+
         else if(b.position.y < profile.MIN_Y)
             v4.y = profile.REBOUND_VELOCITY;
         else if(b.position.y > profile.MAX_Y)
             v4.y = -profile.REBOUND_VELOCITY;
+
         else if(b.position.z < profile.MIN_Z)
             v4.z = profile.REBOUND_VELOCITY;
         else if(b.position.z > profile.MAX_Z)
@@ -327,6 +347,7 @@ public class Flock {
 
         focal.x = p.x;
         focal.y = p.y;
+        focal.z = 500f;
     }
     
     final public void push(Vector3 f) {

@@ -25,6 +25,8 @@ class FlockBuffer {
     }
 
     final public void render(Flock flock) {
+
+        flock.sort();
         
         back.clear(); 
 
@@ -86,6 +88,11 @@ class FlockBuffer {
     }
 
     final public void init(GL10 gl) {
+        float[] att = {0, 0, .01f};
+        ((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
+        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MIN, 1.0f);
+        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MAX, 1000.0f);
+
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         
         texture = TextureLoader.get("boid");
@@ -104,8 +111,6 @@ class FlockBuffer {
         gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
                      GL11.GL_TRUE);
 
-        //float[] att = {0, 0, 1f/64f};
-        //((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
     }
 
     final public void draw(GL10 gl) {

@@ -37,8 +37,10 @@ class Profile {
 
     public float MIN_X;
     public float MAX_X;
+
     public float MIN_Y;
     public float MAX_Y;
+
     public float MIN_Z;
     public float MAX_Z;
 
