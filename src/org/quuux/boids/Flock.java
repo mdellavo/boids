@@ -12,7 +12,16 @@ class DepthComparator implements Comparator {
     public final int compare(Object a, Object b) {
         Boid ba = (Boid)a;
         Boid bb = (Boid)b;
-        return Float.compare(ba.position.z, bb.position.z); 
+
+        int rv = Float.compare(ba.position.z, bb.position.z);
+
+        if (rv == 0)
+            rv = Float.compare(ba.position.y, bb.position.y);
+
+        if (rv == 0)
+            rv = Float.compare(ba.position.x, bb.position.x);
+        
+        return rv; 
     }
 }
 

@@ -98,9 +98,10 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glClearDepthf(1f);
         gl.glDepthFunc(GL10.GL_LEQUAL);
 
+        gl.glEnable(GL10.GL_POINT_SMOOTH);
         gl.glEnable(GL10.GL_TEXTURE_2D);
         gl.glEnable(GL10.GL_BLEND);
-        gl.glEnable(GL10.GL_DITHER);
+        gl.glDisable(GL10.GL_DITHER);
         gl.glEnable(GL10.GL_DEPTH_TEST);
         gl.glEnable(GL10.GL_ALPHA_TEST);
         //gl.glEnable(GL10.GL_LIGHTING);
@@ -114,9 +115,8 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         gl.glTexEnvf(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, 
                      GL10.GL_REPLACE);
-        
-        gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_COLOR);
-        //gl.glBlendFunc (GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+        gl.glBlendFunc (GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glFrontFace(GL10.GL_CCW);
 

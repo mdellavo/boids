@@ -19,7 +19,7 @@ public class Camera {
         center = new Vector3(0, 0, -1600);
         up = new Vector3(0f, 1f, 0f);    
         rotation = new Vector3(0, 0, 0);
-        fov = 90f;
+        fov = 120f;
         znear = .1f;
         zfar = 3200f;
     }
