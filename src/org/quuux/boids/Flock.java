@@ -214,7 +214,7 @@ public class Flock {
             v6.scale(profile.SCALE_V6);          
 
             if(flee>0) {
-                v1.scale(-10);
+                v1.scale(-1);
             }
 
             
