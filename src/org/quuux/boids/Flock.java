@@ -195,7 +195,6 @@ public class Flock {
             if(flee>0) {
                 // if(center.distance(focal) > 0)
                 //     ease(center, focal);
-
                 center.copy(focal);
             } else if(flee == 0) {
                 // if(center.distance(origin) > 0)
@@ -215,17 +214,7 @@ public class Flock {
             v6.scale(profile.SCALE_V6);          
 
             if(flee>0) {
-                v1.scale(-10 * RandomGenerator.randomPercentile(), 
-                         -10 * RandomGenerator.randomPercentile(),
-                         -10 * RandomGenerator.randomPercentile());
-
-                v3.scale(-10 * RandomGenerator.randomPercentile(), 
-                         -10 * RandomGenerator.randomPercentile(),
-                         -10 * RandomGenerator.randomPercentile());
-
-                v5.scale(10 * RandomGenerator.randomPercentile(), 
-                         10 * RandomGenerator.randomPercentile(),
-                         10 * RandomGenerator.randomPercentile());
+                v1.scale(-10);
             }
 
             
@@ -358,7 +347,7 @@ public class Flock {
 
         focal.x = p.x;
         focal.y = p.y;
-        focal.z = 500f;
+        focal.z = 800;
     }
     
     final public void push(Vector3 f) {
