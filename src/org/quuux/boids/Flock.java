@@ -257,18 +257,20 @@ public class Flock {
             a.position.add(tmp);
           
             //Log.d(TAG, "depth_percentile: " + depth_percentile);
+
             a.size = 1000f;
+            a.opacity = 1;
 
             // a.size = scaleRange(a.position.z,
             //                     profile.MIN_Z, profile.MAX_Z, 
             //                     profile.MIN_SIZE, profile.MAX_SIZE);
-            a.opacity = scaleRange(a.position.z,
-                                   profile.MIN_Z, profile.MAX_Z, 
-                                   .2f, .8f);
+            // a.opacity = scaleRange(a.position.z,
+            //                        profile.MIN_Z, profile.MAX_Z, 
+            //                        .2f, .8f);
 
             a.color[0] = (a.seed + a.age) % 360;
-            a.color[1] = 1 + (float)Math.sin((a.seed + a.age)/60f);
-            a.color[2] = .4f + .3333f*(1 + (float)Math.cos((a.seed + a.age)/120f));
+            a.color[1] = .75f + (.25f * (float)Math.sin((a.seed + a.age)/60f));
+            a.color[2] = .75f + (.25f * (float)Math.cos((a.seed + a.age)/120f));
             a.color[3] = a.opacity;
 
             //Log.d(TAG, a.toString());

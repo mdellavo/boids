@@ -15,7 +15,7 @@ public class BoundingBox {
     private IntBuffer   color_buffer;
     private ByteBuffer  index_buffer;
 
-    int one = 800; 
+    int one = 0x10000; 
 
     int vertices[] = {
         -one, -one, -one,
@@ -57,7 +57,7 @@ public class BoundingBox {
         vertex_buffer.put(vertices);
         vertex_buffer.position(0);
 
-        color_buffer = GLHelper.intBuffer(colors.length);;
+        color_buffer = GLHelper.intBuffer(colors.length);
         color_buffer.put(colors);
         color_buffer.position(0);
 
@@ -73,12 +73,15 @@ public class BoundingBox {
 
         gl.glPushMatrix();
 
-        gl.glTranslatef(0, 0, 0);
+        gl.glLoadIdentity();
+
+        gl.glTranslatef(0, 0, -400);
 
         gl.glFrontFace(GL10.GL_CW);
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, vertex_buffer);
         gl.glColorPointer(4, GL10.GL_FIXED, 0, color_buffer);
         gl.glDrawElements(GL10.GL_TRIANGLES, 36, GL10.GL_UNSIGNED_BYTE, index_buffer);
+
         gl.glPopMatrix();
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);    
