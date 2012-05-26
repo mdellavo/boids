@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.nio.FloatBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 // derived from https://github.com/lithium/android-game
 public class GLHelper
@@ -71,6 +72,12 @@ public class GLHelper
         ByteBuffer byte_buf = ByteBuffer.allocateDirect(size);
         byte_buf.order(ByteOrder.nativeOrder());
         return byte_buf;
+    }
+
+    final public static IntBuffer intBuffer(int size) {
+        ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
+        byte_buf.order(ByteOrder.nativeOrder());
+        return byte_buf.asIntBuffer();
     }
 
     final public static FloatBuffer floatBuffer(int size) {
@@ -143,7 +150,7 @@ public class GLHelper
     
     final public static int loadBufferObject(GL10 gl, FloatBuffer data) {
         int buffer = createBufferObject(gl);
-        
+
         ((GL11)gl).glBindBuffer(GL11.GL_ARRAY_BUFFER, buffer);
         ((GL11)gl).glBufferData(GL11.GL_ARRAY_BUFFER, data.limit() * 4, data, 
                                 GL11.GL_STATIC_DRAW);

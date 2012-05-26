@@ -16,12 +16,12 @@ public class Camera {
 
     public Camera() {
         eye = new Vector3(0, 0, 500);
-        center = new Vector3(0, 0, 0);
+        center = new Vector3(0, 0, -1600);
         up = new Vector3(0f, 1f, 0f);    
         rotation = new Vector3(0, 0, 0);
-        fov = 45f;
+        fov = 120f;
         znear = .1f;
-        zfar = 1000f;
+        zfar = 3200f;
     }
 
     public void init(GL10 gl, int width, int height) {

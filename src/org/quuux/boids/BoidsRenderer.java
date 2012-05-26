@@ -65,7 +65,6 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         matrix_grabber.getCurrentState(gl);
 
-        bounding_box.draw(gl);
         buffer.draw(gl);
 
         last = now;
@@ -117,7 +116,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
                      GL10.GL_REPLACE);
 
         //gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_COLOR);
-        gl.glBlendFunc (GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glBlendFunc (GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glFrontFace(GL10.GL_CCW);
 

@@ -15,8 +15,11 @@ class FlockBuffer {
     protected Texture texture;    
     protected boolean dirty;
 
+    protected BoundingBox bounding_box;
+
     public FlockBuffer(Flock flock) {
         allocate(flock);
+        bounding_box = new BoundingBox(flock);        
     }
 
     public void allocate(Flock flock) {
@@ -88,10 +91,11 @@ class FlockBuffer {
     }
 
     final public void init(GL10 gl) {
+
         float[] att = {0, 0, .01f};
         ((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
         ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MIN, 1.0f);
-        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MAX, 1000.0f);
+        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MAX, 10000.0f);
 
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         
@@ -110,7 +114,8 @@ class FlockBuffer {
         
         gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
                      GL11.GL_TRUE);
-
+        
+        bounding_box.init(gl);
     }
 
     final public void draw(GL10 gl) {
@@ -133,24 +138,28 @@ class FlockBuffer {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
-        gl.glDepthMask(false);
-
         synchronized(this) {
+
             gl.glColorPointer(4, GL10.GL_FLOAT, 0, front.colors);
             ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
             gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
             gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
             gl.glDrawArrays(GL10.GL_POINTS, 0, front.sizes.limit()); // XXX 
+
+            bounding_box.draw(gl);
+
             dirty=false;
+
             notifyAll();
         }
 
-        gl.glDepthMask(true);
-        
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
+
+
+
     }
 }
