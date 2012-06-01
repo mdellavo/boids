@@ -40,6 +40,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         protected Flock flock;
         protected FlockBuffer buffer;
         final protected Vector3 last_touch = new Vector3();
+        final protected Vector3 last_push = new Vector3();
         
         protected Profile profile;
 
@@ -92,6 +93,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
             if(key.equals("profile_name")) {
                 String profile_name = preferences.getString(key, "");
+
                 profile = ProfileLoader.getProfile(profile_name);
                 reinit = true;
             } else if(key.equals("RANDOMIZE_COLORS")) {
@@ -109,6 +111,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
             Log.d(TAG, profile.toString(3));
             Log.d(TAG, "----------------------------------------");
 
+            // FIXME 
             if(reinit) {
                 flock = new Flock();
                 flock.init(profile);
@@ -151,9 +154,16 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onOffsetsChanged(float xOffset, float yOffset, 
                                      float xOffsetStep, float yOffsetStep, 
                                      int xPixelOffset, int yPixelOffset) {
-            Log.d(TAG, "offset: " + xOffset + ", " + yOffset + 
-                  " | offsetStep: " + xOffsetStep + ", " + yOffsetStep + 
-                  " | pixelOffset: " + xPixelOffset + ", " + yPixelOffset);
+            Vector3 v = new Vector3(xPixelOffset, yPixelOffset, 0);
+            v.subtract(last_push);
+            v.normalize();
+            if(v.magnitude() > 0) {
+                Log.d(TAG, "pushing " + v);
+                flock.push(v);
+            }
+
+            last_push.x = xPixelOffset;
+            last_push.y = yPixelOffset;
         }
 
         public Bundle onCommand(String action, int x, int y, int z, 
@@ -192,7 +202,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onTouchEvent(MotionEvent event) {
             Vector3 v = projectTouchToWorld(event.getX(), event.getY());
             //Log.d(TAG, "touch: " + v);            
-            
+ 
+            v.normalize();
+            v.scale(50);
             flock.touch(v);
         }
     }

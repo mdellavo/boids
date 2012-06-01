@@ -1,7 +1,7 @@
 {
    "name"             : "Default",
    "class"            : "org.quuux.boids.Profile",
-   "FLOCK_SIZE"       : 250,
+   "FLOCK_SIZE"       : 500,
    "RANDOMIZE_COLORS" : false,
    "MIN_SEED"         : -500,
    "MAX_SEED"         : 500,

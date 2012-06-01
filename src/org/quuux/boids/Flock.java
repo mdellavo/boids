@@ -214,9 +214,8 @@ public class Flock {
             v6.scale(profile.SCALE_V6);          
 
             if(flee>0) {
-                v1.scale(-1);
+                v1.scale(-10);
             }
-
             
             // Scale according to settings
             v1.scale(profile.BONUS_V1 / 100.0f);
@@ -250,6 +249,14 @@ public class Flock {
             tmp.copy(a.velocity);
 
             tmp.scale(profile.BONUS_VELOCITY / 100f);
+            if(flee > 0) {
+                float fleeing_velocity = scaleRange(flee,
+                                                    0,
+                                                    profile.FLEE_TIME, 
+                                                    1,
+                                                    4);
+                tmp.scale(fleeing_velocity);
+            }
 
             // apply velocity to position
             a.position.add(tmp);
@@ -259,9 +266,6 @@ public class Flock {
             a.size = 1000f;
             a.opacity = 1;
 
-            // a.size = scaleRange(a.position.z,
-            //                     profile.MIN_Z, profile.MAX_Z, 
-            //                     profile.MIN_SIZE, profile.MAX_SIZE);
             // a.opacity = scaleRange(a.position.z,
             //                        profile.MIN_Z, profile.MAX_Z, 
             //                        .2f, .8f);
@@ -341,16 +345,17 @@ public class Flock {
     }
     
     final public void touch(Vector3 p) {
-        flee = profile.FLEE_TIME;
-
         Log.d(TAG, "touch: " + p);
-
-        focal.x = p.x;
-        focal.y = p.y;
-        focal.z = 800;
+        flee = profile.FLEE_TIME;
+        focal.copy(p);
+        focal.z = 200;
     }
     
     final public void push(Vector3 f) {
-        v7.copy(f);
+        flee = profile.FLEE_TIME; 
+        f.scale(200);
+        f.z = focal.z;
+        focal.copy(f);
+        Log.d(TAG, "pushing focal to " + focal);
     }
 }
