@@ -204,7 +204,6 @@ public class BoidsWallpaperService extends GLWallpaperService {
             //Log.d(TAG, "touch: " + v);            
  
             v.normalize();
-            v.scale(50);
             flock.touch(v);
         }
     }

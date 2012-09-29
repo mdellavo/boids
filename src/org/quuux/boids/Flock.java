@@ -30,7 +30,7 @@ public class Flock {
 
     protected Profile profile;
     protected Boid boids[];
-    protected KDTree tree;
+    protected BinLattice bin;
 
     protected DepthComparator comparator = new DepthComparator();
 
@@ -50,12 +50,14 @@ public class Flock {
 
     protected long flee;
     protected int alive;
+
+    private int last_histogram = 0;
     
     final public void init(Profile profile) {
         this.profile = profile;
-        boids = new Boid[profile.FLOCK_SIZE];
+        boids = new Boid[profile.FLOCK_SIZE * 2];
 
-        for(int i=0; i<profile.FLOCK_SIZE; i++) {
+        for(int i=0; i<boids.length; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED), 
                                 RandomGenerator.randomRange(profile.MIN_SEED,
@@ -70,14 +72,17 @@ public class Flock {
                                                             profile.MAX_SEED));
 
             //Log.d(TAG, boids[i].toString());
-            
-            alive++;
+            if(i < profile.FLOCK_SIZE)
+                alive++; 
+            else
+                boids[i].alive = false;
         }
 
         if(profile.RANDOMIZE_COLORS) 
             randomizeColors();
 
-        tree = new KDTree(profile.FLOCK_SIZE, profile.NEIGHBORS);        
+        bin = new BinLattice(profile);
+        bin.add(boids);
 
         center.copy(origin);
     }
@@ -130,14 +135,15 @@ public class Flock {
 
     final public void tick(long elapsed) {
 
-        if(flee > 0)
+        if(flee > 0) {
             flee -= elapsed;
-
-        if(flee < 0)
+            v7.scale(.25f);
+        } else if(flee < 0) {
             flee = 0;
-       
-        tree.add(boids);
-
+            v7.zero();
+            focal.copy(origin);
+        }
+        
         for(int i=0; i<boids.length; i++) {
             Boid a = boids[i];
 
@@ -153,53 +159,44 @@ public class Flock {
             v5.zero();
             v6.zero();
 
-            Boid neighbors[] = tree.findNeighbors(a, profile.RANGE);
-            int neighbor_count = 0;
+            BinLattice.Visitor visitor = new BinLattice.Visitor() {
+                    public void visit(Boid a, Boid b) {
+                        
+                        // Rule 1
+                        v1.add(b.position);
+                        
+                        // Rule 2
+                        tmp.zero();       
+                        tmp.add(b.position);
+                        tmp.subtract(a.position);
 
-            for(int j=0; j<neighbors.length; j++) {
-                Boid b = boids[j];
+                        // FIXME Does this actually work?                    
+                        if(tmp.magnitude() < profile.RANGE)
+                            v2.subtract(tmp);                 
+                        
+                        // Rule 3
+                        v3.add(b.velocity);
+                    }
+            };
 
-                if(b != null) {
-                    neighbor_count++;
+            int neighbors = bin.scan(a, (int)profile.RANGE, visitor, profile.NEIGHBORS);
+            //Log.d(TAG, "number of neighbors: " + neighbors);
 
-                    // Rule 1
-                    v1.add(b.position);
-                    
-                    // Rule 2
-                    tmp.zero();       
-                    tmp.add(b.position);
-                    tmp.subtract(a.position);
-
-                    // FIXME Does this actually work?                    
-                    if(tmp.magnitude() < profile.RANGE)
-                        v2.subtract(tmp);                 
-                    
-                    // Rule 3
-                    v3.add(b.velocity);
-                }                        
-            }
-
-            if(neighbor_count>0) {
+            if(neighbors>0) {
                 // Rule 1
-                v1.scale((float)1.0/neighbor_count);
+                v1.scale((float)1.0/neighbors);
                 v1.normalize();
 
                 // Rule 3
-                v3.scale((float)1.0/neighbor_count);
+                v3.scale((float)1.0/neighbors);
                 v3.normalize();
             }
 
             // Rule 4 - Bound
             rule4(a);
 
-            if(flee>0) {
-                // if(center.distance(focal) > 0)
-                //     ease(center, focal);
+            if(flee > 0) {
                 center.copy(focal);
-            } else if(flee == 0) {
-                // if(center.distance(origin) > 0)
-                //     ease(center, origin);
-                center.copy(origin);
             }
 
             // Rule 5 - Center
@@ -258,17 +255,20 @@ public class Flock {
                 tmp.scale(fleeing_velocity);
             }
 
+            bin.remove(a);
+
             // apply velocity to position
             a.position.add(tmp);
           
+            bin.add(a);
+
             //Log.d(TAG, "depth_percentile: " + depth_percentile);
 
             a.size = 1000f;
-            a.opacity = 1;
 
-            // a.opacity = scaleRange(a.position.z,
-            //                        profile.MIN_Z, profile.MAX_Z, 
-            //                        .2f, .8f);
+            a.opacity = scaleRange(a.position.z,
+                                   profile.MIN_Z, 0, 
+                                   0f, 1f);
 
             a.color[0] = (a.seed + a.age) % 360;
             a.color[1] = .75f + (.25f * (float)Math.sin((a.seed + a.age)/60f));
@@ -277,6 +277,13 @@ public class Flock {
 
             //Log.d(TAG, a.toString());
         }
+        
+        last_histogram += elapsed;
+        if(last_histogram > 30 * 1000) {
+            bin.histogram();
+            last_histogram = 0;
+        }
+        
     }
 
     // FIXME bad math, should be able to handle min > max
@@ -347,14 +354,16 @@ public class Flock {
     final public void touch(Vector3 p) {
         Log.d(TAG, "touch: " + p);
         flee = profile.FLEE_TIME;
+        p.normalize();
+        p.scale(50);
         focal.copy(p);
-        focal.z = 200;
+        focal.z = 200f;
     }
     
     final public void push(Vector3 f) {
         flee = profile.FLEE_TIME; 
-        f.scale(200);
-        f.z = focal.z;
+        f.normalize();
+        f.scale(50);
         focal.copy(f);
         Log.d(TAG, "pushing focal to " + focal);
     }
