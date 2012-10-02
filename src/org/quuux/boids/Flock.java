@@ -20,8 +20,8 @@ class DepthComparator implements Comparator {
 
         if (rv == 0)
             rv = Float.compare(ba.position.x, bb.position.x);
-        
-        return rv; 
+
+        return rv;
     }
 }
 
@@ -51,34 +51,34 @@ public class Flock {
     protected long flee;
     protected int alive;
 
-    private int last_histogram = 0;
-    
     final public void init(Profile profile) {
         this.profile = profile;
-        boids = new Boid[profile.FLOCK_SIZE * 2];
+        boids = new Boid[10000];
 
         for(int i=0; i<boids.length; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(profile.MIN_SEED,
-                                                            profile.MAX_SEED), 
-                                RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED),
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED),
                                 RandomGenerator.randomRange(profile.MIN_SEED,
-                                                            profile.MAX_SEED), 
+                                                            profile.MAX_SEED),
+                                RandomGenerator.randomRange(profile.MIN_SEED,
+                                                            profile.MAX_SEED),
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED),
                                 RandomGenerator.randomRange(profile.MIN_SEED,
                                                             profile.MAX_SEED));
 
+            boids[i].age += RandomGenerator.randomInt(0, 72);
+
             //Log.d(TAG, boids[i].toString());
             if(i < profile.FLOCK_SIZE)
-                alive++; 
+                alive++;
             else
                 boids[i].alive = false;
         }
 
-        if(profile.RANDOMIZE_COLORS) 
+        if(profile.RANDOMIZE_COLORS)
             randomizeColors();
 
         bin = new BinLattice(profile);
@@ -86,7 +86,7 @@ public class Flock {
 
         center.copy(origin);
     }
-    
+
     final public Profile getProfile() {
         return profile;
     }
@@ -105,7 +105,7 @@ public class Flock {
     final public void sort() {
         Arrays.sort(boids, 0, boids.length, comparator);
     }
-    
+
     final public int throttleUp() {
         for(int i=0; i<boids.length; i++) {
             if(!boids[i].alive) {
@@ -114,8 +114,8 @@ public class Flock {
                 Log.d(TAG, "Throttled up to " + alive + " boids");
                 break;
             }
-        }           
-        
+        }
+
         return alive;
     }
 
@@ -128,8 +128,8 @@ public class Flock {
                 Log.d(TAG, "Throttled down to " + alive + " boids");
                 break;
             }
-        }            
-        
+        }
+
         return alive;
     }
 
@@ -137,17 +137,18 @@ public class Flock {
 
         if(flee > 0) {
             flee -= elapsed;
+
             v7.scale(.25f);
         } else if(flee < 0) {
             flee = 0;
             v7.zero();
             focal.copy(origin);
         }
-        
+
         for(int i=0; i<boids.length; i++) {
             Boid a = boids[i];
 
-            a.age += RandomGenerator.randomInt(0, 2);
+            a.age += 1;
 
             if(!a.alive)
                 continue;
@@ -161,19 +162,19 @@ public class Flock {
 
             BinLattice.Visitor visitor = new BinLattice.Visitor() {
                     public void visit(Boid a, Boid b) {
-                        
+
                         // Rule 1
                         v1.add(b.position);
-                        
+
                         // Rule 2
-                        tmp.zero();       
+                        tmp.zero();
                         tmp.add(b.position);
                         tmp.subtract(a.position);
 
-                        // FIXME Does this actually work?                    
-                        if(tmp.magnitude() < profile.RANGE)
-                            v2.subtract(tmp);                 
-                        
+                        // FIXME Does this actually work?
+                        if(tmp.magnitude() < (profile.RANGE / 2))
+                            v2.subtract(tmp);
+
                         // Rule 3
                         v3.add(b.velocity);
                     }
@@ -208,12 +209,12 @@ public class Flock {
             v3.scale(profile.SCALE_V3);
             v4.scale(profile.SCALE_V4);
             v5.scale(profile.SCALE_V5);
-            v6.scale(profile.SCALE_V6);          
+            v6.scale(profile.SCALE_V6);
 
             if(flee>0) {
                 v1.scale(-10);
             }
-            
+
             // Scale according to settings
             v1.scale(profile.BONUS_V1 / 100.0f);
             v2.scale(profile.BONUS_V2 / 100.0f);
@@ -228,7 +229,7 @@ public class Flock {
             // Log.d(TAG, "v4=" + v4);
 
             // Combine components
-            
+
             a.velocity.add(v2);
             a.velocity.add(v3);
             a.velocity.add(v4);
@@ -241,7 +242,7 @@ public class Flock {
                 a.velocity.normalize();
                 a.velocity.scale(profile.MAX_VELOCITY);
             }
-            
+
             tmp.zero();
             tmp.copy(a.velocity);
 
@@ -249,7 +250,7 @@ public class Flock {
             if(flee > 0) {
                 float fleeing_velocity = scaleRange(flee,
                                                     0,
-                                                    profile.FLEE_TIME, 
+                                                    profile.FLEE_TIME,
                                                     1,
                                                     4);
                 tmp.scale(fleeing_velocity);
@@ -259,7 +260,7 @@ public class Flock {
 
             // apply velocity to position
             a.position.add(tmp);
-          
+
             bin.add(a);
 
             //Log.d(TAG, "depth_percentile: " + depth_percentile);
@@ -267,7 +268,7 @@ public class Flock {
             a.size = 1000f;
 
             a.opacity = scaleRange(a.position.z,
-                                   profile.MIN_Z, 0, 
+                                   profile.MIN_Z, 0,
                                    0f, 1f);
 
             a.color[0] = (a.seed + a.age) % 360;
@@ -277,13 +278,7 @@ public class Flock {
 
             //Log.d(TAG, a.toString());
         }
-        
-        last_histogram += elapsed;
-        if(last_histogram > 30 * 1000) {
-            bin.histogram();
-            last_histogram = 0;
-        }
-        
+
     }
 
     // FIXME bad math, should be able to handle min > max
@@ -295,7 +290,7 @@ public class Flock {
 
     final protected float percentile(float min, float max, float n) {
         return (n - min) / (max - min);
-    } 
+    }
 
     final protected float  ease(float a, float b) {
         float dx = b - a;
@@ -304,21 +299,21 @@ public class Flock {
             dx /= 0.5f;
 
         return dx;
-    } 
-    
+    }
+
     final protected void ease(Vector3 a, Vector3 b) {
         tmp.copy(b);
         tmp.subtract(a);
-        
+
         if(tmp.magnitude() > 1f)
             tmp.scale(0.5f);
-        
+
         Log.d(TAG, "easing from " + a + " to " + b + " at " + tmp);
 
         a.add(tmp);
     }
 
-    // FIXME move this into kdtree 
+    // FIXME move this into kdtree
     final private boolean inRange(Boid a, Boid b) {
         tmp.zero();
         tmp.add(a.position);
@@ -350,7 +345,7 @@ public class Flock {
         v5.copy(center);
         v5.subtract(b.position);
     }
-    
+
     final public void touch(Vector3 p) {
         Log.d(TAG, "touch: " + p);
         flee = profile.FLEE_TIME;
@@ -359,9 +354,9 @@ public class Flock {
         focal.copy(p);
         focal.z = 200f;
     }
-    
+
     final public void push(Vector3 f) {
-        flee = profile.FLEE_TIME; 
+        flee = profile.FLEE_TIME;
         f.normalize();
         f.scale(50);
         focal.copy(f);

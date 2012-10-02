@@ -24,7 +24,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     protected int width;
     protected int height;
     protected MatrixGrabber matrix_grabber = new MatrixGrabber();
-    
+
     public BoidsRenderer(FlockBuffer buffer) {
         super();
         this.camera = new Camera();
@@ -46,16 +46,16 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     final public int getHeight() {
         return height;
     }
-    
+
     final public void onDrawFrame(GL10 gl) {
         long now = System.currentTimeMillis();
         long elapsed = now - last;
         total_elapsed += elapsed;
-        
+
         // FIXME make this is binary search
         frames++;
-        if(total_elapsed > 1000) {          
-            Log.d(TAG, "rendered fps: " + frames);                
+        if(total_elapsed > 1000) {
+            Log.d(TAG, "rendered fps: " + frames);
             total_elapsed = 0;
             frames = 0;
         }
@@ -110,10 +110,10 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         gl.glHint(GL10.GL_FOG_HINT, GL10.GL_NICEST);
         gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
-        gl.glHint(GL10.GL_POINT_SMOOTH_HINT,GL10.GL_NICEST);		
+        gl.glHint(GL10.GL_POINT_SMOOTH_HINT,GL10.GL_NICEST);
         gl.glAlphaFunc(GL10.GL_GREATER, 0.01f);
 
-        gl.glTexEnvf(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE, 
+        gl.glTexEnvf(GL10.GL_TEXTURE_ENV, GL10.GL_TEXTURE_ENV_MODE,
                      GL10.GL_REPLACE);
 
         gl.glBlendFunc (GL10.GL_ONE, GL10.GL_ONE_MINUS_SRC_ALPHA);

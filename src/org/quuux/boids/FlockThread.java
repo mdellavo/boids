@@ -26,7 +26,7 @@ class FlockThread extends Thread implements Runnable {
 
     final public void run() {
         long total_elapsed = 0;
-        
+
         last = System.currentTimeMillis();
         while(true) {
             frames++;
@@ -39,18 +39,18 @@ class FlockThread extends Thread implements Runnable {
                 while(!running) {
                     try {
                         wait();
-                    } catch(InterruptedException e) {                        
+                    } catch(InterruptedException e) {
                     }
                 }
 
                 notifyAll();
             }
 
-            flock.tick(elapsed);   
+            flock.tick(elapsed);
             buffer.render(flock);
 
             total_elapsed += elapsed;
-            if(total_elapsed > 1000) {          
+            if(total_elapsed > 1000) {
 
                 Log.d(TAG, "ticked fps: " + frames);
 
@@ -58,7 +58,7 @@ class FlockThread extends Thread implements Runnable {
                     flock.throttleDown();
                 else if(frames >= 30)
                     flock.throttleUp();
-                
+
                 total_elapsed = 0;
                 frames = 0;
             }

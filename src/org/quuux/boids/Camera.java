@@ -21,7 +21,7 @@ public class Camera {
         rotation = new Vector3(0, 0, 0);
         fov = 120f;
         znear = .1f;
-        zfar = 3200f;
+        zfar = 32000f;
     }
 
     public void init(GL10 gl, int width, int height) {

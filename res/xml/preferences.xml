@@ -31,7 +31,7 @@
       android:dialogMessage="@string/pref_flock_size_dialog_message"
       android:defaultValue="250"
       android:text="@string/percent"
-      android:max="1000" />
+      android:max="10000" />
 
    <org.quuux.boids.SeekBarPreference
       android:key="MAX_SIZE"
