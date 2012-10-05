@@ -95,7 +95,7 @@ class FlockBuffer {
         float[] att = { 1f, 0.0f, 0.01f };
         ((GL11)gl).glPointParameterfv(GL11.GL_POINT_DISTANCE_ATTENUATION, att, 0);
         ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MIN, 1.0f);
-        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MAX, 1000.0f);
+        ((GL11)gl).glPointParameterf(GL11.GL_POINT_SIZE_MAX, 10000.0f);
 
         gl.glEnable(GL11.GL_POINT_SPRITE_OES);
         

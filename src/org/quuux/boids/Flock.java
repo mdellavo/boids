@@ -44,7 +44,7 @@ public class Flock {
     final protected Vector3 v6 = new Vector3();
     final protected Vector3 v7 = new Vector3();
 
-    final protected Vector3 origin = new Vector3(0, 0, 150f);
+    final protected Vector3 origin = new Vector3(0, 0, 250f);
     final protected Vector3 focal = new Vector3();
     final protected Vector3 center = new Vector3();
 

@@ -1,4 +1,4 @@
-def{
+{
    "name"             : "Default",
    "class"            : "org.quuux.boids.Profile",
    "FLOCK_SIZE"       : 500,
