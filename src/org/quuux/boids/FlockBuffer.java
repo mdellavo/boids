@@ -1,8 +1,7 @@
 package org.quuux.boids;
 
 import android.util.Log;
-
-import android.graphics.Color;
+import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
@@ -12,84 +11,52 @@ class FlockBuffer {
 
     protected FlockFrame front;
     protected FlockFrame back;
+
     protected Texture texture;    
     protected boolean dirty;
 
-    protected BoundingBox bounding_box;
+    protected FloatBuffer vertices;
+    protected FloatBuffer sizes;
+    protected FloatBuffer colors;
+
+    //protected BoundingBox bounding_box;
 
     public FlockBuffer(Flock flock) {
         allocate(flock);
-        bounding_box = new BoundingBox(flock);        
     }
 
     public void allocate(Flock flock) {
-        front = new FlockFrame(flock.boids.length);
-        back = new FlockFrame(flock.boids.length);        
+        front = new FlockFrame(flock);
+        back = new FlockFrame(flock);
+        int size = flock.boids.length;
+        vertices = GLHelper.floatBuffer(size * 3);
+        sizes = GLHelper.floatBuffer(size);
+        colors = GLHelper.floatBuffer(size * 4);
+    }
+    
+    // Only the flock thread calls this
+    public void add(Flock flock) {
+        back.clear();
+        
+        for(int i=0; i<flock.boids.length; i++) {
+            if (flock.boids[i].alive) {
+                back.add(flock.boids[i]);
+            }
+        }
     }
 
-    final public void render(Flock flock) {
-
-        flock.sort();
-        
-        back.clear(); 
-
-        int alive = 0;
-        for(int i = 0; i<flock.boids.length; i++) {
-            Boid a = flock.boids[i];
-            
-            if(!a.alive)
-                continue;
-
-            alive++;
-
-            // update buffers
-            back.vertices.put(a.position.x);
-            back.vertices.put(a.position.y);
-            back.vertices.put(a.position.z);
-
-            // FIMXE there has to be a better way to do this...
-            int alpha = Math.round(a.color[3] * 255);
-
-            int rgb = Color.HSVToColor(alpha, a.color);
-            float red = (float)Color.red(rgb) / 255f;
-            float green = (float)Color.green(rgb) / 255f;
-            float blue = (float)Color.blue(rgb) / 255f;
-
-            back.colors.put(red);
-            back.colors.put(green);
-            back.colors.put(blue);
-
-            back.colors.put(a.opacity);
-            back.sizes.put(a.size);
-        }
-            
-        back.vertices.limit(alive*3);
-        back.colors.limit(alive*4);
-        back.sizes.limit(alive);
-
-        back.vertices.position(0);
-        back.colors.position(0);
-        back.sizes.position(0);
-
+    public void swap() {
         synchronized(this) {
-
-            while(dirty) {
-                try {
-                    wait();
-                } catch(InterruptedException e) {
-                }
-            }
-
-            FlockFrame tmp = back;
-            back = front;
-            front = tmp;
-            dirty = true;
+            FlockFrame tmp = front;
+            front = back;
+            back  = tmp;
             notifyAll();
         }
 
         Thread.yield();
     }
-
+    
+ 
     final public void init(GL10 gl) {
 
         float[] att = { 1f, 0.0f, 0.01f };
@@ -115,51 +82,60 @@ class FlockBuffer {
         gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES,
                      GL11.GL_TRUE);
         
-        bounding_box.init(gl);
+        //bounding_box.init(gl);
     }
 
     final public void draw(GL10 gl) {
 
-        // wait for a frame to render
+        int count;
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
+
         synchronized(this) {
-            while(!dirty) {
-                try {
-                    wait();
-                } catch(InterruptedException e) {
-                }
+
+            try {
+                wait();
+            } catch(InterruptedException e) { 
             }
 
-            notifyAll();
+            count = front.getCount();
+
+            vertices.limit(count * 3);
+            colors.limit(count * 4);
+            sizes.limit(count);
+
+            vertices.put(front.getPositions(), 0, count * 3);
+            sizes.put(front.getSizes(), 0, count);
+            colors.put(front.getColors(), 0, count * 4);
         }
 
-        synchronized(this) {
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
 
-            //bounding_box.draw(gl);
+        //bounding_box.draw(gl);
 
-            gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
-            gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-            gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
-            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-            gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-
-            gl.glColorPointer(4, GL10.GL_FLOAT, 0, front.colors);
-            ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, front.sizes);
-            gl.glVertexPointer(3, GL10.GL_FLOAT, 0, front.vertices);
-            gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-            gl.glDrawArrays(GL10.GL_POINTS, 0, front.sizes.limit()); // XXX 
-
-            gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
-            gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-            gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
-            gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-            gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
-
-            dirty=false;
-
-            notifyAll();
-        }
-
-
-
+        gl.glEnable(GL10.GL_TEXTURE);
+        
+        gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
+        gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
+        gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
+        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+        
+        gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
+        ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);
+        gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
+        gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
+        gl.glDrawArrays(GL10.GL_POINTS, 0, count); // XXX 
+        
+        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);
+        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
+        gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
+   
+        gl.glDisable(GL10.GL_TEXTURE);
     }
 }

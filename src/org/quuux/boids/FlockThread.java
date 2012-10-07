@@ -47,25 +47,26 @@ class FlockThread extends Thread implements Runnable {
             }
 
             flock.tick(elapsed);
-            buffer.render(flock);
+            buffer.add(flock);
+            buffer.swap();
 
             total_elapsed += elapsed;
             if(total_elapsed > 1000) {
 
-                Log.d(TAG, "ticked fps: " + frames);
+                Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
 
-                if(frames < 30)
-                    flock.throttleDown();
-                else if(frames >= 30)
-                    flock.throttleUp();
+                // if(frames < 60)
+                //     flock.throttleDown();
+                // else if(frames >= 60)
+                //     flock.throttleUp();
 
                 total_elapsed = 0;
                 frames = 0;
             }
 
-            if(elapsed < 33) {
+            if(elapsed < 16) {
                 try {
-                    Thread.sleep(33 - elapsed);
+                    Thread.sleep(16 - elapsed);
                 } catch(InterruptedException e) {
                 }
 

@@ -14,6 +14,7 @@ class Profile {
     public float MAX_SIZE;
     public float MAX_VELOCITY;
     public float RANGE;
+    public float AVOID_RADIUS;
     public float REBOUND_VELOCITY;
     public float MIN_SIZE;
     public float SIZE_SCALE;

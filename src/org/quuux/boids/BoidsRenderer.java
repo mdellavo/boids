@@ -60,7 +60,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
             frames = 0;
         }
 
-        gl.glClearColor(0f, 0f, 0f, .5f);
+        gl.glClearColor(0f, 0f, 0f, .01f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         matrix_grabber.getCurrentState(gl);
@@ -69,9 +69,10 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
 
         last = now;
 
-        if(elapsed < 33) {
+        int slice = 16;
+        if(elapsed < slice) {
             try {
-                Thread.sleep(33 - elapsed);
+                Thread.sleep(slice - elapsed);
             } catch(InterruptedException e) {
             }
         }

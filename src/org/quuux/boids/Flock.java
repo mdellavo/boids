@@ -5,34 +5,12 @@ import android.util.Log;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
-import java.util.Arrays;
-import java.util.Comparator;
-
-class DepthComparator implements Comparator {
-    public final int compare(Object a, Object b) {
-        Boid ba = (Boid)a;
-        Boid bb = (Boid)b;
-
-        int rv = Float.compare(ba.position.z, bb.position.z);
-
-        if (rv == 0)
-            rv = Float.compare(ba.position.y, bb.position.y);
-
-        if (rv == 0)
-            rv = Float.compare(ba.position.x, bb.position.x);
-
-        return rv;
-    }
-}
-
 public class Flock {
     protected static final String TAG = "Flock";
 
     protected Profile profile;
     protected Boid boids[];
     protected BinLattice bin;
-
-    protected DepthComparator comparator = new DepthComparator();
 
     // preallocation so we dont trigger gc
     final protected Vector3 tmp = new Vector3();
@@ -44,7 +22,7 @@ public class Flock {
     final protected Vector3 v6 = new Vector3();
     final protected Vector3 v7 = new Vector3();
 
-    final protected Vector3 origin = new Vector3(0, 0, 250f);
+    final protected Vector3 origin = new Vector3(0, 0, 450f);
     final protected Vector3 focal = new Vector3();
     final protected Vector3 center = new Vector3();
 
@@ -100,10 +78,6 @@ public class Flock {
         int seed = RandomGenerator.randomInt(0, 100000);
         for(int i=0; i<boids.length; i++)
             boids[i].seed = seed;
-    }
-
-    final public void sort() {
-        Arrays.sort(boids, 0, boids.length, comparator);
     }
 
     final public int throttleUp() {
@@ -172,7 +146,7 @@ public class Flock {
                         tmp.subtract(a.position);
 
                         // FIXME Does this actually work?
-                        if(tmp.magnitude() < (profile.RANGE / 2))
+                        if(tmp.magnitude() < profile.AVOID_RADIUS)
                             v2.subtract(tmp);
 
                         // Rule 3
@@ -256,6 +230,7 @@ public class Flock {
                 tmp.scale(fleeing_velocity);
             }
 
+            // fixme - can we optimize this
             bin.remove(a);
 
             // apply velocity to position
