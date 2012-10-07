@@ -44,7 +44,7 @@ class DepthComparator implements Comparator {
         if (rv == 0)
             rv = Float.compare(ba.position[1], bb.position[1]);
 
-        return -rv;
+        return rv;
     }
 }
 

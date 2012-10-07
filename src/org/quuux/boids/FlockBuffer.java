@@ -46,14 +46,11 @@ class FlockBuffer {
     }
 
     public void swap() {
-        synchronized(this) {
+        synchronized(front) {
             FlockFrame tmp = front;
             front = back;
             back  = tmp;
-            notifyAll();
         }
-
-        Thread.yield();
     }
     
  
@@ -92,12 +89,7 @@ class FlockBuffer {
         colors.position(0);
         sizes.position(0);
 
-        synchronized(this) {
-
-            try {
-                wait();
-            } catch(InterruptedException e) { 
-            }
+        synchronized(front) {
 
             count = front.getCount();
 
@@ -116,8 +108,6 @@ class FlockBuffer {
 
         //bounding_box.draw(gl);
 
-        gl.glEnable(GL10.GL_TEXTURE);
-        
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
@@ -136,6 +126,5 @@ class FlockBuffer {
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES); 
    
-        gl.glDisable(GL10.GL_TEXTURE);
     }
 }

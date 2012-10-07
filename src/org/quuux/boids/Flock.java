@@ -22,7 +22,7 @@ public class Flock {
     final protected Vector3 v6 = new Vector3();
     final protected Vector3 v7 = new Vector3();
 
-    final protected Vector3 origin = new Vector3(0, 0, 450f);
+    final protected Vector3 origin = new Vector3(0, 0, 50f);
     final protected Vector3 focal = new Vector3();
     final protected Vector3 center = new Vector3();
 
