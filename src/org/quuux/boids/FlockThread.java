@@ -55,10 +55,10 @@ class FlockThread extends Thread implements Runnable {
 
                 Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
 
-                // if(frames < 60)
-                //     flock.throttleDown();
-                // else if(frames >= 60)
-                //     flock.throttleUp();
+                if(frames < 60)
+                    flock.throttleDown();
+                else if(frames >= 60)
+                    flock.throttleUp();
 
                 total_elapsed = 0;
                 frames = 0;

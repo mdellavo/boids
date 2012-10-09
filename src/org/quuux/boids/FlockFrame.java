@@ -26,7 +26,7 @@ class Node {
         color[0] = (float)Color.red(rgb) / 255f;
         color[1] = (float)Color.green(rgb) / 255f;
         color[2] = (float)Color.blue(rgb) / 255f;
-        color[3] = b.color[3];            
+        color[3] = b.opacity;
     }
 }
 
@@ -35,16 +35,7 @@ class DepthComparator implements Comparator {
     public final int compare(Object a, Object b) {
         Node ba = (Node)a;
         Node bb = (Node)b;
-
-        int rv = Float.compare(ba.position[0], bb.position[0]);
-
-        if (rv == 0)
-            rv = -Float.compare(ba.position[1], bb.position[1]);
-
-        if (rv == 0)
-            rv = Float.compare(ba.position[1], bb.position[1]);
-
-        return rv;
+        return Float.compare(ba.position[2], bb.position[2]);
     }
 }
 
@@ -68,7 +59,7 @@ class FlockFrame {
 
     public FlockFrame(Flock flock) {
         this.count = 0;
-        allocate(flock.boids.length);
+        allocate(flock.boids.length * 2);
     }
 
     public void allocate(int size) {

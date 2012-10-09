@@ -28,7 +28,7 @@ class FlockBuffer {
     public void allocate(Flock flock) {
         front = new FlockFrame(flock);
         back = new FlockFrame(flock);
-        int size = flock.boids.length;
+        int size = flock.boids.length * 2;
         vertices = GLHelper.floatBuffer(size * 3);
         sizes = GLHelper.floatBuffer(size);
         colors = GLHelper.floatBuffer(size * 4);
