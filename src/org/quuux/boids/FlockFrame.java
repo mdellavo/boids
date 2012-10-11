@@ -57,9 +57,9 @@ class FlockFrame {
     protected DepthComparator comparator = new DepthComparator();
 
 
-    public FlockFrame(Flock flock) {
+    public FlockFrame(int size) {
         this.count = 0;
-        allocate(flock.boids.length * 2);
+        allocate(size);
     }
 
     public void allocate(int size) {

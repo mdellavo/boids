@@ -8,6 +8,8 @@ import javax.microedition.khronos.opengles.GL11;
 public class Flock {
     protected static final String TAG = "Flock";
 
+    private static final int MAX_SIZE = 1000;
+
     protected Profile profile;
     protected Boid boids[];
     protected BinLattice bin;
@@ -31,7 +33,7 @@ public class Flock {
 
     final public void init(Profile profile) {
         this.profile = profile;
-        boids = new Boid[10000];
+        boids = new Boid[MAX_SIZE];
 
         for(int i=0; i<boids.length; i++) {
             boids[i] = new Boid(RandomGenerator.randomRange(profile.MIN_SEED,
@@ -78,6 +80,10 @@ public class Flock {
         int seed = RandomGenerator.randomInt(0, 100000);
         for(int i=0; i<boids.length; i++)
             boids[i].seed = seed;
+    }
+
+    final public int getAlive() {
+        return alive;
     }
 
     final public int throttleUp() {
@@ -185,7 +191,7 @@ public class Flock {
             v5.scale(profile.SCALE_V5);
             v6.scale(profile.SCALE_V6);
 
-            if(flee>0) {
+            if(flee > 0) {
                 v1.scale(-10);
             }
 
@@ -204,12 +210,22 @@ public class Flock {
 
             // Combine components
 
-            a.velocity.add(v2);
-            a.velocity.add(v3);
-            a.velocity.add(v4);
-            a.velocity.add(v5);
-            a.velocity.add(v6);
-            a.velocity.add(v7);
+            tmp.zero();
+            
+            tmp.add(v2);
+            tmp.add(v3);
+            tmp.add(v4);
+            tmp.add(v5);
+            tmp.add(v6);
+            tmp.add(v7);
+
+            if(tmp.magnitude() > profile.MAX_VELOCITY / 10) {
+                a.velocity.normalize();
+                a.velocity.scale(profile.MAX_VELOCITY / 10);
+            }
+
+
+            a.velocity.add(tmp);
 
             // limit velocity
             if(a.velocity.magnitude() > profile.MAX_VELOCITY) {
@@ -286,14 +302,6 @@ public class Flock {
         Log.d(TAG, "easing from " + a + " to " + b + " at " + tmp);
 
         a.add(tmp);
-    }
-
-    // FIXME move this into kdtree
-    final private boolean inRange(Boid a, Boid b) {
-        tmp.zero();
-        tmp.add(a.position);
-        tmp.subtract(b.position);
-        return tmp.magnitude() < profile.RANGE;
     }
 
     // Rule 4 - keep within bounds

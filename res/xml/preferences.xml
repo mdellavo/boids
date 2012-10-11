@@ -1,24 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-xb  <PreferenceCategory
-     android:title="@string/pref_profile_category_title"
-     android:summary="@string/pref_profile_category_summary">
-   <ListPreference
-      android:key="profile_name"
-      android:title="@string/pref_profile_name_title"
-      android:summary="@string/pref_profile_name_summary"
-      android:dialogTitle="@string/pref_profile_name_dialog" />  
- </PreferenceCategory>
-
  <PreferenceCategory 
     android:title="@string/pref_flock_category_title"
     android:summary="@string/pref_flock_category_summary">
-
-   <CheckBoxPreference
-      android:key="RANDOMIZE_COLORS"
-      android:title="@string/pref_randomize_color_title"
-      android:summary="@string/pref_randomize_color_summary" />  
 
    <CheckBoxPreference
       android:key="SCALE_FLOCK"
@@ -30,16 +15,7 @@ xb  <PreferenceCategory
       android:title="@string/pref_flock_size_title"
       android:summary="@string/pref_flock_size_summary"
       android:dialogMessage="@string/pref_flock_size_dialog_message"
-      android:defaultValue="250"
-      android:text="@string/percent"
-      android:max="10000" />
-
-   <org.quuux.boids.SeekBarPreference
-      android:key="MAX_SIZE"
-      android:title="@string/pref_max_size_title"
-      android:summary="@string/pref_max_size_summary"
-      android:dialogMessage="@string/pref_max_size_dialog_message"
-      android:defaultValue="100"
+      android:defaultValue="500"
       android:text="@string/percent"
       android:max="1000" />
 

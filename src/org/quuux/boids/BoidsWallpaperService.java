@@ -89,20 +89,24 @@ public class BoidsWallpaperService extends GLWallpaperService {
             if(simulation_thread != null)
                 simulation_thread.pauseSimulation();
 
-            boolean reinit = false;
+            if(key.equals("FLOCK_SIZE")) {
+                int flock_size = preferences.getInt(key, flock.getAlive());
 
-            if(key.equals("profile_name")) {
-                String profile_name = preferences.getString(key, "");
+                
+                int delta = flock_size - flock.getAlive();
+                while(delta != 0) {
+                    
+                    if(delta > 0) {
+                        flock.throttleUp();
+                    } else {
+                        flock.throttleDown();
+                    }
 
-                profile = ProfileLoader.getProfile(profile_name);
-                reinit = true;
-            } else if(key.equals("RANDOMIZE_COLORS")) {
-                flock.randomizeColors();                
+                    delta = flock_size - flock.getAlive();
+                }
+                
+
             } else {
-
-                if(key.equals("FLOCK_SIZE"))
-                    reinit = true;
-
                 Log.d(TAG, "preference changed: " + key);
                 ProfileLoader.updateProfile(profile, preferences, key);
             }
@@ -110,20 +114,6 @@ public class BoidsWallpaperService extends GLWallpaperService {
             Log.d(TAG, "Profile updated ------------------------");
             Log.d(TAG, profile.toString(3));
             Log.d(TAG, "----------------------------------------");
-
-            // FIXME 
-            if(reinit) {
-                flock = new Flock();
-                flock.init(profile);
-            
-                buffer = new FlockBuffer(flock);
-
-                flock.init(profile);
-                buffer.allocate(flock);
-            
-                simulation_thread.setFlock(flock);
-                simulation_thread.setBuffer(buffer);
-            }   
 
             if(simulation_thread != null)
                 simulation_thread.resumeSimulation();

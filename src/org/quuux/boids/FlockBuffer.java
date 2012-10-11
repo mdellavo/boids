@@ -9,6 +9,8 @@ import javax.microedition.khronos.opengles.GL11;
 class FlockBuffer {
     private static final String TAG = "FlockBuffer";
 
+    private static final int MAX_SIZE = 1000;
+
     protected FlockFrame front;
     protected FlockFrame back;
 
@@ -26,9 +28,10 @@ class FlockBuffer {
     }
 
     public void allocate(Flock flock) {
-        front = new FlockFrame(flock);
-        back = new FlockFrame(flock);
-        int size = flock.boids.length * 2;
+        int size = MAX_SIZE * 2;
+
+        front = new FlockFrame(size);
+        back = new FlockFrame(size);
         vertices = GLHelper.floatBuffer(size * 3);
         sizes = GLHelper.floatBuffer(size);
         colors = GLHelper.floatBuffer(size * 4);
