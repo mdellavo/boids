@@ -54,9 +54,9 @@ public class BoidsWallpaperService extends GLWallpaperService {
             profile = ProfileLoader.getProfile("Default");
             ProfileLoader.updateProfile(profile, preferences);
             
-            Log.d(TAG, "loaded profile: " + profile.name);
-            Log.d(TAG, profile.toString(3));
-            Log.d(TAG, "------------------------------------");
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "loaded profile: " + profile.name);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, profile.toString(3));
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "------------------------------------");
             
             
             preferences.registerOnSharedPreferenceChangeListener(this);
@@ -84,7 +84,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         // FIXME i think i need a lock here or queue on renderer
         public void onSharedPreferenceChanged(SharedPreferences preferences,
                                               String key) {
-            Log.d(TAG, "profile update: " + key);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "profile update: " + key);
 
             if(simulation_thread != null)
                 simulation_thread.pauseSimulation();
@@ -106,13 +106,13 @@ public class BoidsWallpaperService extends GLWallpaperService {
 //
 
             } else {
-                Log.d(TAG, "preference changed: " + key);
+                if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "preference changed: " + key);
                 ProfileLoader.updateProfile(profile, preferences, key);
             }
 
-            Log.d(TAG, "Profile updated ------------------------");
-            Log.d(TAG, profile.toString(3));
-            Log.d(TAG, "----------------------------------------");
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Profile updated ------------------------");
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, profile.toString(3));
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "----------------------------------------");
 
             if(simulation_thread != null)
                 simulation_thread.resumeSimulation();
@@ -131,7 +131,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             
-            Log.d(TAG, "visible: " + visible);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "visible: " + visible);
 
             if(visible) {
                 simulation_thread.resumeSimulation();
@@ -147,7 +147,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
             v.subtract(last_push);
             v.normalize();
             if(v.magnitude() > 0) {
-                Log.d(TAG, "pushing " + v);
+                if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "pushing " + v);
                 flock.push(v);
             }
 
@@ -157,7 +157,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
         public Bundle onCommand(String action, int x, int y, int z, 
                                 Bundle extras, boolean resultRequested) {
-            Log.d(TAG, "command: " + action);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "command: " + action);
             return null;
         } 
 
@@ -190,7 +190,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
         // FIXME queue event; copy event data into finals
         public void onTouchEvent(MotionEvent event) {
             Vector3 v = projectTouchToWorld(event.getX(), event.getY());
-            //Log.d(TAG, "touch: " + v);            
+            //if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "touch: " + v);
  
             v.normalize();
             flock.touch(v);

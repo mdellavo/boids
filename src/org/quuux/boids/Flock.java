@@ -27,6 +27,7 @@ public class Flock {
     private final Vector3 origin = new Vector3(0, 0, 50f);
     private final Vector3 focal = new Vector3();
     private final Vector3 center = new Vector3();
+    private BinLattice.Visitor visitor;
 
     private long flee;
     private int alive;
@@ -51,7 +52,7 @@ public class Flock {
 
             boids[i].age += RandomGenerator.randomInt(0, 72);
 
-            //Log.d(TAG, boids[i].toString());
+            //if (BuildConfig.DEBUG) Log.d(TAG, boids[i].toString());
             if(i < profile.FLOCK_SIZE)
                 alive++;
             else
@@ -91,7 +92,7 @@ public class Flock {
             if(!boids[i].alive) {
                 boids[i].alive = true;
                 alive++;
-                Log.d(TAG, "Throttled up to " + alive + " boids");
+                if (BuildConfig.DEBUG) Log.d(TAG, "Throttled up to " + alive + " boids");
                 break;
             }
         }
@@ -105,7 +106,7 @@ public class Flock {
                 boids[i].alive = false;
                 alive--;
 
-                Log.d(TAG, "Throttled down to " + alive + " boids");
+                if (BuildConfig.DEBUG) Log.d(TAG, "Throttled down to " + alive + " boids");
                 break;
             }
         }
@@ -140,7 +141,8 @@ public class Flock {
             v5.zero();
             v6.zero();
 
-            BinLattice.Visitor visitor = new BinLattice.Visitor() {
+            if (visitor == null)
+                visitor = new BinLattice.Visitor() {
                     public void visit(Boid a, Boid b) {
 
                         // Rule 1
@@ -158,10 +160,10 @@ public class Flock {
                         // Rule 3
                         v3.add(b.velocity);
                     }
-            };
+                };
 
             int neighbors = bin.scan(a, (int)profile.RANGE, visitor, profile.NEIGHBORS);
-            //Log.d(TAG, "number of neighbors: " + neighbors);
+            //if (BuildConfig.DEBUG) Log.d(TAG, "number of neighbors: " + neighbors);
 
             if(neighbors>0) {
                 // Rule 1
@@ -203,10 +205,10 @@ public class Flock {
             v5.scale(profile.BONUS_V5 / 100.0f);
             v6.scale(profile.BONUS_V6 / 100.0f);
 
-            // Log.d(TAG, "v1=" + v1);
-            // Log.d(TAG, "v2=" + v2);
-            // Log.d(TAG, "v3=" + v3);
-            // Log.d(TAG, "v4=" + v4);
+            // if (BuildConfig.DEBUG) Log.d(TAG, "v1=" + v1);
+            // if (BuildConfig.DEBUG) Log.d(TAG, "v2=" + v2);
+            // if (BuildConfig.DEBUG) Log.d(TAG, "v3=" + v3);
+            // if (BuildConfig.DEBUG) Log.d(TAG, "v4=" + v4);
 
             // Combine components
 
@@ -254,7 +256,7 @@ public class Flock {
 
             bin.add(a);
 
-            //Log.d(TAG, "depth_percentile: " + depth_percentile);
+            //if (BuildConfig.DEBUG) Log.d(TAG, "depth_percentile: " + depth_percentile);
 
             a.size = 1000f;
 
@@ -267,7 +269,7 @@ public class Flock {
             a.color[2] = .75f + (.25f * (float)Math.cos((a.seed + a.age)/120f));
             a.color[3] = a.opacity;
 
-            //Log.d(TAG, a.toString());
+            //if (BuildConfig.DEBUG) Log.d(TAG, a.toString());
         }
 
     }
@@ -299,7 +301,7 @@ public class Flock {
         if(tmp.magnitude() > 1f)
             tmp.scale(0.5f);
 
-        Log.d(TAG, "easing from " + a + " to " + b + " at " + tmp);
+        if (BuildConfig.DEBUG) Log.d(TAG, "easing from " + a + " to " + b + " at " + tmp);
 
         a.add(tmp);
     }
@@ -330,7 +332,7 @@ public class Flock {
     }
 
     final public void touch(Vector3 p) {
-        Log.d(TAG, "touch: " + p);
+        if (BuildConfig.DEBUG) Log.d(TAG, "touch: " + p);
         flee = profile.FLEE_TIME;
         p.normalize();
         p.scale(50);
@@ -343,6 +345,6 @@ public class Flock {
         f.normalize();
         f.scale(50);
         focal.copy(f);
-        Log.d(TAG, "pushing focal to " + focal);
+        if (BuildConfig.DEBUG) Log.d(TAG, "pushing focal to " + focal);
     }
 }

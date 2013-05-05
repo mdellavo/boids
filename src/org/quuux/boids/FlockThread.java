@@ -4,17 +4,16 @@ import android.util.Log;
 
 import java.util.concurrent.Semaphore;
 
-class FlockThread extends Thread implements Runnable {
+class FlockThread extends PausableThread {
     private static final String TAG = "FlockThread";
 
     private Flock flock;
     private FlockBuffer buffer;
-    private boolean running;
     private long frames;
-    private long last;
-    protected Semaphore lock;
+    private long total_elapsed;
 
     public FlockThread(Flock flock, FlockBuffer buffer) {
+        super();
         this.flock = flock;
         this.buffer = buffer;
     }
@@ -27,64 +26,36 @@ class FlockThread extends Thread implements Runnable {
         this.buffer = buffer;
     }
 
-    final public void run() {
-        long total_elapsed = 0;
+    @Override
+    final public void update(long elapsed) {
+        frames++;
 
-        last = System.currentTimeMillis();
-        while(true) {
-            frames++;
+        flock.tick(elapsed);
+        buffer.add(flock);
+        buffer.swap();
 
-            long now = System.currentTimeMillis();
-            long elapsed = now - last;
-            last = now;
+        total_elapsed += elapsed;
 
-            synchronized(this) {
-                while(!running) {
-                    try {
-                        wait();
-                    } catch(InterruptedException e) {
-                    }
-                }
-            }
+        if(total_elapsed > 5000) {
+            frames /= 5;
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
 
-            flock.tick(elapsed);
-            buffer.add(flock);
-            buffer.swap();
+            if(frames < 54)
+                flock.throttleDown();
+            else if(frames >= 66)
+                flock.throttleUp();
 
-            total_elapsed += elapsed;
-            if(total_elapsed > 1000) {
-
-                Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
-
-                if(frames < 54)
-                    flock.throttleDown();
-                else if(frames >= 66)
-                    flock.throttleUp();
-
-                total_elapsed = 0;
-                frames = 0;
-            }
-
-            if(elapsed < 16) {
-                try {
-                    Thread.sleep(16 - elapsed);
-                } catch(InterruptedException e) {
-                }
-
-            }
+            total_elapsed = 0;
+            frames = 0;
         }
+
     }
 
     final public synchronized void pauseSimulation() {
-        running = false;
-        Log.d(TAG, "pause thread");
-        notifyAll();
+        pauseRunning();
     }
 
     final public synchronized void resumeSimulation() {
-        running = true;
-        last = System.currentTimeMillis();
-        Log.d(TAG, "resume thread");
-        notifyAll();
+        resumeRunning();
     }
 }

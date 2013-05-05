@@ -43,12 +43,12 @@ class TextureLoader {
         try {
             String texture_path = "textures/" + key + ".png";
             
-            Log.d(TAG, "Opening texture: " + texture_path);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Opening texture: " + texture_path);
 
             InputStream in = asset_manager.open(texture_path);
             rv = new Texture(key, BitmapFactory.decodeStream(in));
         } catch(IOException e) {
-            Log.d(TAG, "Could not open texture: " + key);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Could not open texture: " + key);
         }
 
         return rv;

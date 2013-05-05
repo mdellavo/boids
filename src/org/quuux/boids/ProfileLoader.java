@@ -50,7 +50,7 @@ class ProfileLoader {
         try {
             String profile_path = "profiles/" + key + ".json";
             
-            Log.d(TAG, "Opening profile: " + profile_path);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Opening profile: " + profile_path);
 
             InputStream in = asset_manager.open(profile_path);
 
@@ -66,12 +66,12 @@ class ProfileLoader {
                     Profile profile = loadProfile(obj);
                     profiles.put(profile.name, profile);
                 } catch(JSONException e) {
-                    Log.d(TAG, "Could not load profile object: " + e, e);
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Could not load profile object: " + e, e);
                 }
             } while(tokener.more());
 
         } catch(IOException e) {
-            Log.d(TAG, "Could not open profile: " + key, e);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Could not open profile: " + key, e);
         }
     }
 
@@ -105,12 +105,12 @@ class ProfileLoader {
                     fields[i].setBoolean(profile, obj.optBoolean(field_name,
                                                                  fields[i].getBoolean(profile)));
                 } else {
-                    Log.d(TAG, "Unknown Type " + type_name + " in field " + field_name);
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Unknown Type " + type_name + " in field " + field_name);
                 }
             }
 
         } catch(Throwable e) {
-            Log.d(TAG, "Could not load profile: " + e, e);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Could not load profile: " + e, e);
         }
 
         return profile;
@@ -127,9 +127,9 @@ class ProfileLoader {
             try {
                 obj.put(name, f.get(profile));
             } catch(JSONException e) {
-                Log.d(TAG, "Could not store field " + name + ": " + e, e);
+                if (BuildConfig.DEBUG) Log.d(TAG, "Could not store field " + name + ": " + e, e);
             } catch(IllegalAccessException e) {
-                Log.d(TAG, "Could not store field " + name + ": " + e, e);
+                if (BuildConfig.DEBUG) Log.d(TAG, "Could not store field " + name + ": " + e, e);
             }
         }
 
@@ -140,7 +140,7 @@ class ProfileLoader {
                                           SharedPreferences preferences) {
         String json = storeProfile(profile).toString();
         
-        Log.d(TAG, "saving profile to preferences: " + json);
+        if (BuildConfig.DEBUG) Log.d(TAG, "saving profile to preferences: " + json);
 
         Editor editor = preferences.edit();
         editor.putString("profile", json);       
@@ -160,7 +160,7 @@ class ProfileLoader {
                     updateProfile(profile, preferences, field_name);
             }
         } catch(Throwable e) {
-            Log.d(TAG, "Could not update profile: " + e, e);
+            if (BuildConfig.DEBUG) Log.d(TAG, "Could not update profile: " + e, e);
         }
 
     }
@@ -174,7 +174,7 @@ class ProfileLoader {
             String type_name = field.getType().getName();
 
             try {
-                Log.d(TAG, "Setting field: " + key);
+                if (BuildConfig.DEBUG) Log.d(TAG, "Setting field: " + key);
 
                 if(type_name.equals("java.lang.String")) {
                     field.set(profile,
@@ -190,15 +190,15 @@ class ProfileLoader {
                 } else if(type_name.equals("boolean")) {
                     field.setBoolean(profile, preferences.getBoolean(key, field.getBoolean(profile)));
                 } else {
-                    Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
+                    if (BuildConfig.DEBUG) Log.d(TAG, "Unknown Type " + type_name + " in field " + key);
                 }
 
             } catch(IllegalAccessException e) {
-                Log.d(TAG, "Error setting field " + key + ": " + e, e);
+                if (BuildConfig.DEBUG) Log.d(TAG, "Error setting field " + key + ": " + e, e);
             }
 
         } catch(NoSuchFieldException e) {
-            Log.d(TAG, "No Such Field " + key + ": " + e, e);
+            if (BuildConfig.DEBUG) Log.d(TAG, "No Such Field " + key + ": " + e, e);
         }
     }
 }

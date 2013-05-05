@@ -169,7 +169,7 @@ class KDTree {
     }
 
     final public void dumpTree() {
-        Log.d(TAG, "KDTree: " + toString());
+        if (BuildConfig.DEBUG) Log.d(TAG, "KDTree: " + toString());
     }
 
     final private float distance(Boid a, Boid b) {

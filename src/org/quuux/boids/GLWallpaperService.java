@@ -75,33 +75,33 @@ class GLWallpaperService extends WallpaperService {
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
-            // Log.d(TAG, "GLEngine.onCreate()");
+            // if (BuildConfig.DEBUG) Log.d(TAG, "GLEngine.onCreate()");
         }
 
         @Override
         public void onDestroy() {
             super.onDestroy();
-            // Log.d(TAG, "GLEngine.onDestroy()");
+            // if (BuildConfig.DEBUG) Log.d(TAG, "GLEngine.onDestroy()");
             mGLThread.requestExitAndWait();
         }
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            // Log.d(TAG, "onSurfaceChanged()");
+            // if (BuildConfig.DEBUG) Log.d(TAG, "onSurfaceChanged()");
             mGLThread.onWindowResize(width, height);
             super.onSurfaceChanged(holder, format, width, height);
         }
 
         @Override
         public void onSurfaceCreated(SurfaceHolder holder) {
-            Log.d(TAG, "onSurfaceCreated()");
+            if (BuildConfig.DEBUG) Log.d(TAG, "onSurfaceCreated()");
             mGLThread.surfaceCreated(holder);
             super.onSurfaceCreated(holder);
         }
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
-            Log.d(TAG, "onSurfaceDestroyed()");
+            if (BuildConfig.DEBUG) Log.d(TAG, "onSurfaceDestroyed()");
             mGLThread.surfaceDestroyed();
             super.onSurfaceDestroyed(holder);
         }
@@ -329,29 +329,29 @@ class EglHelper {
      * @param configSpec
      */
     public void start() {
-        // Log.d("EglHelper" + instanceId, "start()");
+        // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "start()");
         if (mEgl == null) {
-            // Log.d("EglHelper" + instanceId, "getting new EGL");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "getting new EGL");
             /*
              * Get an EGL instance
              */
             mEgl = (EGL10) EGLContext.getEGL();
         } else {
-            // Log.d("EglHelper" + instanceId, "reusing EGL");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "reusing EGL");
         }
 
         if (mEglDisplay == null) {
-            // Log.d("EglHelper" + instanceId, "getting new display");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "getting new display");
             /*
              * Get to the default display.
              */
             mEglDisplay = mEgl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
         } else {
-            // Log.d("EglHelper" + instanceId, "reusing display");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "reusing display");
         }
 
         if (mEglConfig == null) {
-            // Log.d("EglHelper" + instanceId, "getting new config");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "getting new config");
             /*
              * We can now initialize EGL for that display
              */
@@ -359,11 +359,11 @@ class EglHelper {
             mEgl.eglInitialize(mEglDisplay, version);
             mEglConfig = mEGLConfigChooser.chooseConfig(mEgl, mEglDisplay);
         } else {
-            // Log.d("EglHelper" + instanceId, "reusing config");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "reusing config");
         }
 
         if (mEglContext == null) {
-            // Log.d("EglHelper" + instanceId, "creating new context");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "creating new context");
             /*
              * Create an OpenGL ES context. This must be done only once, an OpenGL context is a somewhat heavy object.
              */
@@ -372,7 +372,7 @@ class EglHelper {
                 throw new RuntimeException("createContext failed");
             }
         } else {
-            // Log.d("EglHelper" + instanceId, "reusing context");
+            // if (BuildConfig.DEBUG) Log.d("EglHelper" + instanceId, "reusing context");
         }
 
         mEglSurface = null;

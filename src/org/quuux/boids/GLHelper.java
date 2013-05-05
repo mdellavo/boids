@@ -128,7 +128,7 @@ class GLHelper
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);
 
-        Log.d(TAG, "Created Texture: " + textures[0]);
+        if (BuildConfig.DEBUG) Log.d(TAG, "Created Texture: " + textures[0]);
 
         return textures[0];
     }

@@ -56,14 +56,14 @@ class CheckInThread extends Thread {
 
             if(response.has("status") && 
                response.getString("status").equals("ok")) {  
-                Log.d(TAG, "Collector accepted " + key + " checkin");
+                if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Collector accepted " + key + " checkin");
                 CheckInManager.setCheckedIn(key);
             } else {
-                Log.d(TAG, "Collector did not accept " + key + " checkin");
+                if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Collector did not accept " + key + " checkin");
             }
 
         } catch(Exception e) {
-            Log.d(TAG, "Could not send check in: " + e);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Could not send check in: " + e);
         }            
     }
 }
@@ -111,7 +111,7 @@ class CheckInManager {
 
             checkIn(DEVICE_CHECKIN, data);
         } catch(Exception e) {
-            Log.d(TAG, "Could not send device check in: " + e);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Could not send device check in: " + e);
         }
     }
 
@@ -129,7 +129,7 @@ class CheckInManager {
         
             checkIn(GL_CHECKIN, data);
         } catch(Exception e) {
-            Log.d(TAG, "Could not send GL check in: " + e);
+            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Could not send GL check in: " + e);
         }
 
     }
@@ -144,7 +144,7 @@ class CheckInManager {
     }
 
     private static void checkIn(String key, JSONObject data) {
-        Log.d(TAG, "Sending " + key + " check in");         
+        if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "Sending " + key + " check in");
         new CheckInThread(getPackageName(), getDeviceID(), key, data).start();
     }
 }

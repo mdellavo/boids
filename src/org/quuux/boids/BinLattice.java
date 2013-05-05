@@ -83,7 +83,7 @@ public class BinLattice {
 
                     Bin bin = bins[i][j][k];
                     if(bin.count > 0) {
-                        Log.d(TAG, "bin[" + i + ", " + j + ", " + k + "] -> " + bin.count);
+                        if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "bin[" + i + ", " + j + ", " + k + "] -> " + bin.count);
                     }
                 }
             }
