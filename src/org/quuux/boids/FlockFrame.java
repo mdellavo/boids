@@ -2,17 +2,15 @@ package org.quuux.boids;
 
 import android.graphics.Color;
 
-import android.util.Log;
-
 
 import java.util.Arrays;
 import java.util.Comparator;
 
-class Node {
+class FlockNode {
 
-    public float[] position = new float[3];
+    public final float[] position = new float[3];
     public float size;
-    public float[] color = new float[4];
+    public final float[] color = new float[4];
 
     public void copy(Boid b) {
         position[0] = b.position.x;
@@ -33,8 +31,8 @@ class Node {
 
 class DepthComparator implements Comparator {
     public final int compare(Object a, Object b) {
-        Node ba = (Node)a;
-        Node bb = (Node)b;
+        FlockNode ba = (FlockNode)a;
+        FlockNode bb = (FlockNode)b;
         return Float.compare(ba.position[2], bb.position[2]);
     }
 }
@@ -42,19 +40,19 @@ class DepthComparator implements Comparator {
 class FlockFrame {
     private static final String TAG = "FlockFrame";
 
-    protected Node[] nodes;
+    private FlockNode[] FlockNodes;
     
-    protected int count = 0;
-    protected int size = 0;
+    private int count = 0;
+    private int size = 0;
 
-    protected boolean dirty = false;
+    private boolean dirty = false;
 
-    protected float[] positions;
-    protected float[] sizes;
-    protected float[] colors;
+    private float[] positions;
+    private float[] sizes;
+    private float[] colors;
 
 
-    protected DepthComparator comparator = new DepthComparator();
+    private final DepthComparator comparator = new DepthComparator();
 
 
     public FlockFrame(int size) {
@@ -62,13 +60,13 @@ class FlockFrame {
         allocate(size);
     }
 
-    public void allocate(int size) {
+    void allocate(int size) {
         this.size = size;
 
-        nodes = new Node[size];
+        FlockNodes = new FlockNode[size];
 
         for(int i=0; i<size; i++)
-            nodes[i] = new Node();
+            FlockNodes[i] = new FlockNode();
 
         positions = new float[size * 3];
         sizes = new float[size];
@@ -79,7 +77,7 @@ class FlockFrame {
 
     public void add(Boid b) {
         if(count < size) {
-            nodes[count++].copy(b);
+            FlockNodes[count++].copy(b);
             dirty = true;
         }
     }
@@ -89,23 +87,23 @@ class FlockFrame {
         dirty = false;
     }
 
-    public void render() {
+    void render() {
         
-        Arrays.sort(nodes, 0, count, comparator);
+        Arrays.sort(FlockNodes, 0, count, comparator);
 
         for(int i=0; i<count; i++) { 
             int p_offset = i * 3; 
-            positions[p_offset] = nodes[i].position[0];
-            positions[p_offset + 1] = nodes[i].position[1];
-            positions[p_offset + 2] = nodes[i].position[2];
+            positions[p_offset] = FlockNodes[i].position[0];
+            positions[p_offset + 1] = FlockNodes[i].position[1];
+            positions[p_offset + 2] = FlockNodes[i].position[2];
 
             int c_offset = i * 4;
-            colors[c_offset] = nodes[i].color[0];
-            colors[c_offset + 1] = nodes[i].color[1];
-            colors[c_offset + 2] = nodes[i].color[2];
-            colors[c_offset + 3] = nodes[i].color[3];
+            colors[c_offset] = FlockNodes[i].color[0];
+            colors[c_offset + 1] = FlockNodes[i].color[1];
+            colors[c_offset + 2] = FlockNodes[i].color[2];
+            colors[c_offset + 3] = FlockNodes[i].color[3];
 
-            sizes[i] = nodes[i].size;
+            sizes[i] = FlockNodes[i].size;
         }
 
         dirty = false;

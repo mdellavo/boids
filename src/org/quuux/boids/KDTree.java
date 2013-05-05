@@ -4,14 +4,13 @@ package org.quuux.boids;
 import android.util.Log;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Comparator;
 
-class Node {
+class KDNode {
     public Boid boid;
-    public Node left, right;
+    public KDNode left, right;
 
-    public Node(Boid boid, Node left, Node right) {
+    public KDNode(Boid boid, KDNode left, KDNode right) {
         this.boid = boid;
         this.left = left;
         this.right = right;
@@ -24,21 +23,21 @@ class Node {
     }
 }
 
-class NodePool {
-    public Node[] nodes;
-    public int next;
+class KDNodePool {
+    private final KDNode[] KDNodes;
+    private int next;
 
-    public NodePool(int size) {
-        nodes = new Node[size];
+    public KDNodePool(int size) {
+        KDNodes = new KDNode[size];
         for(int i=0; i<size; i++)
-            nodes[i] = new Node(null, null, null);
+            KDNodes[i] = new KDNode(null, null, null);
     }
 
-    final public Node getNode() {
-        Node rv = null;
+    final public KDNode getNode() {
+        KDNode rv = null;
 
-        if(next < nodes.length) {
-            rv = nodes[next++];
+        if(next < KDNodes.length) {
+            rv = KDNodes[next++];
             rv.boid = null;
             rv.left = null;
             rv.right = null;
@@ -53,7 +52,7 @@ class NodePool {
 }
 
 class BoidComparator implements Comparator {
-    private int component;
+    private final int component;
 
     public BoidComparator(int component) {
         this.component = component;
@@ -68,9 +67,9 @@ class BoidComparator implements Comparator {
 }
 
 class NeighborResult {
-    public float distances[];
-    public Boid boids[];
-    public int found;
+    private final float[] distances;
+    public final Boid[] boids;
+    private int found;
 
     public NeighborResult(int num) {
         distances = new float[num];
@@ -103,18 +102,18 @@ class NeighborResult {
     }
 }
 
-public class KDTree {
+class KDTree {
     private static final String TAG = "KDTree";
     
-    private Node root;
-    private NodePool pool;
-    private NeighborResult neighbors;
-    private BoidComparator[] comparators;
+    private KDNode root;
+    private final KDNodePool pool;
+    private final NeighborResult neighbors;
+    private final BoidComparator[] comparators;
 
-    private Boid[] tmp;
+    private final Boid[] tmp;
 
     public KDTree(int size, int max_neighbors) {
-        pool = new NodePool(size);
+        pool = new KDNodePool(size);
         neighbors = new NeighborResult(max_neighbors);        
         tmp = new Boid[size];
         
@@ -149,7 +148,7 @@ public class KDTree {
         return root != null;
     }
 
-    private Node build(Boid[] boids, int depth, int start, int end) {
+    private KDNode build(Boid[] boids, int depth, int start, int end) {
 
         if((end-start) < 1)
             return null;            
@@ -161,12 +160,12 @@ public class KDTree {
         //Sorter.sort(boids, start, end, comparators[component]);
         Arrays.sort(boids, start, end, comparators[component]);
 
-        Node node = pool.getNode();
-        node.boid = boids[median];
-        node.left = build(boids, depth+1, start, median);
-        node.right = build(boids, depth+1, median + 1, end);
+        KDNode KDNode = pool.getNode();
+        KDNode.boid = boids[median];
+        KDNode.left = build(boids, depth+1, start, median);
+        KDNode.right = build(boids, depth+1, median + 1, end);
 
-        return node;
+        return KDNode;
     }
 
     final public void dumpTree() {
@@ -185,34 +184,34 @@ public class KDTree {
         return neighbors.boids;
     }
 
-    private void search(Boid boid, float range, Node node, int depth) {
-        if(node == null)
+    private void search(Boid boid, float range, KDNode KDNode, int depth) {
+        if(KDNode == null)
             return;
 
-        float dist = distance(boid, node.boid);
-        neighbors.add(dist, node.boid);
+        float dist = distance(boid, KDNode.boid);
+        neighbors.add(dist, KDNode.boid);
 
         int component = depth % 3;
         
-        Node near = nearChild(boid, range, node, component);
-        Node far = farChild(boid, range, node, component);
+        KDNode near = nearChild(boid, range, KDNode, component);
+        KDNode far = farChild(boid, range, KDNode, component);
 
         search(boid, range, near, depth+1);
         if(Math.pow(dist, 2) < Math.pow(range, 2))
             search(boid, range, far, depth+1);       
     }
     
-    private Node nearChild(Boid a, float range, Node node, int component) {
-        if(a.position.component(component) <= node.boid.position.component(component))
-            return node.left;
+    private KDNode nearChild(Boid a, float range, KDNode KDNode, int component) {
+        if(a.position.component(component) <= KDNode.boid.position.component(component))
+            return KDNode.left;
         else
-            return node.right;
+            return KDNode.right;
     }
     
-    private Node farChild(Boid a, float range, Node node, int component) {
-        if(a.position.component(component) <= node.boid.position.component(component))
-            return node.right;
+    private KDNode farChild(Boid a, float range, KDNode KDNode, int component) {
+        if(a.position.component(component) <= KDNode.boid.position.component(component))
+            return KDNode.right;
         else
-            return node.left;
+            return KDNode.left;
     }
 }

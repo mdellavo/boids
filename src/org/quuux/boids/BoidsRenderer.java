@@ -10,20 +10,20 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
     private static final String TAG = "BoidsRenderer";
 
     // Used for Lighting
-    private static float[] ambientComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
-    private static float[] diffuseComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
-    private static float[] lightPosition0 =    {0, 200f, 200f, 0f};
+    private static final float[] ambientComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
+    private static final float[] diffuseComponent0 = {1.0f, 1.0f, 1.0f, 1.0f};
+    private static final float[] lightPosition0 =    {0, 200f, 200f, 0f};
 
-    private Camera camera;
-    private FlockBuffer buffer;
+    private final Camera camera;
+    private final FlockBuffer buffer;
 
     private long frames;
     private long last;
     private long total_elapsed;
 
-    protected int width;
-    protected int height;
-    protected MatrixGrabber matrix_grabber = new MatrixGrabber();
+    private int width;
+    private int height;
+    private final MatrixGrabber matrix_grabber = new MatrixGrabber();
 
     public BoidsRenderer(FlockBuffer buffer) {
         super();

@@ -16,77 +16,77 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 // derived from https://github.com/lithium/android-game
-public class GLHelper
+class GLHelper
 {
     private static final String TAG = "GLHelper";
 
-    protected static String vendor;
-    protected static String renderer;
-    protected static String version;
-    protected static String extensions;
+    private static String vendor;
+    private static String renderer;
+    private static String version;
+    private static String extensions;
 
-    final public static void init(GL10 gl) {
+    public static void init(GL10 gl) {
         inspect(gl);
     }
 
-    final public static void inspect(GL10 gl) {
+    private static void inspect(GL10 gl) {
         vendor = gl.glGetString(GL10.GL_VENDOR);
         renderer = gl.glGetString(GL10.GL_RENDERER);
         version = gl.glGetString(GL10.GL_VERSION);
         extensions = gl.glGetString(GL10.GL_EXTENSIONS);
     }
 
-    final public static String getVendor() {
+    public static String getVendor() {
         return vendor;
     }    
 
-    final public static String getRenderer() {
+    public static String getRenderer() {
         return renderer;
     }    
 
-    final public static String getVersion() {
+    public static String getVersion() {
         return version;
     }    
 
-    final public static String getExtensions() {
+    public static String getExtensions() {
         return extensions;
     }    
 
-    final public static boolean hasExtension(String extension) {
+    private static boolean hasExtension(String extension) {
         return extensions.indexOf(extension) >= 0;        
     }
 
-    final public static boolean hasVertexBufferObject() {
+    public static boolean hasVertexBufferObject() {
         return hasExtension("vertex_buffer_object");
     }
 
-    final public static boolean hasDrawTexture() {
+    public static boolean hasDrawTexture() {
         return hasExtension("draw_texture");
     }
 
-    final public static boolean hasPointSprite() {
+    public static boolean hasPointSprite() {
         return hasExtension("point_sprite");
     }
 
-    final public static ByteBuffer byteBuffer(int size) {
+    public static ByteBuffer byteBuffer(int size) {
         ByteBuffer byte_buf = ByteBuffer.allocateDirect(size);
         byte_buf.order(ByteOrder.nativeOrder());
         return byte_buf;
     }
 
-    final public static IntBuffer intBuffer(int size) {
+    public static IntBuffer intBuffer(int size) {
         ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
         byte_buf.order(ByteOrder.nativeOrder());
         return byte_buf.asIntBuffer();
     }
 
-    final public static FloatBuffer floatBuffer(int size) {
+    public static FloatBuffer floatBuffer(int size) {
         ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
         byte_buf.order(ByteOrder.nativeOrder());
         return byte_buf.asFloatBuffer();
     }
 
-    final public static FloatBuffer toFloatBuffer(float[] data) {
+    public static FloatBuffer toFloatBuffer(float[] data) {
         FloatBuffer rv = floatBuffer(data.length);
 
         for(int i=0; i<data.length; i++)
@@ -97,7 +97,7 @@ public class GLHelper
         return rv;
     }
 
-    final public static FloatBuffer toFloatBuffer(Vector3[] data) {
+    public static FloatBuffer toFloatBuffer(Vector3[] data) {
         FloatBuffer rv = floatBuffer(data.length*3);
 
         for(int i=0; i<data.length; i++) {
@@ -111,7 +111,7 @@ public class GLHelper
         return rv;
     }
 
-    final public static FloatBuffer toFloatBuffer(Vector2[] data) {
+    public static FloatBuffer toFloatBuffer(Vector2[] data) {
         FloatBuffer rv = floatBuffer(data.length*2);
 
         for(int i=0; i<data.length; i++) {
@@ -124,7 +124,7 @@ public class GLHelper
         return rv;
     }
     
-    final public static int createTexture(GL10 gl) {
+    private static int createTexture(GL10 gl) {
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);
 
@@ -133,7 +133,7 @@ public class GLHelper
         return textures[0];
     }
 
-    final public static int loadTexture(GL10 gl, Bitmap bitmap) {
+    public static int loadTexture(GL10 gl, Bitmap bitmap) {
         int texture = createTexture(gl);
 
         gl.glBindTexture(GL10.GL_TEXTURE_2D, texture);        
@@ -142,13 +142,13 @@ public class GLHelper
         return texture;
     }
     
-    final public static int createBufferObject(GL10 gl) {
+    private static int createBufferObject(GL10 gl) {
         int[] rv = new int[1];
         ((GL11)gl).glGenBuffers(1, rv, 0);
         return rv[0];
     }
     
-    final public static int loadBufferObject(GL10 gl, FloatBuffer data) {
+    public static int loadBufferObject(GL10 gl, FloatBuffer data) {
         int buffer = createBufferObject(gl);
 
         ((GL11)gl).glBindBuffer(GL11.GL_ARRAY_BUFFER, buffer);
@@ -159,7 +159,7 @@ public class GLHelper
     }
 
     // TODO implement fallback to a single rect if needed
-    final public static void drawTexture(GL10 gl, int x, int y, int z, int w, int h) {
+    public static void drawTexture(GL10 gl, int x, int y, int z, int w, int h) {
         int[] crop = {0, h, w, -h}; 
 
         ((GL11)gl).glTexParameteriv(GL10.GL_TEXTURE_2D, 
@@ -170,7 +170,7 @@ public class GLHelper
     }
 
     // TODO implement with fallback to a single rect if needed
-    final public static void drawPoints(GL10 gl, FloatBuffer points, 
+    public static void drawPoints(GL10 gl, FloatBuffer points,
                                   FloatBuffer sizes, FloatBuffer colors) {
     }
 }

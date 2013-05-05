@@ -25,11 +25,11 @@ class CheckInThread extends Thread {
 
     private static final String ENDPOINT = "http://collector.quuux.org";
 
-    protected String package_name;
-    protected String device_id;
-    protected String key;
+    private final String package_name;
+    private final String device_id;
+    private final String key;
     protected String endpoint;
-    protected JSONObject data;
+    private final JSONObject data;
 
     public CheckInThread(String package_name, String device_id, String key, 
                          JSONObject data) {
@@ -68,7 +68,7 @@ class CheckInThread extends Thread {
     }
 }
 
-public class CheckInManager {
+class CheckInManager {
     private static final String TAG = "CheckInManager";
 
     private static final String SHARED_PREFS_NAME = "CheckIns";
@@ -76,26 +76,26 @@ public class CheckInManager {
     private static final String DEVICE_CHECKIN = "DEVICE";
     private static final String GL_CHECKIN = "GL";
 
-    protected static Context context;
+    private static Context context;
     
-    final public static void init(Context c) {
+    public static void init(Context c) {
         context = c;
         sendDeviceProfile();
     }
 
-    protected static boolean hasCheckedIn(String key) {
+    private static boolean hasCheckedIn(String key) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
         return prefs.getBoolean(key, false);
     }
       
-    protected static void setCheckedIn(String key) {
+    static void setCheckedIn(String key) {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, 0);
         Editor editor = prefs.edit();
         editor.putBoolean(key, true);
         editor.commit();
     }
 
-    public static void sendDeviceProfile() {
+    private static void sendDeviceProfile() {
         if(hasCheckedIn(DEVICE_CHECKIN))
             return;
 
@@ -134,16 +134,16 @@ public class CheckInManager {
 
     }
 
-    protected static String getDeviceID() {
+    private static String getDeviceID() {
         return Secure.getString(context.getContentResolver(), 
                                 Secure.ANDROID_ID);
     }
 
-    protected static String getPackageName() {
+    private static String getPackageName() {
         return context.getPackageName();
     }
 
-    public static void checkIn(String key, JSONObject data) {       
+    private static void checkIn(String key, JSONObject data) {
         Log.d(TAG, "Sending " + key + " check in");         
         new CheckInThread(getPackageName(), getDeviceID(), key, data).start();
     }

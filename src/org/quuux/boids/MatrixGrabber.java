@@ -39,7 +39,7 @@ public class MatrixGrabber {
      * setting the current matrix state to GL_MODELVIEW
      * @param gl
      */
-    public void getCurrentModelView(GL10 gl) {
+    void getCurrentModelView(GL10 gl) {
         getMatrix(gl, GL10.GL_MODELVIEW, mModelView);
     }
 
@@ -48,7 +48,7 @@ public class MatrixGrabber {
      * setting the current matrix state to GL_PROJECTION
      * @param gl
      */
-    public void getCurrentProjection(GL10 gl) {
+    void getCurrentProjection(GL10 gl) {
         getMatrix(gl, GL10.GL_PROJECTION, mProjection);
     }
 
@@ -58,6 +58,6 @@ public class MatrixGrabber {
         gl2.getMatrix(mat, 0);
     }
 
-    public float[] mModelView;
-    public float[] mProjection;
+    public final float[] mModelView;
+    public final float[] mProjection;
 }

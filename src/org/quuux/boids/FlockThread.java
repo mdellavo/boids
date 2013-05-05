@@ -2,14 +2,17 @@ package org.quuux.boids;
 
 import android.util.Log;
 
+import java.util.concurrent.Semaphore;
+
 class FlockThread extends Thread implements Runnable {
     private static final String TAG = "FlockThread";
 
-    protected Flock flock;
-    protected FlockBuffer buffer;
-    protected boolean running;
-    protected long frames;
-    protected long last;
+    private Flock flock;
+    private FlockBuffer buffer;
+    private boolean running;
+    private long frames;
+    private long last;
+    protected Semaphore lock;
 
     public FlockThread(Flock flock, FlockBuffer buffer) {
         this.flock = flock;
@@ -42,8 +45,6 @@ class FlockThread extends Thread implements Runnable {
                     } catch(InterruptedException e) {
                     }
                 }
-
-                notifyAll();
             }
 
             flock.tick(elapsed);

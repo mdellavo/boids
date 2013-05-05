@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.io.InputStream;
 import java.io.IOException;
 
-public class TextureLoader {
+class TextureLoader {
     private static final String TAG = "TextureLoader";
     
     private static Context context;
@@ -35,7 +35,7 @@ public class TextureLoader {
         return rv;
     }
 
-    protected static Texture openTexture(String key) {       
+    private static Texture openTexture(String key) {
         AssetManager asset_manager = context.getAssets();
 
         Texture rv = null;

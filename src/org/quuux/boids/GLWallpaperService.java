@@ -39,7 +39,7 @@ import android.view.SurfaceHolder;
 
 // Original code provided by Robert Green
 // http://www.rbgrn.net/content/354-glsurfaceview-adapted-3d-live-wallpapers
-public class GLWallpaperService extends WallpaperService {
+class GLWallpaperService extends WallpaperService {
     private static final String TAG = "GLWallpaperService";
 
     @Override
@@ -203,7 +203,7 @@ public class GLWallpaperService extends WallpaperService {
 }
 
 class LogWriter extends Writer {
-    private StringBuilder mBuilder = new StringBuilder();
+    private final StringBuilder mBuilder = new StringBuilder();
 
     @Override
 	public void close() {
@@ -310,10 +310,10 @@ class EglHelper {
     private EGLContext mEglContext;
     EGLConfig mEglConfig;
 
-    private EGLConfigChooser mEGLConfigChooser;
-    private EGLContextFactory mEGLContextFactory;
-    private EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
-    private GLWrapper mGLWrapper;
+    private final EGLConfigChooser mEGLConfigChooser;
+    private final EGLContextFactory mEGLContextFactory;
+    private final EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
+    private final GLWrapper mGLWrapper;
 
     public EglHelper(EGLConfigChooser chooser, EGLContextFactory contextFactory,
                      EGLWindowSurfaceFactory surfaceFactory, GLWrapper wrapper) {
@@ -468,17 +468,17 @@ class GLThread extends Thread {
     private final GLThreadManager sGLThreadManager = new GLThreadManager();
     private GLThread mEglOwner;
 
-    private EGLConfigChooser mEGLConfigChooser;
-    private EGLContextFactory mEGLContextFactory;
-    private EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
-    private GLWrapper mGLWrapper;
+    private final EGLConfigChooser mEGLConfigChooser;
+    private final EGLContextFactory mEGLContextFactory;
+    private final EGLWindowSurfaceFactory mEGLWindowSurfaceFactory;
+    private final GLWrapper mGLWrapper;
 
-    public SurfaceHolder mHolder;
+    private SurfaceHolder mHolder;
     private boolean mSizeChanged = true;
 
     // Once the thread is started, all accesses to the following member
     // variables are protected by the sGLThreadManager monitor
-    public boolean mDone;
+    private boolean mDone;
     private boolean mPaused;
     private boolean mHasSurface;
     private boolean mWaitingForSurface;
@@ -490,8 +490,8 @@ class GLThread extends Thread {
     private boolean mEventsWaiting;
     // End of member variables protected by the sGLThreadManager monitor.
 
-    private GLWallpaperService.Renderer mRenderer;
-    private ArrayList<Runnable> mEventQueue = new ArrayList<Runnable>();
+    private final GLWallpaperService.Renderer mRenderer;
+    private final ArrayList<Runnable> mEventQueue = new ArrayList<Runnable>();
     private EglHelper mEglHelper;
 
     GLThread(GLWallpaperService.Renderer renderer, EGLConfigChooser chooser, EGLContextFactory contextFactory,
@@ -837,7 +837,7 @@ interface EGLConfigChooser {
 }
 
 abstract class BaseConfigChooser implements EGLConfigChooser {
-    public BaseConfigChooser(int[] configSpec) {
+    BaseConfigChooser(int[] configSpec) {
         mConfigSpec = configSpec;
     }
 
@@ -862,7 +862,7 @@ abstract class BaseConfigChooser implements EGLConfigChooser {
 
     abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs);
 
-    protected int[] mConfigSpec;
+    private final int[] mConfigSpec;
     public static class ComponentSizeChooser extends BaseConfigChooser {
         public ComponentSizeChooser(int redSize, int greenSize, int blueSize, int alphaSize, int depthSize,
                                     int stencilSize) {
@@ -909,14 +909,14 @@ abstract class BaseConfigChooser implements EGLConfigChooser {
             return defaultValue;
         }
 
-        private int[] mValue;
+        private final int[] mValue;
         // Subclasses can adjust these values:
-        protected int mRedSize;
-        protected int mGreenSize;
-        protected int mBlueSize;
-        protected int mAlphaSize;
-        protected int mDepthSize;
-        protected int mStencilSize;
+        int mRedSize;
+        int mGreenSize;
+        int mBlueSize;
+        final int mAlphaSize;
+        final int mDepthSize;
+        final int mStencilSize;
     }
 
     /**

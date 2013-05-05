@@ -23,10 +23,13 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
 
   private SeekBar mSeekBar;
   private TextView mSplashText,mValueText;
-  private Context mContext;
+  private final Context mContext;
 
-  private String mDialogMessage, mSuffix;
-  private int mDefault, mMax, mValue = 0;
+  private final String mDialogMessage;
+    private final String mSuffix;
+  private final int mDefault;
+    private int mMax;
+    private int mValue = 0;
 
   public SeekBarPreference(Context context, AttributeSet attrs) { 
     super(context,attrs); 

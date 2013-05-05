@@ -69,7 +69,7 @@
                <import> task.
              - customize it to your needs.
          - Customize the whole content of build.xml
-             - copy/paste the content of the rules files (minus the top node)
+             - copy/paste the content of the rules files (minus the top KDNode)
                into this file, replacing the <import> task.
              - customize to your needs.
 

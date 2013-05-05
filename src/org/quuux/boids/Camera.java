@@ -4,15 +4,15 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLU;
 
-public class Camera {
+class Camera {
 
-    protected Vector3 eye;
-    protected Vector3 center;
-    protected Vector3 up;
-    protected Vector3 rotation;
-    protected float fov;
-    protected float znear; 
-    protected float zfar;
+    private final Vector3 eye;
+    private final Vector3 center;
+    private final Vector3 up;
+    private final Vector3 rotation;
+    private final float fov;
+    private final float znear;
+    private final float zfar;
 
     public Camera() {
         eye = new Vector3(0, 0, 500);

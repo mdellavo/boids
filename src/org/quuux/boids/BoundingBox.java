@@ -6,18 +6,18 @@ import javax.microedition.khronos.opengles.GL10;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class BoundingBox {
+class BoundingBox {
     private static final String TAG = "BoundingBox";
 
-    private Flock flock;
+    private final Flock flock;
 
     private IntBuffer   vertex_buffer;
     private IntBuffer   color_buffer;
     private ByteBuffer  index_buffer;
 
-    int one = 0x10000; 
+    private final int one = 0x10000;
 
-    int vertices[] = {
+    private final int[] vertices = {
         -one, -one, -one,
         one, -one, -one,
         one,  one, -one,
@@ -28,7 +28,7 @@ public class BoundingBox {
         -one,  one,  one,
     };
     
-    int colors[] = {
+    private final int[] colors = {
         0,    0,    0,  one,
         one,    0,    0,  one,
         one,  one,    0,  one,
@@ -39,7 +39,7 @@ public class BoundingBox {
         0,  one,  one,  one,
     };
 
-    byte indices[] = {
+    private final byte[] indices = {
         0, 4, 5,    0, 5, 1,
         1, 5, 6,    1, 6, 2,
         2, 6, 7,    2, 7, 3,

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class BinLattice {
     
-    protected static final String TAG = "BinLattice";
+    private static final String TAG = "BinLattice";
 
 
     public interface Visitor {
@@ -14,7 +14,7 @@ public class BinLattice {
     }
 
     public class Bin {
-        private ArrayList<Boid> index = new ArrayList<Boid>();
+        private final ArrayList<Boid> index = new ArrayList<Boid>();
         public int count = 0;
         
         public void add(Boid boid) {
@@ -47,7 +47,7 @@ public class BinLattice {
         this.allocate(profile);
     }
     
-    public void allocate(Profile profile) {
+    void allocate(Profile profile) {
         this.profile = profile;
         
         width = ((int)profile.MAX_X - (int)profile.MIN_X) / FACTOR;

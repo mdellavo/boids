@@ -1,7 +1,10 @@
 package org.quuux.boids;
 
-public class Color {
-    public float r,g,b,a;
+class Color {
+    private final float r;
+    private final float g;
+    private final float b;
+    private final float a;
 
     // does 0 make more sense?
     public Color() {
@@ -11,7 +14,7 @@ public class Color {
         a = 1f;
     }
 
-    public Color(float r, float g, float b, float a) {
+    private Color(float r, float g, float b, float a) {
 	this.r = r;
 	this.g = g;
 	this.b = b;

@@ -24,7 +24,7 @@ import java.nio.IntBuffer;
 /**
  * A matrix stack, similar to OpenGL ES's internal matrix stack.
  */
-public class MatrixStack {
+class MatrixStack {
     public MatrixStack() {
         commonInit(DEFAULT_MAX_DEPTH);
     }

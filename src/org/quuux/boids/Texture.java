@@ -7,12 +7,12 @@ import javax.microedition.khronos.opengles.GL10;
 public class Texture {
     private static final String TAG = "Texture";
 
-    public String name;
-    public boolean loaded = false;
+    private final String name;
+    private boolean loaded = false;
 
     public int id = -1;
 
-    protected Bitmap bitmap;
+    private final Bitmap bitmap;
 
     public Texture(String name, Bitmap bitmap) {
         this.name = name;

@@ -11,15 +11,15 @@ class FlockBuffer {
 
     private static final int MAX_SIZE = 1000;
 
-    protected FlockFrame front;
-    protected FlockFrame back;
+    private FlockFrame front;
+    private FlockFrame back;
 
-    protected Texture texture;    
+    private Texture texture;
     protected boolean dirty;
 
-    protected FloatBuffer vertices;
-    protected FloatBuffer sizes;
-    protected FloatBuffer colors;
+    private FloatBuffer vertices;
+    private FloatBuffer sizes;
+    private FloatBuffer colors;
 
     //protected BoundingBox bounding_box;
 
@@ -27,7 +27,7 @@ class FlockBuffer {
         allocate(flock);
     }
 
-    public void allocate(Flock flock) {
+    void allocate(Flock flock) {
         int size = MAX_SIZE * 2;
 
         front = new FlockFrame(size);

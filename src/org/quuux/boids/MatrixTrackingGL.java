@@ -40,22 +40,22 @@ import javax.microedition.khronos.opengles.GL11Ext;
  * as compared to the way the math is implemented by the OpenGL ES
  * driver.
  */
-public class MatrixTrackingGL implements GL, GL10, GL10Ext, GL11, GL11Ext {
-    private GL10 mgl;
+class MatrixTrackingGL implements GL, GL10, GL10Ext, GL11, GL11Ext {
+    private final GL10 mgl;
     private GL10Ext mgl10Ext;
     private GL11 mgl11;
     private GL11Ext mgl11Ext;
     private int mMatrixMode;
     private MatrixStack mCurrent;
-    private MatrixStack mModelView;
-    private MatrixStack mTexture;
-    private MatrixStack mProjection;
+    private final MatrixStack mModelView;
+    private final MatrixStack mTexture;
+    private final MatrixStack mProjection;
 
     private final static boolean _check = false;
-    ByteBuffer mByteBuffer;
-    FloatBuffer mFloatBuffer;
-    float[] mCheckA;
-    float[] mCheckB;
+    private ByteBuffer mByteBuffer;
+    private FloatBuffer mFloatBuffer;
+    private float[] mCheckA;
+    private float[] mCheckB;
 
     public MatrixTrackingGL(GL gl) {
         mgl = (GL10) gl;

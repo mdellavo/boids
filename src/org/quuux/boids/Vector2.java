@@ -16,7 +16,7 @@ public class Vector2 extends Vector3 {
         return "Vector2(" + this.x + ", " + this.y + ")";
     }
 
-    final public void add(float x, float y) {
+    final void add(float x, float y) {
         add(x, y, 0);
     }
 

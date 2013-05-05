@@ -29,7 +29,7 @@ class ProfileLoader {
     public static final String SHARED_PREFS_NAME = "BoidsSettings";        
 
     private static Context context;
-    private static Map<String, Profile> profiles = new HashMap<String, Profile>();
+    private static final Map<String, Profile> profiles = new HashMap<String, Profile>();
     
     public static void init(Context context) {
         ProfileLoader.context = context;
@@ -44,7 +44,7 @@ class ProfileLoader {
         return (String[])profiles.keySet().toArray(new String[0]);
     }
 
-    protected static void loadProfiles(String key) {
+    private static void loadProfiles(String key) {
         AssetManager asset_manager = context.getAssets();
 
         try {
@@ -75,7 +75,7 @@ class ProfileLoader {
         }
     }
 
-    public static Profile loadProfile(JSONObject obj) {
+    private static Profile loadProfile(JSONObject obj) {
         Profile profile = null;
 
         try {

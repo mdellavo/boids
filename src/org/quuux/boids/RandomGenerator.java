@@ -2,8 +2,8 @@ package org.quuux.boids;
 
 import java.util.Random;
 
-public class RandomGenerator {
-    protected static Random random = new Random();
+class RandomGenerator {
+    private static final Random random = new Random();
    
     public static float randomRange(float min, float max) {
         return min + ((max-min) * random.nextFloat());

@@ -4,7 +4,7 @@ package org.quuux.boids;
 
 import java.util.Comparator;
 
-public class Sorter {
+class Sorter {
     
     private static final Comparator ComparableComparator = new Comparator() {
             final public int compare(Object a, Object b) {
@@ -12,20 +12,20 @@ public class Sorter {
             }
     };
 
-    public static final void sort(Comparable[] a) {
+    public static void sort(Comparable[] a) {
         sort(a, ComparableComparator);
     }
     
-    public static final void sort(Object[] a, Comparator comparator) {
+    private static void sort(Object[] a, Comparator comparator) {
         sort(a, 0, a.length - 1, comparator);
     }
 
-    public static final void sort(Object[] a, int low, int high,
-                                  Comparator comparator) {
+    private static void sort(Object[] a, int low, int high,
+                             Comparator comparator) {
         quicksort(a, 0, a.length - 1, comparator);
     }
 
-    private static final void quicksort(Object[] a, int low, int high,
+    private static void quicksort(Object[] a, int low, int high,
                                         Comparator comparator) {
 
         if(low < high) {
@@ -36,7 +36,7 @@ public class Sorter {
         }
     }
 
-    private static final int partition(Object[] a, int low, int high,
+    private static int partition(Object[] a, int low, int high,
                                        int pivot_index, 
                                        Comparator comparator) {
 
@@ -56,7 +56,7 @@ public class Sorter {
         return tmp;
     }
     
-    private static final void swap(Object[] a, int i, int j) {
+    private static void swap(Object[] a, int i, int j) {
         Object tmp = a[i];
         a[i] = a[j];
         a[j] = tmp;

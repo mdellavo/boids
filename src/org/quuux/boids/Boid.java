@@ -1,16 +1,16 @@
 package org.quuux.boids;
 
 public class Boid {
-    public Vector3 position = new Vector3();
-    public Vector3 velocity = new Vector3();
+    public final Vector3 position = new Vector3();
+    public final Vector3 velocity = new Vector3();
     public float seed;
     public float size;
     public float opacity;
     public int age;
     public boolean alive;
-    public float color[] = new float[4];
+    public final float[] color = new float[4];
 
-    public Boid(float x, float y, float z) {
+    private Boid(float x, float y, float z) {
         alive = true;
         position.x = x;
         position.y = y;

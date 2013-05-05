@@ -6,30 +6,30 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 public class Flock {
-    protected static final String TAG = "Flock";
+    private static final String TAG = "Flock";
 
     private static final int MAX_SIZE = 1000;
 
-    protected Profile profile;
-    protected Boid boids[];
-    protected BinLattice bin;
+    Profile profile;
+    Boid[] boids;
+    private BinLattice bin;
 
     // preallocation so we dont trigger gc
-    final protected Vector3 tmp = new Vector3();
-    final protected Vector3 v1 = new Vector3();
-    final protected Vector3 v2 = new Vector3();
-    final protected Vector3 v3 = new Vector3();
-    final protected Vector3 v4 = new Vector3();
-    final protected Vector3 v5 = new Vector3();
-    final protected Vector3 v6 = new Vector3();
-    final protected Vector3 v7 = new Vector3();
+    private final Vector3 tmp = new Vector3();
+    private final Vector3 v1 = new Vector3();
+    private final Vector3 v2 = new Vector3();
+    private final Vector3 v3 = new Vector3();
+    private final Vector3 v4 = new Vector3();
+    private final Vector3 v5 = new Vector3();
+    private final Vector3 v6 = new Vector3();
+    private final Vector3 v7 = new Vector3();
 
-    final protected Vector3 origin = new Vector3(0, 0, 50f);
-    final protected Vector3 focal = new Vector3();
-    final protected Vector3 center = new Vector3();
+    private final Vector3 origin = new Vector3(0, 0, 50f);
+    private final Vector3 focal = new Vector3();
+    private final Vector3 center = new Vector3();
 
-    protected long flee;
-    protected int alive;
+    private long flee;
+    private int alive;
 
     final public void init(Profile profile) {
         this.profile = profile;
@@ -71,7 +71,7 @@ public class Flock {
         return profile;
     }
 
-    final public void randomizeColors() {
+    final void randomizeColors() {
         for(int i=0; i<boids.length; i++)
             boids[i].seed = RandomGenerator.randomInt(0, 100000);
     }
@@ -273,9 +273,9 @@ public class Flock {
     }
 
     // FIXME bad math, should be able to handle min > max
-    final protected float scaleRange(float x,
-                                     float min, float max,
-                                     float a, float b) {
+    final float scaleRange(float x,
+                           float min, float max,
+                           float a, float b) {
         return (b-a) * (x-min) / (max - min) + a;
     }
 

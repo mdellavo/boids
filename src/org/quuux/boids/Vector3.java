@@ -11,7 +11,7 @@ public class Vector3 {
         this.z = z;
     }
     
-    public Vector3(Vector3 v) {
+    Vector3(Vector3 v) {
         copy(v);
     }
 
@@ -56,7 +56,7 @@ public class Vector3 {
         return x*v.x + y*v.y + z*v.z;
     }
 
-    final public void add(float x, float y, float z) {
+    final void add(float x, float y, float z) {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -66,7 +66,7 @@ public class Vector3 {
         add(o.x, o.y, o.z);
     }
 
-    final public void subtract(float x, float y, float z) {
+    final void subtract(float x, float y, float z) {
         this.x -= x;
         this.y -= y;
         this.z -= z;

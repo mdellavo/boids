@@ -35,14 +35,14 @@ public class BoidsWallpaperService extends GLWallpaperService {
         private static final String TAG = "BoidsEngine";
         private static final String SHARED_PREFS_NAME = "BoidsSettings";
 
-        protected BoidsRenderer renderer;
-        final protected FlockThread simulation_thread;
-        protected Flock flock;
-        protected FlockBuffer buffer;
-        final protected Vector3 last_touch = new Vector3();
-        final protected Vector3 last_push = new Vector3();
+        BoidsRenderer renderer;
+        final FlockThread simulation_thread;
+        final Flock flock;
+        final FlockBuffer buffer;
+        final Vector3 last_touch = new Vector3();
+        final Vector3 last_push = new Vector3();
         
-        protected Profile profile;
+        final Profile profile;
 
         public BoidsEngine() {
             super();
@@ -90,21 +90,20 @@ public class BoidsWallpaperService extends GLWallpaperService {
                 simulation_thread.pauseSimulation();
 
             if(key.equals("FLOCK_SIZE")) {
-                int flock_size = preferences.getInt(key, flock.getAlive());
-
-                
-                int delta = flock_size - flock.getAlive();
-                while(delta != 0) {
-                    
-                    if(delta > 0) {
-                        flock.throttleUp();
-                    } else {
-                        flock.throttleDown();
-                    }
-
-                    delta = flock_size - flock.getAlive();
-                }
-                
+//                int flock_size = preferences.getInt(key, flock.getAlive());
+//
+//                int delta = flock_size - flock.getAlive();
+//                while(delta != 0) {
+//
+//                    if(delta > 0) {
+//                        flock.throttleUp();
+//                    } else {
+//                        flock.throttleDown();
+//                    }
+//
+//                    delta = flock_size - flock.getAlive();
+//                }
+//
 
             } else {
                 Log.d(TAG, "preference changed: " + key);
