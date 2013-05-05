@@ -19,6 +19,8 @@
 
 package org.quuux.boids;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 
@@ -31,6 +33,8 @@ import javax.microedition.khronos.egl.EGLSurface;
 import javax.microedition.khronos.opengles.GL;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.os.Bundle;
+import android.view.MotionEvent;
 import org.quuux.boids.BaseConfigChooser.ComponentSizeChooser;
 import org.quuux.boids.BaseConfigChooser.SimpleEGLConfigChooser;
 import android.service.wallpaper.WallpaperService;
@@ -104,6 +108,71 @@ class GLWallpaperService extends WallpaperService {
             if (BuildConfig.DEBUG) Log.d(TAG, "onSurfaceDestroyed()");
             mGLThread.surfaceDestroyed();
             super.onSurfaceDestroyed(holder);
+        }
+
+        @Override
+        protected void dump(String prefix, FileDescriptor fd, PrintWriter out, String[] args) {
+            super.dump(prefix, fd, out, args);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public SurfaceHolder getSurfaceHolder() {
+            return super.getSurfaceHolder();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public int getDesiredMinimumWidth() {
+            return super.getDesiredMinimumWidth();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public int getDesiredMinimumHeight() {
+            return super.getDesiredMinimumHeight();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public boolean isVisible() {
+            return super.isVisible();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public boolean isPreview() {
+            return super.isPreview();    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void setTouchEventsEnabled(boolean enabled) {
+            super.setTouchEventsEnabled(enabled);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void setOffsetNotificationsEnabled(boolean enabled) {
+            super.setOffsetNotificationsEnabled(enabled);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onTouchEvent(MotionEvent event) {
+            super.onTouchEvent(event);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onOffsetsChanged(float xOffset, float yOffset, float xOffsetStep, float yOffsetStep, int xPixelOffset, int yPixelOffset) {
+            super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public Bundle onCommand(String action, int x, int y, int z, Bundle extras, boolean resultRequested) {
+            return super.onCommand(action, x, y, z, extras, resultRequested);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onDesiredSizeChanged(int desiredWidth, int desiredHeight) {
+            super.onDesiredSizeChanged(desiredWidth, desiredHeight);    //To change body of overridden methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void onSurfaceRedrawNeeded(SurfaceHolder holder) {
+            super.onSurfaceRedrawNeeded(holder);    //To change body of overridden methods use File | Settings | File Templates.
         }
 
         /**

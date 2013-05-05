@@ -86,24 +86,26 @@ public class BoidsWallpaperService extends GLWallpaperService {
                                               String key) {
             if (BuildConfig.DEBUG)Log.d(TAG, "profile update: " + key);
 
-            if(simulation_thread != null)
+            final boolean visible = isVisible();
+
+            if(visible && simulation_thread != null)
                 simulation_thread.pauseSimulation();
 
             if(key.equals("FLOCK_SIZE")) {
-//                int flock_size = preferences.getInt(key, flock.getAlive());
-//
-//                int delta = flock_size - flock.getAlive();
-//                while(delta != 0) {
-//
-//                    if(delta > 0) {
-//                        flock.throttleUp();
-//                    } else {
-//                        flock.throttleDown();
-//                    }
-//
-//                    delta = flock_size - flock.getAlive();
-//                }
-//
+                int flock_size = preferences.getInt(key, flock.getAlive());
+
+                int delta = flock_size - flock.getAlive();
+                while(delta != 0) {
+
+                    if(delta > 0) {
+                        flock.throttleUp();
+                    } else {
+                        flock.throttleDown();
+                    }
+
+                    delta = flock_size - flock.getAlive();
+                }
+
 
             } else {
                 if (BuildConfig.DEBUG) Log.d(TAG, "preference changed: " + key);
@@ -114,7 +116,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
             if (BuildConfig.DEBUG)Log.d(TAG, profile.toString(3));
             if (BuildConfig.DEBUG)Log.d(TAG, "----------------------------------------");
 
-            if(simulation_thread != null)
+            if(visible && simulation_thread != null)
                 simulation_thread.resumeSimulation();
 
         }

@@ -55,6 +55,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         // FIXME make this is binary search
         frames++;
         if(total_elapsed > 5000) {
+            frames /= 5;
             if (BuildConfig.DEBUG)Log.d(TAG, "rendered fps: " + frames);
             total_elapsed = 0;
             frames = 0;
