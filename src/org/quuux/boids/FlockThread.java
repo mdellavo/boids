@@ -38,7 +38,7 @@ class FlockThread extends PausableThread {
 
         if(total_elapsed > 5000) {
             frames /= 5;
-            if (BuildConfig.DEBUG) if (BuildConfig.DEBUG) Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
+            if (BuildConfig.DEBUG)Log.d(TAG, "ticked " + flock.profile.FLOCK_SIZE + " boids at fps: " + frames);
 
             if(frames < 54)
                 flock.throttleDown();
