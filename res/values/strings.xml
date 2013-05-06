@@ -2,6 +2,7 @@
 <resources>
     <string name="service_name">Boids</string>
     <string name="description">A Boids Wallpaper</string>
+    <string name="pref_set_wallpaper">Set Wallpaper</string>
 
     <string name="pref_profile_category_title">Flocking Behavior</string>
     <string name="pref_profile_category_summary">Settings that control the flock\'s behavior</string>

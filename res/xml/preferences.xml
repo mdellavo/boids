@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
- <PreferenceCategory 
+    <Preference android:title="@string/pref_set_wallpaper" android:key="set_wallpaper"/>
+
+    <PreferenceCategory
     android:title="@string/pref_flock_category_title"
     android:summary="@string/pref_flock_category_summary">
 
