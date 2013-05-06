@@ -11,8 +11,12 @@ class FlockBuffer {
 
     private static final int MAX_SIZE = 1000;
 
+    private static final int TAIL_SIZE = 10;
+
+    private final FlockFrame buffer[] = new FlockFrame[TAIL_SIZE];
+    private int count;
+
     private FlockFrame front;
-    private FlockFrame back;
 
     private Texture texture;
     protected boolean dirty;
@@ -21,8 +25,6 @@ class FlockBuffer {
     private FloatBuffer sizes;
     private FloatBuffer colors;
 
-    //protected BoundingBox bounding_box;
-
     public FlockBuffer(Flock flock) {
         allocate(flock);
     }
@@ -30,15 +32,29 @@ class FlockBuffer {
     void allocate(Flock flock) {
         int size = MAX_SIZE * 2;
 
-        front = new FlockFrame(size);
-        back = new FlockFrame(size);
-        vertices = GLHelper.floatBuffer(size * 3);
-        sizes = GLHelper.floatBuffer(size);
-        colors = GLHelper.floatBuffer(size * 4);
+        for (int i=0; i< TAIL_SIZE; i++)
+            buffer[i] = new FlockFrame(size);
+
+        front = new FlockFrame(size * (TAIL_SIZE - 1));
+
+        vertices = GLHelper.floatBuffer(size * (TAIL_SIZE - 1) * 3);
+        sizes = GLHelper.floatBuffer(size * (TAIL_SIZE - 1));
+        colors = GLHelper.floatBuffer(size * (TAIL_SIZE - 1) * 4);
     }
-    
+
+    private int index(int offset) {
+        return (count + TAIL_SIZE + offset) % TAIL_SIZE;
+
+    }
+
+    private int backIndex() {
+        return index(-1);
+    }
+
     // Only the flock thread calls this
     public void add(Flock flock) {
+        final FlockFrame back = buffer[backIndex()];
+
         back.clear();
         
         for(int i=0; i<flock.boids.length; i++) {
@@ -49,10 +65,8 @@ class FlockBuffer {
     }
 
     public void swap() {
-        synchronized(front) {
-            FlockFrame tmp = front;
-            front = back;
-            back  = tmp;
+        synchronized(buffer) {
+            count++;
         }
     }
     
@@ -87,42 +101,56 @@ class FlockBuffer {
 
     final public void draw(GL10 gl) {
 
-        int count;
-        vertices.position(0);
-        colors.position(0);
-        sizes.position(0);
+        front.clear();
 
-        synchronized(front) {
+        synchronized(buffer) {
+            for (int i=0; i<TAIL_SIZE-1; i++) {
 
-            count = front.getCount();
+                final FlockFrame buf = buffer[index(i)];
 
-            vertices.limit(count * 3);
-            colors.limit(count * 4);
-            sizes.limit(count);
+                float sizeScale = 2 - (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
+                float opacityScale = (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
 
-            vertices.put(front.getPositions(), 0, count * 3);
-            sizes.put(front.getSizes(), 0, count);
-            colors.put(front.getColors(), 0, count * 4);
+                buf.setSizeScale(sizeScale);
+                buf.setOpacityScale(opacityScale);
+
+                front.add(buf);
+            }
         }
 
-        vertices.position(0);
-        colors.position(0);
-        sizes.position(0);
+        int num = front.getCount();
 
-        //bounding_box.draw(gl);
 
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-        
+
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
+
+        vertices.limit(num * 3);
+        colors.limit(num * 4);
+        sizes.limit(num);
+
+        vertices.put(front.getPositions(), 0, num * 3);
+        sizes.put(front.getSizes(), 0, num);
+        colors.put(front.getColors(), 0, num * 4);
+
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
+
         gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
         ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);
         gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, texture.id);
-        gl.glDrawArrays(GL10.GL_POINTS, 0, count); // XXX 
-        
+        gl.glDrawArrays(GL10.GL_POINTS, 0, num); // XXX
+
+        //bounding_box.draw(gl);
+
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL11.GL_POINT_SPRITE_OES);

@@ -61,7 +61,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
             frames = 0;
         }
 
-        gl.glClearColor(0f, 0f, 0f, .01f);
+        gl.glClearColor(0f, 0f, 0f, .001f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         matrix_grabber.getCurrentState(gl);
