@@ -68,8 +68,13 @@ class FlockBuffer {
         synchronized(buffer) {
             count++;
         }
+
+        // FIXME sort here, index(-2)
     }
-    
+
+    final public void merge() {
+        front.clear();
+    }
  
     final public void init(GL10 gl) {
 

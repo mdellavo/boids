@@ -1,6 +1,7 @@
 package org.quuux.boids;
 
 import android.graphics.Bitmap;
+import android.opengl.GLU;
 import android.opengl.GLUtils;
 import android.util.Log;
 
@@ -173,4 +174,23 @@ class GLHelper
     public static void drawPoints(GL10 gl, FloatBuffer points,
                                   FloatBuffer sizes, FloatBuffer colors) {
     }
+
+    public static Vector3 projectTouchToWorld(int width, int height, float[] modelView, float[] projection, float x, float y) {
+        int[] view = new int[] {0, 0, width, height};
+
+        float[] touch_position = new float[4];
+        int rv = GLU.gluUnProject(x, view[3] - y, 1f,
+                modelView, 0,
+                projection, 0,
+                view, 0,
+                touch_position, 0);
+
+        touch_position[0] /= touch_position[3];
+        touch_position[1] /= touch_position[3];
+        touch_position[2] /= touch_position[3];
+        touch_position[3] /= touch_position[3];
+
+        return new Vector3(touch_position[0], touch_position[1], touch_position[2]);
+ }
+
 }

@@ -3,10 +3,11 @@ package org.quuux.boids;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.util.Log;
 
-public class BoidsRenderer implements GLWallpaperService.Renderer {
+public class BoidsRenderer implements GLWallpaperService.Renderer, GLSurfaceView.Renderer {
     private static final String TAG = "BoidsRenderer";
 
     // Used for Lighting
@@ -104,7 +105,7 @@ public class BoidsRenderer implements GLWallpaperService.Renderer {
         gl.glEnable(GL10.GL_TEXTURE_2D);
         gl.glEnable(GL10.GL_BLEND);
         gl.glDisable(GL10.GL_DITHER);
-        gl.glEnable(GL10.GL_DEPTH_TEST);
+        //gl.glEnable(GL10.GL_DEPTH_TEST);
         gl.glEnable(GL10.GL_ALPHA_TEST);
         //gl.glEnable(GL10.GL_LIGHTING);
         gl.glEnable(GL10.GL_CULL_FACE);

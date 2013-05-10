@@ -133,7 +133,7 @@ class FlockFrame {
 
     void render() {
         
-        Sort.instance().sort(nodes, comparator, 0, count);
+        //Sort.instance().sort(nodes, comparator, 0, count);
 
         for(int i=0; i<count; i++) { 
             int p_offset = i * 3; 

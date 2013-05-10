@@ -8,7 +8,7 @@
    "MIN_SIZE"         : 1000,
    "MAX_SIZE"         : 100000,
    "MAX_VELOCITY"     : 10,
-   "RANGE"            : 100.0,
+   "RANGE"            : 200.0,
    "AVOID_RADIUS"     : 50.0,
    "NEIGHBORS"        : 10,
    "REBOUND_VELOCITY" : 0.01,
@@ -18,7 +18,7 @@
    "SCALE_V2"         : 0.01,
    "SCALE_V3"         : 1,
    "SCALE_V4"         : 1.0,
-   "SCALE_V5"         : 0.0005,
+   "SCALE_V5"         : 0.0001,
    "SCALE_V6"         : 1.0,
 
    "BONUS_V1"         : 100.0,

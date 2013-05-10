@@ -1,42 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.quuux.boids"
-      android:versionCode="2"
-      android:versionName="1.1">
+          package="org.quuux.boids"
+          android:versionCode="2"
+          android:versionName="1.1">
 
-  <uses-feature android:name="android.software.live_wallpaper" />
+    <uses-feature android:name="android.software.live_wallpaper" />
 
-  <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17" />
 
-  <uses-permission
-      android:name="android.permission.INTERNET" />
-  <uses-permission
-      android:name="android.permission.BILLING" />
+    <uses-permission
+            android:name="android.permission.INTERNET" />
+    <uses-permission
+            android:name="android.permission.BILLING" />
 
-  <application
-     android:icon="@drawable/icon"
-     android:label="@string/service_name">
+    <application
+            android:debuggable="true"
+            android:icon="@drawable/icon"
+            android:label="@string/service_name">
 
-    <activity
-        android:name=".BoidsPreferenceActivity"
-        android:exported="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
+        <activity
+                android:name=".BoidsPreferenceActivity"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-    <service 
-       android:label="@string/service_name" 
-       android:name=".BoidsWallpaperService"
-       android:permission="android.permission.BIND_WALLPAPER">
-      <intent-filter>
-        <action android:name="android.service.wallpaper.WallpaperService" />
-      </intent-filter>
-      <meta-data
-         android:name="android.service.wallpaper"
-         android:resource="@xml/boids_wallpaper" />
-    </service>
-  </application>
+        <service
+                android:label="@string/service_name"
+                android:name=".BoidsWallpaperService"
+                android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+            </intent-filter>
+            <meta-data
+                    android:name="android.service.wallpaper"
+                    android:resource="@xml/boids_wallpaper" />
+        </service>
+
+        <service android:name=".BoidsDream"  android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data android:name="android.service.dream" android:resource="@xml/dream" />
+        </service>
+
+    </application>
 </manifest> 
 
