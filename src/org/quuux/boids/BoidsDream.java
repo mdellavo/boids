@@ -21,6 +21,7 @@ public class BoidsDream extends DreamService implements View.OnTouchListener {
     private Flock flock;
     private FlockBuffer buffer;
     private Profile profile;
+    private ProfilePreferenceWatcher mWatcher;
 
     @Override
     public void onAttachedToWindow() {
@@ -47,9 +48,11 @@ public class BoidsDream extends DreamService implements View.OnTouchListener {
         buffer = new FlockBuffer(flock);
 
         simulation_thread = new FlockThread(flock, buffer);
-        simulation_thread.start();
 
-        preferences.registerOnSharedPreferenceChangeListener(new ProfilePreferenceWatcher(simulation_thread, flock, profile));
+        mWatcher = new ProfilePreferenceWatcher(simulation_thread, flock, profile);
+        preferences.registerOnSharedPreferenceChangeListener(mWatcher);
+
+        simulation_thread.start();
 
         renderer = new BoidsRenderer(buffer);
 

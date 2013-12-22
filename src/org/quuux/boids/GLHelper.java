@@ -179,7 +179,7 @@ class GLHelper
         int[] view = new int[] {0, 0, width, height};
 
         float[] touch_position = new float[4];
-        int rv = GLU.gluUnProject(x, view[3] - y, 1f,
+        int r = GLU.gluUnProject(x, view[3] - y, 1f,
                 modelView, 0,
                 projection, 0,
                 view, 0,
@@ -190,7 +190,9 @@ class GLHelper
         touch_position[2] /= touch_position[3];
         touch_position[3] /= touch_position[3];
 
-        return new Vector3(touch_position[0], touch_position[1], touch_position[2]);
+        Vector3 rv = new Vector3(touch_position[0], touch_position[1], touch_position[2]);
+        rv.normalize();
+        return rv;
  }
 
 }

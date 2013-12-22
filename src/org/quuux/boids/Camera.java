@@ -48,7 +48,18 @@ class Camera {
     }
 
     public void tick(long elapsed) {
-        //rotation.y += .0001f;
+        rotation.y = .25f;
+        if (rotation.y > 360f)
+
+            rotation.y -= 360f;
+
+        rotation.x = 0;
+        if (rotation.x > 360f)
+            rotation.x -= 360f;
+
+        rotation.z = 0;
+        if (rotation.z > 360f)
+            rotation.z -= 360f;
     }
 
 }

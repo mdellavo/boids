@@ -35,11 +35,13 @@ class FlockBuffer {
         for (int i=0; i< TAIL_SIZE; i++)
             buffer[i] = new FlockFrame(size);
 
-        front = new FlockFrame(size * (TAIL_SIZE - 1));
+        vertices = GLHelper.floatBuffer(size * TAIL_SIZE * 3);
+        sizes = GLHelper.floatBuffer(size * TAIL_SIZE);
+        colors = GLHelper.floatBuffer(size * TAIL_SIZE * 4);
 
-        vertices = GLHelper.floatBuffer(size * (TAIL_SIZE - 1) * 3);
-        sizes = GLHelper.floatBuffer(size * (TAIL_SIZE - 1));
-        colors = GLHelper.floatBuffer(size * (TAIL_SIZE - 1) * 4);
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, String.format("allocated vertices=%d | sizes=%d | colors=%d", vertices.capacity(), sizes.capacity(), colors.capacity()));
+        }
     }
 
     private int index(int offset) {
@@ -53,13 +55,16 @@ class FlockBuffer {
 
     // Only the flock thread calls this
     public void add(Flock flock) {
-        final FlockFrame back = buffer[backIndex()];
 
-        back.clear();
-        
-        for(int i=0; i<flock.boids.length; i++) {
-            if (flock.boids[i].alive) {
-                back.add(flock.boids[i]);
+        synchronized (buffer) {
+            final FlockFrame back = buffer[backIndex()];
+
+            back.clear();
+
+            for(int i=0; i<flock.boids.length; i++) {
+                if (flock.boids[i].alive) {
+                    back.add(flock.boids[i]);
+                }
             }
         }
     }
@@ -106,47 +111,52 @@ class FlockBuffer {
 
     final public void draw(GL10 gl) {
 
-        front.clear();
+        int num = 0;
+
+        vertices.limit(vertices.capacity());
+        colors.limit(colors.capacity());
+        sizes.limit(sizes.capacity());
+
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
 
         synchronized(buffer) {
             for (int i=0; i<TAIL_SIZE-1; i++) {
-
                 final FlockFrame buf = buffer[index(i)];
 
-                float sizeScale = 2 - (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
-                float opacityScale = (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
+                if (buf.getCount() > 0) {
 
-                buf.setSizeScale(sizeScale);
-                buf.setOpacityScale(opacityScale);
 
-                front.add(buf);
+                    num += buf.getCount();
+
+                    float sizeScale = 2 - (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
+                    float opacityScale = (float)(TAIL_SIZE - (i+1)) / (float)TAIL_SIZE;
+
+                    buf.setSizeScale(sizeScale);
+                    buf.setOpacityScale(opacityScale);
+                    buf.render();
+
+                    vertices.put(buf.getPositions(), 0, buf.getCount() * 3);
+                    sizes.put(buf.getSizes(), 0, buf.getCount());
+                    colors.put(buf.getColors(), 0, buf.getCount() * 4);
+                }
             }
         }
 
-        int num = front.getCount();
+        vertices.limit(num * 3);
+        colors.limit(num * 4);
+        sizes.limit(num);
 
+        vertices.position(0);
+        colors.position(0);
+        sizes.position(0);
 
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
         gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
         gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-
-        vertices.position(0);
-        colors.position(0);
-        sizes.position(0);
-
-        vertices.limit(num * 3);
-        colors.limit(num * 4);
-        sizes.limit(num);
-
-        vertices.put(front.getPositions(), 0, num * 3);
-        sizes.put(front.getSizes(), 0, num);
-        colors.put(front.getColors(), 0, num * 4);
-
-        vertices.position(0);
-        colors.position(0);
-        sizes.position(0);
 
         gl.glColorPointer(4, GL10.GL_FLOAT, 0, colors);
         ((GL11)gl).glPointSizePointerOES(GL10.GL_FLOAT, 0, sizes);

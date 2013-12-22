@@ -11,7 +11,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-public class BoidsPreferenceActivity extends PreferenceActivity {
+public class BoidsPreferenceActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "BoidsPreferenceActivity";
 
@@ -24,10 +24,12 @@ public class BoidsPreferenceActivity extends PreferenceActivity {
         manager.setSharedPreferencesName(ProfileLoader.SHARED_PREFS_NAME);
         manager.setSharedPreferencesMode(0);
 
+        manager.getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+
         addPreferencesFromResource(R.xml.preferences);
 
 
-        Preference button = (Preference)getPreferenceManager().findPreference("set_wallpaper");
+        Preference button = (Preference)manager.findPreference("set_wallpaper");
         if(button != null)
         {
             button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -70,5 +72,10 @@ public class BoidsPreferenceActivity extends PreferenceActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        getPreferenceManager().findPreference(key).setSummary(String.format("%d%%", sharedPreferences.getInt(key, 0)));
     }
 }

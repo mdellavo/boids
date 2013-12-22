@@ -31,6 +31,7 @@ public class BoidsWallpaperService extends GLWallpaperService {
     private Flock flock;
     private FlockBuffer buffer;
     private Profile profile;
+    private ProfilePreferenceWatcher mWatcher;
 
     private BoidsEngine mEngine;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -81,10 +82,13 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
         buffer = new FlockBuffer(flock);
 
-        preferences.registerOnSharedPreferenceChangeListener(new ProfilePreferenceWatcher(simulation_thread, flock, profile));
-
         simulation_thread = new FlockThread(flock, buffer);
+
+        mWatcher = new ProfilePreferenceWatcher(simulation_thread, flock, profile);
+        preferences.registerOnSharedPreferenceChangeListener(mWatcher);
+
         simulation_thread.start();
+
     }
 
     @Override
@@ -170,7 +174,6 @@ public class BoidsWallpaperService extends GLWallpaperService {
 
             if (BuildConfig.DEBUG) Log.d(TAG, "touch: " + v);
 
-            v.normalize();
             flock.touch(v);
         }
     }

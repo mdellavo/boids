@@ -1,3 +1,4 @@
+
 package org.quuux.boids;
 
 class PausableThread extends Thread {

@@ -23,11 +23,6 @@ public class ProfilePreferenceWatcher
                                           String key) {
         if (BuildConfig.DEBUG)Log.d(TAG, "profile update: " + key);
 
-//        final boolean visible = isVisible();
-//
-//        if(visible && mSimulationThread != null)
-//            mSimulationThread.pauseSimulation();
-
         if(key.equals("FLOCK_SIZE")) {
             int flock_size = preferences.getInt(key, mFlock.getAlive());
 
@@ -54,9 +49,6 @@ public class ProfilePreferenceWatcher
             Log.d(TAG, mProfile.toString(3));
             Log.d(TAG, "----------------------------------------");
         }
-
-//        if(visible && mSimulationThread != null)
-//            mSimulationThread.resumeSimulation();
 
     }
 

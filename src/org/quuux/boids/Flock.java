@@ -194,7 +194,7 @@ public class Flock {
             v6.scale(profile.SCALE_V6);
 
             if(flee > 0) {
-                v1.scale(-10);
+                v5.scale(10);
             }
 
             // Scale according to settings
@@ -239,6 +239,7 @@ public class Flock {
             tmp.copy(a.velocity);
 
             tmp.scale(profile.BONUS_VELOCITY / 100f);
+
             if(flee > 0) {
                 float fleeing_velocity = scaleRange(flee,
                                                     0,

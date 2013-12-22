@@ -131,7 +131,7 @@ class FlockFrame {
         this.opacityScale = opacityScale;
     }
 
-    void render() {
+    public void render() {
         
         //Sort.instance().sort(nodes, comparator, 0, count);
 
